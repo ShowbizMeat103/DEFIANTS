@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEFIANTS // COMPONENT_LIBRARY</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@100;400;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+   
+</head>
+<body>
+
+    <!-- === SECTION 1: MENÚ DE NAVEGACIÓN === -->
+    <div class="nav-wrapper">
+        <div class="container navbar">
+            <a href="#" class="nav-brand">
+                <span>//</span> DEFIANTS
+            </a>
+            
+            <nav class="nav-links">
+                <a href="#" class="nav-item active">Torneos</a>
+                <a href="#" class="nav-item">Equipos</a>
+                <a href="#" class="nav-item">Rankings</a>
+                <a href="#" class="nav-item">Noticias</a>
+            </nav>
+
+            <div class="nav-user">
+                <a href="#" class="btn btn-sm btn-outline">LOGIN</a>
+                <div class="user-avatar">
+                    <!-- Icono User -->
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- === SECTION 2: HEADERS === -->
+        <h2 class="section-title h-title">
+            <span class="section-tag">01</span> CABECERAS DE SECCIÓN
+        </h2>
+
+        <header class="page-header">
+            <p class="text-red" style="font-weight: bold; margin-bottom: 10px;">/// COMPETITIVE_BRACKET_A</p>
+            <h1 class="h-title" style="font-size: 3.5rem; line-height: 1;">IRON FIST <br><span class="text-red">TOURNAMENT</span></h1>
+            <p style="max-width: 600px; margin-top: 20px; color: #aaa;">
+                La arena está abierta. Los registros cierran en 2400 ciclos. 
+                Prepárate para el impacto.
+            </p>
+        </header>
+
+
+        <!-- === SECTION 3: BOTONES === -->
+        <h2 class="section-title h-title">
+            <span class="section-tag">02</span> INTERFAZ DE COMANDO (BOTONES)
+        </h2>
+
+        <div class="btn-showcase">
+            <!-- Large -->
+            <div>
+                <p class="text-dim" style="margin-bottom: 10px;">// SIZE: LARGE</p>
+                <button class="btn btn-primary btn-lg">INICIAR PARTIDA</button>
+                <button class="btn btn-outline btn-lg">VER REGLAS</button>
+            </div>
+            
+            <!-- Medium -->
+            <div>
+                <p class="text-dim" style="margin-bottom: 10px;">// SIZE: DEFAULT</p>
+                <button class="btn btn-primary btn-md">ACEPTAR</button>
+                <button class="btn btn-outline btn-md">CANCELAR</button>
+            </div>
+
+            <!-- Small & Ghost -->
+            <div>
+                <p class="text-dim" style="margin-bottom: 10px;">// UTILITY</p>
+                <button class="btn btn-primary btn-sm">EDIT</button>
+                <button class="btn btn-ghost btn-sm">Reportar Bug</button>
+            </div>
+
+            <!-- States -->
+            <div>
+                <p class="text-dim" style="margin-bottom: 10px;">// STATE: DISABLED</p>
+                <button class="btn btn-disabled btn-md">BLOQUEADO</button>
+            </div>
+        </div>
+
+
+        <!-- === SECTION 4: ICONOS === -->
+        <h2 class="section-title h-title">
+            <span class="section-tag">03</span> SIMBOLOGÍA (ICONOS SVG)
+        </h2>
+        <p style="margin-bottom: 20px; color: #888;">// USANDO TRAZOS DUROS Y GEOMÉTRICOS.</p>
+
+        <div class="icon-grid">
+            <!-- Trophy -->
+            <div class="icon-box">
+                <svg viewBox="0 0 24 24" stroke-linecap="square" stroke-linejoin="miter">
+                    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                    <path d="M4 22h16"></path>
+                    <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+                    <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+                    <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+                </svg>
+                <span class="icon-label">TROPHY</span>
+            </div>
+
+            <!-- Sword (Versus) -->
+            <div class="icon-box">
+                <svg viewBox="0 0 24 24" stroke-linecap="square" stroke-linejoin="miter">
+                    <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"></polyline>
+                    <line x1="13" y1="19" x2="19" y2="13"></line>
+                    <line x1="16" y1="16" x2="20" y2="20"></line>
+                    <line x1="19" y1="21" x2="21" y2="19"></line>
+                </svg>
+                <span class="icon-label">FIGHT</span>
+            </div>
+
+            <!-- Users -->
+            <div class="icon-box">
+                <svg viewBox="0 0 24 24" stroke-linecap="square" stroke-linejoin="miter">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <span class="icon-label">SQUAD</span>
+            </div>
+
+            <!-- Target/Crosshair -->
+            <div class="icon-box">
+                <svg viewBox="0 0 24 24" stroke-linecap="square" stroke-linejoin="miter">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="22" y1="12" x2="18" y2="12"></line>
+                    <line x1="6" y1="12" x2="2" y2="12"></line>
+                    <line x1="12" y1="6" x2="12" y2="2"></line>
+                    <line x1="12" y1="22" x2="12" y2="18"></line>
+                </svg>
+                <span class="icon-label">AIM</span>
+            </div>
+
+             <!-- Settings -->
+             <div class="icon-box">
+                <svg viewBox="0 0 24 24" stroke-linecap="square" stroke-linejoin="miter">
+                    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <span class="icon-label">SETUP</span>
+            </div>
+
+            <!-- Alert -->
+            <div class="icon-box">
+                <svg viewBox="0 0 24 24" stroke-linecap="square" stroke-linejoin="miter">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <span class="icon-label">ERROR</span>
+            </div>
+        </div>
+
+
+        <!-- === SECTION 5: INPUTS VARIANT === -->
+        <h2 class="section-title h-title">
+            <span class="section-tag">04</span> DATA ENTRY
+        </h2>
+        
+        <div style="background: var(--lead-grey); padding: 30px; border: 1px solid #333;">
+            <div class="form-row">
+                <div>
+                    <label class="h-title text-red" style="display:block; margin-bottom: 5px;">EMAIL ID</label>
+                    <input type="text" placeholder="PLAYER@DEFIANTS.GG">
+                </div>
+                <div>
+                    <label class="h-title text-red" style="display:block; margin-bottom: 5px;">DISCORD TAG</label>
+                    <input type="text" placeholder="#0000">
+                </div>
+            </div>
+            
+            <label class="custom-check">
+                <input type="checkbox" checked="checked">
+                <span class="checkmark"></span>
+                <span style="font-size: 0.9rem; color: #aaa;">ACEPTO LAS REGLAS DE LA ARENA (PERMADEATH ENABLED)</span>
+            </label>
+        </div>
+
+    </div>
+
+    <!-- === SECTION 6: FOOTER === -->
+    <footer class="footer-system">
+        <div class="container footer-grid">
+            <!-- Col 1: Brand -->
+            <div class="footer-col">
+                <h1 class="h-title" style="font-size: 2.5rem; line-height: 1;">DEFIANTS<br><span class="text-red">.GG</span></h1>
+                <p style="margin-top: 15px; color: #666; font-size: 0.9rem;">
+                    PLATAFORMA DE TORNEOS COMPETITIVOS V.2.0.1<br>
+                    DISEÑADO PARA LA ÉLITE.
+                </p>
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button class="btn btn-primary btn-sq">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="square"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                    </button>
+                    <button class="btn btn-primary btn-sq">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="square"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Col 2: Links -->
+            <div class="footer-col">
+                <h4>NAVEGACIÓN</h4>
+                <ul>
+                    <li><a href="#">// INICIO</a></li>
+                    <li><a href="#">// TORNEOS</a></li>
+                    <li><a href="#">// EQUIPOS</a></li>
+                    <li><a href="#">// SOPORTE</a></li>
+                </ul>
+            </div>
+
+            <!-- Col 3: Legal -->
+            <div class="footer-col">
+                <h4>LEGAL</h4>
+                <ul>
+                    <li><a href="#">TÉRMINOS</a></li>
+                    <li><a href="#">PRIVACIDAD</a></li>
+                    <li><a href="#">COOKIES</a></li>
+                </ul>
+            </div>
+
+             <!-- Col 4: Newsletter -->
+             <div class="footer-col">
+                <h4>BOLETÍN</h4>
+                <p style="font-size: 0.8rem; color: #888; margin-bottom: 10px;">RECIBE ALERTAS DE NUEVOS TORNEOS.</p>
+                <div style="display: flex;">
+                    <input type="text" placeholder="EMAIL" style="width: 100%; border-right: none;">
+                    <button class="btn btn-primary" style="padding: 0 15px;">></button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="container" style="margin-top: 60px; border-top: 1px solid #333; padding-top: 20px; display: flex; justify-content: space-between; font-size: 0.8rem; color: #444;">
+            <span>© 2025 DEFIANTS SYSTEMS.</span>
+            <span>ESTADO DEL SERVIDOR: <span style="color: var(--defiant-red);">EN LÍNEA</span></span>
+        </div>
+    </footer>
+
+</body>
+</html>

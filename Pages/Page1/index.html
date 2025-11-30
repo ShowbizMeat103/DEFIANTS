@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEFIANTS // SYTEM_OVERRIDE</title>
+    <!-- Fuentes: Anton (Títulos) y JetBrains Mono (Datos/Código) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@100;400;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    
+</head>
+<body>
+
+    <div class="scanline"></div>
+
+    <div class="container">
+        
+        <!-- HERO SECTION -->
+        <header class="hero">
+            <p style="color: var(--defiant-red); font-weight: bold;">/// SYSTEM_READY /// V.2.0.1</p>
+            <h1 class="glitch-wrapper">
+                <span class="glitch-text" data-text="DEFIANTS">DEFIANTS</span>
+            </h1>
+            <p style="font-size: 1.2rem; border-left: 2px solid var(--defiant-red); padding-left: 15px; margin-top: 20px;">
+                LA ARENA DE CAOS CONTROLADO. <br>
+                DONDE LA GEOMETRÍA SE ROMPE Y TÚ DEMUESTRAS QUIÉN ERES.
+            </p>
+            <div style="margin-top: 40px;">
+                <a href="#" class="btn btn-primary">UNIRSE A LA ARENA</a>
+                <a href="#" class="btn btn-secondary" style="margin-left: 20px;">VER BRACKETS</a>
+            </div>
+        </header>
+
+        <!-- TYPOGRAPHY GUIDE -->
+        <section class="section-spacer">
+            <h2>01. TIPOGRAFÍA & COLORES</h2>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 300px; background: var(--lead-grey); padding: 20px;">
+                    <h3 style="color: var(--defiant-red);">H1 - ANTON</h3>
+                    <p>USADO PARA TÍTULOS DE IMPACTO. SIEMPRE MAYÚSCULAS.</p>
+                    <br>
+                    <span style="font-family: 'JetBrains Mono'; color: white;">Cuerpo - JetBrains Mono</span>
+                    <p style="font-size: 0.9rem;">El zorro rojo salta sobre el perro vago. 1234567890. Usado para datos, fechas y narrativa técnica.</p>
+                </div>
+                <div style="flex: 1; min-width: 300px;">
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <div style="background: var(--defiant-red); width: 100px; height: 100px; display: grid; place-items: center; font-weight: bold; color: black;">#E62020</div>
+                        <div style="background: var(--void-black); border: 1px solid #333; width: 100px; height: 100px; display: grid; place-items: center; font-weight: bold;">#0A0A0A</div>
+                        <div style="background: var(--lead-grey); width: 100px; height: 100px; display: grid; place-items: center; font-weight: bold;">#1F1F1F</div>
+                    </div>
+                    <p>PALETA CRIMSON: ALTO CONTRASTE O NADA.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- UI COMPONENTS: CARDS -->
+        <section class="section-spacer">
+            <h2>02. TARJETAS DE TORNEO</h2>
+            <p style="margin-bottom: 30px;">DISEÑADAS PARA CONTENER EL CAOS. BORDE INFERIOR CRÍTICO.</p>
+            
+            <div class="card-grid">
+                <!-- Card 1 -->
+                <article class="tournament-card">
+                    <div class="card-meta">
+                        <span>SOLO / PC</span>
+                        <span class="card-status">EN VIVO</span>
+                    </div>
+                    <h3>IRON FIST LEAGUE</h3>
+                    <p style="font-size: 0.9rem; margin-top: 10px; color: #fff;">
+                        Premio: $5,000 USD<br>
+                        Slots: 12/64
+                    </p>
+                    <div style="margin-top: 20px; text-align: right;">
+                        <span style="font-family: 'Anton'; color: var(--defiant-red);">> ENTRAR</span>
+                    </div>
+                </article>
+
+                <!-- Card 2 -->
+                <article class="tournament-card">
+                    <div class="card-meta">
+                        <span>SQUAD / CROSSPLAY</span>
+                        <span style="color: #666;">REGISTRO</span>
+                    </div>
+                    <h3>PROTOCOL: OMEGA</h3>
+                    <p style="font-size: 0.9rem; margin-top: 10px; color: #fff;">
+                        Premio: $10,000 USD<br>
+                        Slots: 60/128
+                    </p>
+                    <div style="margin-top: 20px; text-align: right;">
+                        <span style="font-family: 'Anton'; color: #555;">> PENDIENTE</span>
+                    </div>
+                </article>
+
+                <!-- Card 3 -->
+                <article class="tournament-card" style="opacity: 0.5;">
+                    <div class="card-meta">
+                        <span>5v5 / LAN</span>
+                        <span>CERRADO</span>
+                    </div>
+                    <h3>SECTOR 7: CLASH</h3>
+                    <p style="font-size: 0.9rem; margin-top: 10px; color: #fff;">
+                        Finalizado hace 2h<br>
+                        Ganador: TEAM_VOID
+                    </p>
+                </article>
+            </div>
+        </section>
+
+        <!-- UI COMPONENTS: FORMS & BUTTONS -->
+        <section class="section-spacer">
+            <h2>03. INPUTS & INTERACCIÓN</h2>
+            <div style="display: flex; flex-wrap: wrap; gap: 40px;">
+                <div style="flex: 1; min-width: 300px;">
+                    <form>
+                        <div class="input-group">
+                            <label>CODENAME (USUARIO)</label>
+                            <input type="text" placeholder="JAVAS_01" >
+                        </div>
+                        <div class="input-group">
+                            <label>CLAVE DE ACCESO</label>
+                            <input type="text" placeholder="••••••••" style="letter-spacing: 5px;">
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%;">INICIAR SESIÓN</button>
+                    </form>
+                </div>
+                <div style="flex: 1; min-width: 300px; display: flex; flex-direction: column; justify-content: center;">
+                    <p style="margin-bottom: 20px;">
+                        LOS ELEMENTOS DE INTERACCIÓN DEBEN SENTIRSE FÍSICOS. 
+                        SIN BORDES SUAVES. SIN PERDÓN.
+                    </p>
+                    <div style="padding: 20px; border: 1px dashed var(--defiant-red);">
+                        <p style="color: var(--defiant-red); font-family: 'JetBrains Mono'; font-size: 0.8rem;">
+                            // DEBUG_INFO:<br>
+                            // HOVER_STATE: INVERTED<br>
+                            // BORDER_RADIUS: NULL<br>
+                            // AGGRESSION_LEVEL: 100%
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <footer style="border-top: 4px solid var(--defiant-red); padding: 40px; text-align: center; background: var(--lead-grey);">
+        <h2 style="font-size: 1.5rem; margin: 0; color: white;">DEFIANTS // 2025</h2>
+        <p style="font-size: 0.8rem; margin-top: 10px;">ENGINEERED BY JAVAS IN QUERÉTARO, MX</p>
+    </footer>
+
+</body>
+</html>
