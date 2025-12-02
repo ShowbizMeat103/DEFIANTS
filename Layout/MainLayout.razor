@@ -1,0 +1,35 @@
+﻿@inherits LayoutComponentBase
+<div class="page">
+    <main>
+    <!-- barra superior -->
+        <div class="nav-wrapper">
+        <div class="container navbar">
+            <a href="#" class="nav-brand">
+                <span>//</span> DEFIANTS
+            </a>
+            
+            <nav class="nav-links">
+                <a href="#" class="nav-item active">Torneos</a>
+                <a href="#" class="nav-item">Equipos</a>
+                <a href="#" class="nav-item">Rankings</a>
+                <a href="#" class="nav-item">Noticias</a>
+            </nav>
+
+            <div class="nav-user">
+                <a href="login" class="btn btn-sm btn-outline">LOGIN</a>
+                <div class="user-avatar">
+                    <!-- Icono User -->
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
