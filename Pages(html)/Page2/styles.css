@@ -210,45 +210,7 @@
             pointer-events: none;
         }
 
-        /* =========================================
-           SECCIÓN 4: ICONOS (SVG SET)
-           ========================================= */
-        .icon-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 15px;
-        }
-
-        .icon-box {
-            background: var(--lead-grey);
-            aspect-ratio: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid transparent;
-            transition: 0.2s;
-            cursor: crosshair;
-        }
-
-        .icon-box:hover {
-            border-color: var(--defiant-red);
-            background: #252525;
-        }
-
-        .icon-box svg {
-            width: 32px;
-            height: 32px;
-            stroke: white;
-            stroke-width: 2;
-            fill: none;
-            margin-bottom: 10px;
-            transition: 0.2s;
-        }
-
-        .icon-box:hover svg { stroke: var(--defiant-red); }
-
-        .icon-label { font-size: 0.7rem; color: #666; text-transform: uppercase; }
+       
 
         /* =========================================
            SECCIÓN 5: INPUTS & CHECKS

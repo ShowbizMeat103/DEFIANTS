@@ -818,7 +818,6 @@ C:\Users\yapi2\Downloads\Defiants\DEFIANTS\obj\Debug\net8.0\staticwebassets\msbu
 C:\Users\yapi2\Downloads\Defiants\DEFIANTS\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.DEFIANTS.props
 C:\Users\yapi2\Downloads\Defiants\DEFIANTS\obj\Debug\net8.0\staticwebassets.pack.json
 C:\Users\yapi2\Downloads\Defiants\DEFIANTS\obj\Debug\net8.0\scopedcss\Layout\MainLayout.razor.rz.scp.css
-C:\Users\yapi2\Downloads\Defiants\DEFIANTS\obj\Debug\net8.0\scopedcss\Layout\NavMenu.razor.rz.scp.css
 C:\Users\yapi2\Downloads\Defiants\DEFIANTS\obj\Debug\net8.0\scopedcss\bundle\DEFIANTS.styles.css
 C:\Users\yapi2\Downloads\Defiants\DEFIANTS\obj\Debug\net8.0\scopedcss\projectbundle\DEFIANTS.bundle.scp.css
 C:\Users\yapi2\Downloads\Defiants\DEFIANTS\obj\Debug\net8.0\compressed\v48hyegn96.gz
