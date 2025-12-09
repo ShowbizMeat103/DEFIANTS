@@ -1,6 +1,241 @@
-@DEFIANTS.Server_HostAddress = http://localhost:5031
+###
+# ==============================================================================
+# SCRIPT DE PRUEBA DE FLUJO COMPLETO - DEFIANTS API (v6 - HTTP)
+# ==============================================================================
+# Instrucciones:
+# 1. Asegúrate de que tu API se está ejecutando usando el perfil "http".
+# 2. Ejecuta cada petición en orden.
+# ==============================================================================
 
-GET {{DEFIANTS.Server_HostAddress}}/weatherforecast/
-Accept: application/json
 
 ###
+# ------------------------------------------------------------------------------
+# Variables de Configuración Estáticas
+# ------------------------------------------------------------------------------
+# URL base de tu API (Corregida para usar HTTP)
+@baseUrl = http://localhost:5031/api
+
+@admin_user = Sartox1
+@admin_pass = Supergenial123!
+
+@captain_user = CapitanGato
+@captain_pass = Gato123!
+@captain_email = capitan@gato.com
+
+@member_user = MiembroPerro
+@member_pass = Perro123!
+@member_email = miembro@perro.com
+
+
+###
+# ==============================================================================
+# FASE 1: PREPARACIÓN DEL ADMIN
+# ==============================================================================
+
+### 1. Admin inicia sesión
+# @name adminLogin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "{{admin_user}}",
+  "password": "{{admin_pass}}"
+}
+
+> {%
+    client.global.set("admin_token", response.body.token);
+%}
+
+
+### 2. Admin crea un Juego
+# @name createGame
+POST {{baseUrl}}/admin/juegos
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "nombre": "Valorant",
+  "logoUrl": "url_del_logo.png",
+  "integrantesPorEquipo": 5,
+  "tieneSistemaElo": true
+}
+
+> {%
+    client.global.set("gameId", response.body.id);
+%}
+
+
+### 3. Admin crea un Torneo para el juego recién creado
+# @name createTournament
+POST {{baseUrl}}/torneos
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "titulo": "Torneo de Verano de Valorant",
+  "juegoId": {{gameId}},
+  "maxEquipos": 8,
+  "precioInscripcion": 0,
+  "prizePool": 1000,
+  "fechaInicio": "2024-09-01T18:00:00Z"
+}
+
+> {%
+    client.global.set("torneoId", response.body.id);
+%}
+
+
+###
+# ==============================================================================
+# FASE 2: JUGADORES Y EQUIPOS
+# ==============================================================================
+
+### 4. Jugador 1 (Capitán) se registra
+# (Comenta este bloque si el usuario ya existe)
+# @name registerCaptain
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "{{captain_user}}",
+  "email": "{{captain_email}}",
+  "password": "{{captain_pass}}"
+}
+
+
+### 5. Capitán inicia sesión
+# @name captainLogin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "{{captain_user}}",
+  "password": "{{captain_pass}}"
+}
+
+> {%
+    client.global.set("captain_token", response.body.token);
+%}
+
+
+### 6. Capitán crea su Perfil de Juego para Valorant
+POST {{baseUrl}}/perfilesjuego
+Authorization: Bearer {{captain_token}}
+Content-Type: application/json
+
+{
+  "juegoId": {{gameId}},
+  "nicknameInGame": "CapiGato#123"
+}
+
+
+### 7. Capitán crea un Equipo
+# @name createTeam
+POST {{baseUrl}}/equipos
+Authorization: Bearer {{captain_token}}
+Content-Type: application/json
+
+{
+  "nombre": "Los Gatos Furiosos",
+  "juegoId": {{gameId}}
+}
+
+> {%
+    client.global.set("equipoId", response.body.id);
+%}
+
+
+### 8. Jugador 2 (Miembro) se registra
+# (Comenta este bloque si el usuario ya existe)
+# @name registerMember
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "{{member_user}}",
+  "email": "{{member_email}}",
+  "password": "{{member_pass}}"
+}
+
+
+### 9. Miembro inicia sesión y crea su Perfil de Juego
+# @name memberLogin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "{{member_user}}",
+  "password": "{{member_pass}}"
+}
+
+> {%
+    client.global.set("member_token", response.body.token);
+%}
+
+###
+POST {{baseUrl}}/perfilesjuego
+Authorization: Bearer {{member_token}}
+Content-Type: application/json
+
+{
+  "juegoId": {{gameId}},
+  "nicknameInGame": "PerroFeroz#456"
+}
+
+
+### 10. Capitán añade al Miembro a su equipo
+POST {{baseUrl}}/equipos/{{equipoId}}/miembros
+Authorization: Bearer {{captain_token}}
+Content-Type: application/json
+
+{
+  "username": "{{member_user}}"
+}
+
+
+###
+# ==============================================================================
+# FASE 3: FLUJO DEL TORNEO
+# ==============================================================================
+
+### 11. Capitán inscribe a su equipo en el torneo
+POST {{baseUrl}}/torneos/{{torneoId}}/inscripciones
+Authorization: Bearer {{captain_token}}
+Content-Type: application/json
+
+{
+  "equipoId": {{equipoId}}
+}
+
+
+### 12. Admin inicia el torneo (esto genera los partidos)
+POST {{baseUrl}}/torneos/{{torneoId}}/iniciar
+Authorization: Bearer {{admin_token}}
+
+
+### 13. Capitán consulta sus partidos pendientes
+# @name checkMyMatches
+GET {{baseUrl}}/partidos/mispartidos
+Authorization: Bearer {{captain_token}}
+
+> {%
+    client.global.set("partidoId", response.body[0].id);
+%}
+
+
+### 14. Admin reporta la victoria del equipo "Los Gatos Furiosos"
+POST {{baseUrl}}/torneos/partidos/{{partidoId}}/victoria
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "ganadorId": {{equipoId}}
+}
+
+
+### 15. Verificación final: Capitán consulta de nuevo el estado del partido
+GET {{baseUrl}}/partidos/{{partidoId}}
+Authorization: Bearer {{captain_token}}
+
+# En la respuesta, deberías ver que el estado del partido es "Finalizado"
+# y el "equipoGanadorId" es el ID de "Los Gatos Furiosos".
