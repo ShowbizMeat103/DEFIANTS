@@ -169,3 +169,53 @@ form button:active {
   .login-header img { height: 60px; }
   .login-header h2 { font-size: 1.5rem; }
 }
+
+/* Variante visual para la tarjeta de registro (opcional) */
+.register-card {
+  /* Si quieres que se vea casi igual que login, esto puede quedarse vacío
+     o puedes cambiar ligeros detalles como bordes o sombra */
+  /* ejemplo: */
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+
+/* Subtítulo bajo el título del formulario */
+.login-subtitle {
+  margin-top: -10px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  color: #888;
+}
+
+/* Texto para cambiar entre login / registro */
+.switch-auth {
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.switch-auth a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+  position: relative;
+  overflow: hidden;
+}
+
+.switch-auth a:hover {
+  text-decoration: underline;
+}
+
+.switch-auth a::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--color-primary);
+  transition: width 0.3s ease;
+}
+
+.switch-auth a:hover::after {
+  width: 100%;
+}

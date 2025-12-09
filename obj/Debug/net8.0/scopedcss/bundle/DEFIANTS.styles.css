@@ -328,7 +328,7 @@ body.bg-light[b-9ds1471tbh] {
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   text-decoration: none;
   z-index: 10;
-  transition: transform 0.2s;
+  transition: transform 0.2s ease;
 }
 .back-button:hover[b-9ds1471tbh] {
   transform: translateX(-3px);
@@ -349,7 +349,9 @@ body.bg-light[b-9ds1471tbh] {
 
 /* Tarjeta de login */
 .login-card[b-9ds1471tbh] {
-  background: #fff;
+  background: #333333;
+  color: #333333;
+  background-color: rgba(255, 255, 255, 0.03);
   border-radius: 25px;
   box-shadow: 0 8px 25px rgba(0,0,0,0.1);
   width: 100%;
@@ -359,6 +361,8 @@ body.bg-light[b-9ds1471tbh] {
   position: relative;
   animation: fadeIn-b-9ds1471tbh 0.5s ease-out;
 }
+
+/* Animación entrada */
 @keyframes fadeIn-b-9ds1471tbh {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -368,6 +372,7 @@ body.bg-light[b-9ds1471tbh] {
 .login-header[b-9ds1471tbh] {
   text-align: center;
   margin-bottom: 25px;
+  color: #E62020;
 }
 .login-header img[b-9ds1471tbh] {
   display: block;
@@ -391,8 +396,8 @@ form input[b-9ds1471tbh] {
   padding: 15px;
   margin-bottom: 15px;
   border-radius: 20px;
-  border: 1px solid #ddd;
-  background-color: #f8f8f8;
+  border: 1px solid #333333;
+  background-color: #000000;
   font-size: 1rem;
   color: var(--color-text);
   box-sizing: border-box;
@@ -410,7 +415,7 @@ form button[b-9ds1471tbh] {
   width: 100%;
   padding: 15px;
   background: #E62020;
-  color:#000000;
+  color: #000000;
   border: none;
   border-radius: 20px;
   font-size: 1rem;
@@ -428,23 +433,21 @@ form button:active[b-9ds1471tbh] {
   transform: translateY(0);
 }
 
-/* Enlaces */
-.registro[b-9ds1471tbh], .forgot-password[b-9ds1471tbh] {
+/* Enlace de registro */
+.registro[b-9ds1471tbh] {
   margin-top: 20px;
   font-size: 0.9rem;
   color: #666;
 }
-.registro a[b-9ds1471tbh], .forgot-password[b-9ds1471tbh] {
+.registro a[b-9ds1471tbh] {
   color: var(--color-primary);
   text-decoration: none;
   font-weight: 600;
-}
-.registro a:hover[b-9ds1471tbh], .forgot-password:hover[b-9ds1471tbh] {
-  text-decoration: underline;
-}
-.registro a[b-9ds1471tbh] {
   position: relative;
   overflow: hidden;
+}
+.registro a:hover[b-9ds1471tbh] {
+  text-decoration: underline;
 }
 .registro a[b-9ds1471tbh]::after {
   content: "";
@@ -460,62 +463,165 @@ form button:active[b-9ds1471tbh] {
   width: 100%;
 }
 
-/* Alerts */
-.alert[b-9ds1471tbh] {
-  padding: 12px;
-  margin-bottom: 20px;
-  border-radius: 10px;
-  font-size: 0.9rem;
-}
-.alert.success[b-9ds1471tbh] { background: #e8f5e8; color: #155724; }
-.alert.error[b-9ds1471tbh] { background: #fdeeef; color: #721c24; }
-.close-alert[b-9ds1471tbh] { float: right; cursor: pointer; }
-
 /* Responsive */
 @media (max-width: 480px) {
   .login-card[b-9ds1471tbh] { padding: 25px 20px; }
   .login-header img[b-9ds1471tbh] { height: 60px; }
   .login-header h2[b-9ds1471tbh] { font-size: 1.5rem; }
 }
+/* /Pages/Register.razor.rz.scp.css */
+/* Variables simplificadas */
+:root[b-v95nl6dntf] {
+  --color-primary: #000000;
+  --color-secondary: #d8b48c;
+  --color-bg: #000000;
+  --color-text: #2b1b12;
+}
 
-/* Algunas animaciones sutiles */
+/* Estilos base y fondo */
+body.bg-light[b-v95nl6dntf] {
+  background: var(--color-bg);
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+}
 
-/* Animación para el botón de login */
-form button[b-9ds1471tbh] {
+/* Botón volver */
+.back-button[b-v95nl6dntf] {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: #ff0000;
+  color: var(--color-primary);
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  text-decoration: none;
+  z-index: 10;
+  transition: transform 0.2s ease;
+}
+.back-button:hover[b-v95nl6dntf] {
+  transform: translateX(-3px);
+}
+.back-button[b-v95nl6dntf]::before {
+  content: "←";
+  margin-right: 6px;
+}
+
+/* Contenedor principal */
+.login-container[b-v95nl6dntf] {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 15px;
+}
+
+/* Tarjeta de login */
+.login-card[b-v95nl6dntf] {
+  background: #333333;
+  color: #333333;
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 25px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 400px;
+  padding: 35px 25px;
+  text-align: center;
+  position: relative;
+  animation: fadeIn-b-v95nl6dntf 0.5s ease-out;
+}
+
+/* Animación entrada */
+@keyframes fadeIn-b-v95nl6dntf {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Encabezado y logo */
+.login-header[b-v95nl6dntf] {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #E62020;
+}
+.login-header img[b-v95nl6dntf] {
+  display: block;
+  margin: 0 auto 15px;
+  height: 80px;
+  width: auto;
+  transition: transform 0.5s ease;
+}
+.login-header img:hover[b-v95nl6dntf] {
+  transform: scale(1.05) rotate(5deg);
+}
+.login-header h2[b-v95nl6dntf] {
+  margin: 0 0 20px;
+  color: var(--color-text);
+  font-size: 1.8rem;
+}
+
+/* Inputs */
+form input[b-v95nl6dntf] {
+  width: 100%;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 20px;
+  border: 1px solid #333333;
+  background-color: #000000;
+  font-size: 1rem;
+  color: var(--color-text);
+  box-sizing: border-box;
   transition: all 0.3s ease;
 }
-form button:hover[b-9ds1471tbh] {
-  background: #000000;
-  transform: translateY(-3px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-form button:active[b-9ds1471tbh] {
-  transform: translateY(0);
-}
-
-/* Animación para los inputs */
-form input[b-9ds1471tbh] {
-  transition: all 0.3s ease;
-}
-form input:focus[b-9ds1471tbh] {
+form input:focus[b-v95nl6dntf] {
+  border-color: var(--color-primary);
+  outline: none;
   transform: scale(1.02);
   box-shadow: 0 0 0 3px rgba(60,35,23,0.1);
 }
 
-/* Animación para el logo */
-.login-header img[b-9ds1471tbh] {
-  transition: transform 0.5s ease;
+/* Botón de enviar */
+form button[b-v95nl6dntf] {
+  width: 100%;
+  padding: 15px;
+  background: #E62020;
+  color: #000000;
+  border: none;
+  border-radius: 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
-.login-header img:hover[b-9ds1471tbh] {
-  transform: scale(1.05) rotate(5deg);
+form button:hover[b-v95nl6dntf] {
+  background: #000000;
+  color: #E62020;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+form button:active[b-v95nl6dntf] {
+  transform: translateY(0);
 }
 
-/* Destello en link de registro */
-.registro a[b-9ds1471tbh] {
+/* Enlace de registro */
+.registro[b-v95nl6dntf] {
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: #666;
+}
+.registro a[b-v95nl6dntf] {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
   position: relative;
   overflow: hidden;
 }
-.registro a[b-9ds1471tbh]::after {
+.registro a:hover[b-v95nl6dntf] {
+  text-decoration: underline;
+}
+.registro a[b-v95nl6dntf]::after {
   content: "";
   position: absolute;
   bottom: 0;
@@ -525,6 +631,63 @@ form input:focus[b-9ds1471tbh] {
   background: var(--color-primary);
   transition: width 0.3s ease;
 }
-.registro a:hover[b-9ds1471tbh]::after {
+.registro a:hover[b-v95nl6dntf]::after {
+  width: 100%;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .login-card[b-v95nl6dntf] { padding: 25px 20px; }
+  .login-header img[b-v95nl6dntf] { height: 60px; }
+  .login-header h2[b-v95nl6dntf] { font-size: 1.5rem; }
+}
+
+/* Variante visual para la tarjeta de registro (opcional) */
+.register-card[b-v95nl6dntf] {
+  /* Si quieres que se vea casi igual que login, esto puede quedarse vacío
+     o puedes cambiar ligeros detalles como bordes o sombra */
+  /* ejemplo: */
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+
+/* Subtítulo bajo el título del formulario */
+.login-subtitle[b-v95nl6dntf] {
+  margin-top: -10px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  color: #888;
+}
+
+/* Texto para cambiar entre login / registro */
+.switch-auth[b-v95nl6dntf] {
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.switch-auth a[b-v95nl6dntf] {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+  position: relative;
+  overflow: hidden;
+}
+
+.switch-auth a:hover[b-v95nl6dntf] {
+  text-decoration: underline;
+}
+
+.switch-auth a[b-v95nl6dntf]::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--color-primary);
+  transition: width 0.3s ease;
+}
+
+.switch-auth a:hover[b-v95nl6dntf]::after {
   width: 100%;
 }

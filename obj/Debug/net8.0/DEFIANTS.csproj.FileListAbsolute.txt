@@ -1030,3 +1030,4 @@ C:\Users\yapi2\Downloads\Defiants\DEFIANTS\obj\Debug\net8.0\refint\DEFIANTS.dll
 C:\Users\yapi2\Downloads\Defiants\DEFIANTS\obj\Debug\net8.0\DEFIANTS.pdb
 C:\Users\yapi2\Downloads\Defiants\DEFIANTS\obj\Debug\net8.0\ref\DEFIANTS.dll
 C:\Users\yapi2\Downloads\Defiants\DEFIANTS\obj\Debug\net8.0\scopedcss\Pages\Login.razor.rz.scp.css
+C:\Users\yapi2\Downloads\Defiants\DEFIANTS\obj\Debug\net8.0\scopedcss\Pages\Register.razor.rz.scp.css

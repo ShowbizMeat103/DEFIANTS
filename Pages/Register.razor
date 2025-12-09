@@ -1,0 +1,61 @@
+@page "/registro"
+
+<link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    rel="stylesheet" />
+<link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet" />
+
+<a class="back-button" href="/">Atrás</a>
+
+<div class="login-container">
+    <div class="login-card register-card">
+        <!-- Encabezado con logo -->
+        <div class="login-header">
+            <img src="/logo.png" alt="Logo" width="60" />
+            <h2>Crear cuenta</h2>
+            <p class="login-subtitle">Únete a la experiencia DEFIANTS</p>
+        </div>
+
+        <!-- Formulario de registro -->
+        <form>
+            <input
+                type="text"
+                name="nombreCompleto"
+                placeholder="Nombre completo"
+                required />
+
+            <input
+                type="text"
+                name="gametag"
+                placeholder="Gametag"
+                required />
+
+            <input
+                type="date"
+                name="fechaNacimiento"
+                placeholder="Fecha de nacimiento"
+                required />
+
+            <input
+                type="email"
+                name="correo"
+                placeholder="Correo electrónico"
+                required />
+
+            <input
+                type="password"
+                name="contrasena"
+                placeholder="Contraseña"
+                required />
+
+            <button type="submit">Registrarme</button>
+        </form>
+
+        <p class="switch-auth">
+            ¿Ya tienes una cuenta?
+            <a href="/login">Inicia sesión aquí</a>
+        </p>
+    </div>
+</div>

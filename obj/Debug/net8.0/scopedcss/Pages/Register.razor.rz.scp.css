@@ -1,5 +1,5 @@
 /* Variables simplificadas */
-:root {
+:root[b-v95nl6dntf] {
   --color-primary: #000000;
   --color-secondary: #d8b48c;
   --color-bg: #000000;
@@ -7,7 +7,7 @@
 }
 
 /* Estilos base y fondo */
-body.bg-light {
+body.bg-light[b-v95nl6dntf] {
   background: var(--color-bg);
   font-family: 'Poppins', sans-serif;
   margin: 0;
@@ -15,7 +15,7 @@ body.bg-light {
 }
 
 /* Botón volver */
-.back-button {
+.back-button[b-v95nl6dntf] {
   position: fixed;
   top: 20px;
   left: 20px;
@@ -30,16 +30,16 @@ body.bg-light {
   z-index: 10;
   transition: transform 0.2s ease;
 }
-.back-button:hover {
+.back-button:hover[b-v95nl6dntf] {
   transform: translateX(-3px);
 }
-.back-button::before {
+.back-button[b-v95nl6dntf]::before {
   content: "←";
   margin-right: 6px;
 }
 
 /* Contenedor principal */
-.login-container {
+.login-container[b-v95nl6dntf] {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -48,7 +48,7 @@ body.bg-light {
 }
 
 /* Tarjeta de login */
-.login-card {
+.login-card[b-v95nl6dntf] {
   background: #333333;
   color: #333333;
   background-color: rgba(255, 255, 255, 0.03);
@@ -59,39 +59,39 @@ body.bg-light {
   padding: 35px 25px;
   text-align: center;
   position: relative;
-  animation: fadeIn 0.5s ease-out;
+  animation: fadeIn-b-v95nl6dntf 0.5s ease-out;
 }
 
 /* Animación entrada */
-@keyframes fadeIn {
+@keyframes fadeIn-b-v95nl6dntf {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 /* Encabezado y logo */
-.login-header {
+.login-header[b-v95nl6dntf] {
   text-align: center;
   margin-bottom: 25px;
   color: #E62020;
 }
-.login-header img {
+.login-header img[b-v95nl6dntf] {
   display: block;
   margin: 0 auto 15px;
   height: 80px;
   width: auto;
   transition: transform 0.5s ease;
 }
-.login-header img:hover {
+.login-header img:hover[b-v95nl6dntf] {
   transform: scale(1.05) rotate(5deg);
 }
-.login-header h2 {
+.login-header h2[b-v95nl6dntf] {
   margin: 0 0 20px;
   color: var(--color-text);
   font-size: 1.8rem;
 }
 
 /* Inputs */
-form input {
+form input[b-v95nl6dntf] {
   width: 100%;
   padding: 15px;
   margin-bottom: 15px;
@@ -103,7 +103,7 @@ form input {
   box-sizing: border-box;
   transition: all 0.3s ease;
 }
-form input:focus {
+form input:focus[b-v95nl6dntf] {
   border-color: var(--color-primary);
   outline: none;
   transform: scale(1.02);
@@ -111,7 +111,7 @@ form input:focus {
 }
 
 /* Botón de enviar */
-form button {
+form button[b-v95nl6dntf] {
   width: 100%;
   padding: 15px;
   background: #E62020;
@@ -123,33 +123,33 @@ form button {
   cursor: pointer;
   transition: all 0.3s ease;
 }
-form button:hover {
+form button:hover[b-v95nl6dntf] {
   background: #000000;
   color: #E62020;
   transform: translateY(-3px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
-form button:active {
+form button:active[b-v95nl6dntf] {
   transform: translateY(0);
 }
 
 /* Enlace de registro */
-.registro {
+.registro[b-v95nl6dntf] {
   margin-top: 20px;
   font-size: 0.9rem;
   color: #666;
 }
-.registro a {
+.registro a[b-v95nl6dntf] {
   color: var(--color-primary);
   text-decoration: none;
   font-weight: 600;
   position: relative;
   overflow: hidden;
 }
-.registro a:hover {
+.registro a:hover[b-v95nl6dntf] {
   text-decoration: underline;
 }
-.registro a::after {
+.registro a[b-v95nl6dntf]::after {
   content: "";
   position: absolute;
   bottom: 0;
@@ -159,13 +159,63 @@ form button:active {
   background: var(--color-primary);
   transition: width 0.3s ease;
 }
-.registro a:hover::after {
+.registro a:hover[b-v95nl6dntf]::after {
   width: 100%;
 }
 
 /* Responsive */
 @media (max-width: 480px) {
-  .login-card { padding: 25px 20px; }
-  .login-header img { height: 60px; }
-  .login-header h2 { font-size: 1.5rem; }
+  .login-card[b-v95nl6dntf] { padding: 25px 20px; }
+  .login-header img[b-v95nl6dntf] { height: 60px; }
+  .login-header h2[b-v95nl6dntf] { font-size: 1.5rem; }
+}
+
+/* Variante visual para la tarjeta de registro (opcional) */
+.register-card[b-v95nl6dntf] {
+  /* Si quieres que se vea casi igual que login, esto puede quedarse vacío
+     o puedes cambiar ligeros detalles como bordes o sombra */
+  /* ejemplo: */
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+
+/* Subtítulo bajo el título del formulario */
+.login-subtitle[b-v95nl6dntf] {
+  margin-top: -10px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  color: #888;
+}
+
+/* Texto para cambiar entre login / registro */
+.switch-auth[b-v95nl6dntf] {
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.switch-auth a[b-v95nl6dntf] {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+  position: relative;
+  overflow: hidden;
+}
+
+.switch-auth a:hover[b-v95nl6dntf] {
+  text-decoration: underline;
+}
+
+.switch-auth a[b-v95nl6dntf]::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--color-primary);
+  transition: width 0.3s ease;
+}
+
+.switch-auth a:hover[b-v95nl6dntf]::after {
+  width: 100%;
 }
