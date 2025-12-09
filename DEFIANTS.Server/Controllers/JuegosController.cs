@@ -24,4 +24,17 @@ public class JuegosController : ControllerBase
         var juegos = await _context.Juegos.ToListAsync();
         return Ok(juegos);
     }
+
+    // GET: api/juegos/5
+    [HttpGet("{id}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetJuego(int id)
+    {
+        var juego = await _context.Juegos.FindAsync(id);
+        if (juego == null)
+        {
+            return NotFound();
+        }
+        return Ok(juego);
+    }
 }

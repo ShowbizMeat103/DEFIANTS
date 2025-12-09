@@ -20,9 +20,9 @@ public class PerfilesJuegoController : ControllerBase
         _context = context;
     }
 
-    // GET: api/perfilesjuego/misperfiles
+    // --- MÉTODO MODIFICADO PARA USAR DTOs ---
     [HttpGet("misperfiles")]
-    public async Task<IActionResult> GetMisPerfiles()
+    public async Task<ActionResult<List<PerfilJuegoDto>>> GetMisPerfiles()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId)) return Unauthorized();
@@ -30,20 +30,20 @@ public class PerfilesJuegoController : ControllerBase
         var perfiles = await _context.PerfilesJuego
             .Where(p => p.UsuarioId == userId)
             .Include(p => p.Juego)
-            .Select(p => new 
+            .Select(p => new PerfilJuegoDto
             {
-                p.Id,
-                p.JuegoId,
+                Id = p.Id,
+                JuegoId = p.JuegoId,
                 JuegoNombre = p.Juego.Nombre,
-                p.NicknameInGame,
-                p.Elo
+                NicknameInGame = p.NicknameInGame,
+                Elo = p.Elo
             })
             .ToListAsync();
 
         return Ok(perfiles);
     }
 
-    // POST: api/perfilesjuego
+    // ... (resto de los métodos) ...
     [HttpPost]
     public async Task<IActionResult> CrearPerfilJuego([FromBody] CrearPerfilJuegoDto perfilDto)
     {
@@ -72,7 +72,6 @@ public class PerfilesJuegoController : ControllerBase
         return Ok(nuevoPerfil);
     }
 
-    // PUT: api/perfilesjuego/5
     [HttpPut("{id}")]
     public async Task<IActionResult> ActualizarPerfilJuego(int id, [FromBody] ActualizarPerfilJuegoDto perfilDto)
     {

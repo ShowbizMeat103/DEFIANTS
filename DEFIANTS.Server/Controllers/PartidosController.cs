@@ -28,9 +28,20 @@ public class PartidosController : ControllerBase
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
+        var misEquiposIds = await _context.MiembrosEquipo
+            .Where(m => m.PerfilJuego.UsuarioId == userId)
+            .Select(m => m.EquipoId)
+            .Distinct()
+            .ToListAsync();
+
+        if (!misEquiposIds.Any())
+        {
+            return Ok(new List<object>()); 
+        }
+
         var misPartidos = await _context.Partidos
-            .Where(p => (p.EquipoA != null && p.EquipoA.Miembros.Any(m => m.PerfilJuego.UsuarioId == userId)) ||
-                        (p.EquipoB != null && p.EquipoB.Miembros.Any(m => m.PerfilJuego.UsuarioId == userId)))
+            .Where(p => (p.EquipoA_Id.HasValue && misEquiposIds.Contains(p.EquipoA_Id.Value)) ||
+                        (p.EquipoB_Id.HasValue && misEquiposIds.Contains(p.EquipoB_Id.Value)))
             .Include(p => p.EquipoA)
             .Include(p => p.EquipoB)
             .Include(p => p.Torneo)

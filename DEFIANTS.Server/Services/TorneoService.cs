@@ -84,7 +84,6 @@ public class TorneoService : ITorneoService
         // Asignar "Byes" (equipos que avanzan automáticamente)
         for (int i = 0; i < numByes; i++)
         {
-            // El partido de primera ronda de un "Bye" es el que está después de los partidos reales
             var partidoRonda1Bye = partidosPorRonda[1][numPartidosRonda1 + i];
             var equipoConBye = equiposConBye[i];
             
@@ -92,7 +91,6 @@ public class TorneoService : ITorneoService
             partidoRonda1Bye.EquipoGanadorId = equipoConBye.Id;
             partidoRonda1Bye.Estado = EstadoPartido.Walkover;
 
-            // Avanzar al ganador directamente al siguiente partido
             var partidoSiguiente = todosLosPartidos.First(p => p.Id == partidoRonda1Bye.PartidoSiguienteId);
             if (partidoRonda1Bye.IndicePartido % 2 == 0)
             {
@@ -105,7 +103,6 @@ public class TorneoService : ITorneoService
         }
         
         // 5. ACTUALIZAR ESTADOS
-        // Comprobar si algún partido de la segunda ronda ya está listo
         foreach (var partidoRonda2 in partidosPorRonda.GetValueOrDefault(2, new List<Partido>()))
         {
             if (partidoRonda2.EquipoA_Id.HasValue && partidoRonda2.EquipoB_Id.HasValue)
@@ -128,14 +125,12 @@ public class TorneoService : ITorneoService
         if (partidoActual.Estado == EstadoPartido.Finalizado || partidoActual.Estado == EstadoPartido.Walkover) 
             throw new InvalidOperationException("El partido ya fue finalizado.");
 
-        // Validar que el ganador es uno de los dos equipos
         if (equipoGanadorId != partidoActual.EquipoA_Id && equipoGanadorId != partidoActual.EquipoB_Id)
             throw new InvalidOperationException("El equipo ganador no es un participante de este partido.");
 
         partidoActual.EquipoGanadorId = equipoGanadorId;
         partidoActual.Estado = EstadoPartido.Finalizado;
 
-        // Si es la final, terminar el torneo
         if (partidoActual.PartidoSiguiente == null)
         {
             var torneo = await _context.Torneos.FindAsync(partidoActual.TorneoId);
@@ -144,7 +139,6 @@ public class TorneoService : ITorneoService
             return;
         }
 
-        // Avanzar al ganador al siguiente bracket
         var siguientePartido = partidoActual.PartidoSiguiente;
         if (partidoActual.IndicePartido % 2 == 0)
         {
@@ -155,7 +149,6 @@ public class TorneoService : ITorneoService
             siguientePartido.EquipoB_Id = equipoGanadorId;
         }
 
-        // Si el siguiente partido ya tiene ambos contendientes, está listo
         if (siguientePartido.EquipoA_Id.HasValue && siguientePartido.EquipoB_Id.HasValue)
         {
             siguientePartido.Estado = EstadoPartido.Listo;

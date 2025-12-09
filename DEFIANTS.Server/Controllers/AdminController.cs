@@ -24,7 +24,7 @@ public class AdminController : ControllerBase
         _context = context;
     }
 
-    // GET: api/admin/users
+    // ... (otros métodos sin cambios) ...
     [HttpGet("users")]
     public async Task<IActionResult> GetUsers()
     {
@@ -33,8 +33,7 @@ public class AdminController : ControllerBase
             .ToListAsync();
         return Ok(users);
     }
-
-    // GET: api/admin/users/some-guid
+    
     [HttpGet("users/{id}")]
     public async Task<IActionResult> GetUser(string id)
     {
@@ -52,7 +51,6 @@ public class AdminController : ControllerBase
         });
     }
 
-    // POST: api/admin/assign-role
     [HttpPost("assign-role")]
     public async Task<IActionResult> AssignRole([FromBody] UpdateRoleDto updateRoleDto)
     {
@@ -64,8 +62,7 @@ public class AdminController : ControllerBase
         if (result.Succeeded) return Ok(new { message = $"Rol '{updateRoleDto.RoleName}' asignado a '{updateRoleDto.Username}' correctamente." });
         return BadRequest(result.Errors);
     }
-
-    // DELETE: api/admin/users/some-guid/roles/Admin
+    
     [HttpDelete("users/{id}/roles/{roleName}")]
     public async Task<IActionResult> RemoveRoleFromUser(string id, string roleName)
     {
@@ -78,17 +75,24 @@ public class AdminController : ControllerBase
         return BadRequest(result.Errors);
     }
 
-    // POST: api/admin/juegos
     [HttpPost("juegos")]
     public async Task<IActionResult> CrearJuego([FromBody] CrearJuegoDto juegoDto)
     {
-        var nuevoJuego = new Juego { Nombre = juegoDto.Nombre, LogoUrl = juegoDto.LogoUrl, IntegrantesPorEquipo = juegoDto.IntegrantesPorEquipo, TieneSistemaElo = juegoDto.TieneSistemaElo };
+        var nuevoJuego = new Juego
+        {
+            Nombre = juegoDto.Nombre,
+            LogoUrl = juegoDto.LogoUrl,
+            IntegrantesPorEquipo = juegoDto.IntegrantesPorEquipo,
+            TieneSistemaElo = juegoDto.TieneSistemaElo
+        };
+
         _context.Juegos.Add(nuevoJuego);
         await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(JuegosController.GetJuegos), "Juegos", new { id = nuevoJuego.Id }, nuevoJuego);
+
+        // --- SOLUCIÓN: Devolver un 201 Created con el objeto directamente ---
+        return StatusCode(StatusCodes.Status201Created, nuevoJuego);
     }
 
-    // PUT: api/admin/juegos/5
     [HttpPut("juegos/{id}")]
     public async Task<IActionResult> ActualizarJuego(int id, [FromBody] CrearJuegoDto juegoDto)
     {

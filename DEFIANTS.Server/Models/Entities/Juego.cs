@@ -6,7 +6,11 @@ public class Juego
 {
     [Key] public int Id { get; set; }
     [Required] public string Nombre { get; set; }
-    public string LogoUrl { get; set; }
+    
+    // --- CORRECCIÓN AQUÍ ---
+    public string? LogoUrl { get; set; } // Se permite que sea nulo
+    // -------------------------
+
     public int IntegrantesPorEquipo { get; set; }
-    public bool TieneSistemaElo { get; set; } // <-- AÑADIDO
+    public bool TieneSistemaElo { get; set; }
 }

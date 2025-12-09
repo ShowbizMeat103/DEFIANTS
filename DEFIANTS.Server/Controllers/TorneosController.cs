@@ -20,17 +20,28 @@ public class TorneosController : ControllerBase
 
     public TorneosController(ITorneoService torneoService, ApplicationDbContext context)
     {
+        _torneoService = torneoService;
         _context = context;
     }
 
+    // --- MÉTODO MODIFICADO PARA USAR DTOs ---
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetTorneos()
+    public async Task<ActionResult<List<TorneoResumenDto>>> GetTorneos()
     {
-        var torneos = await _context.Torneos.Select(t => new { t.Id, t.Titulo, t.Status, t.MaxEquipos }).ToListAsync();
+        var torneos = await _context.Torneos
+            .Select(t => new TorneoResumenDto
+            {
+                Id = t.Id,
+                Titulo = t.Titulo,
+                Status = t.Status.ToString(),
+                MaxEquipos = t.MaxEquipos
+            })
+            .ToListAsync();
         return Ok(torneos);
     }
 
+    // ... (resto de los métodos) ...
     [HttpGet("misinscripciones")]
     public async Task<IActionResult> GetMisInscripciones()
     {
@@ -54,11 +65,33 @@ public class TorneosController : ControllerBase
 
     [HttpGet("{id}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetTorneo(int id)
+    public async Task<ActionResult<TorneoDetalleDto>> GetTorneo(int id)
     {
-        var torneo = await _context.Torneos.Include(t => t.Partidos).FirstOrDefaultAsync(t => t.Id == id);
-        if (torneo == null) return NotFound();
-        return Ok(torneo);
+        var torneoDto = await _context.Torneos
+            .Where(t => t.Id == id)
+            .Select(t => new TorneoDetalleDto
+            {
+                Id = t.Id,
+                Titulo = t.Titulo,
+                Status = t.Status.ToString(),
+                Partidos = t.Partidos.Select(p => new PartidoDto
+                {
+                    Id = p.Id,
+                    Ronda = p.Ronda,
+                    IndicePartido = p.IndicePartido,
+                    EquipoAId = p.EquipoA_Id,
+                    EquipoANombre = p.EquipoA != null ? p.EquipoA.Nombre : "TBD",
+                    EquipoBId = p.EquipoB_Id,
+                    EquipoBNombre = p.EquipoB != null ? p.EquipoB.Nombre : "TBD",
+                    EquipoGanadorId = p.EquipoGanadorId,
+                    Estado = p.Estado.ToString()
+                }).OrderBy(p => p.Ronda).ThenBy(p => p.IndicePartido).ToList()
+            })
+            .FirstOrDefaultAsync();
+
+        if (torneoDto == null) return NotFound();
+        
+        return Ok(torneoDto);
     }
 
     [HttpGet("{torneoId}/inscripciones")]
@@ -86,10 +119,12 @@ public class TorneosController : ControllerBase
     public async Task<IActionResult> CrearTorneo([FromBody] CrearTorneoDto torneoDto)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var nuevoTorneo = new Torneo { Titulo = torneoDto.Titulo, JuegoId = torneoDto.JuegoId, MaxEquipos = torneoDto.MaxEquipos, PrecioInscripcion = torneoDto.PrecioInscripcion, PrizePool = torneoDto.PrizePool, FechaInicio = torneoDto.FechaInicio, Status = EstadoTorneo.InscripcionesAbiertas, CreadorId = userId! }; // <-- CORREGIDO
+        var nuevoTorneo = new Torneo { Titulo = torneoDto.Titulo, JuegoId = torneoDto.JuegoId, MaxEquipos = torneoDto.MaxEquipos, PrecioInscripcion = torneoDto.PrecioInscripcion, PrizePool = torneoDto.PrizePool, FechaInicio = torneoDto.FechaInicio, Status = EstadoTorneo.InscripcionesAbiertas, CreadorId = userId! };
+        
         _context.Torneos.Add(nuevoTorneo);
         await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetTorneo), new { id = nuevoTorneo.Id }, nuevoTorneo);
+
+        return StatusCode(StatusCodes.Status201Created, nuevoTorneo);
     }
 
     [HttpPut("{id}")]
@@ -163,8 +198,16 @@ public class TorneosController : ControllerBase
         if (torneo == null) return NotFound();
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (torneo.CreadorId != userId && !User.IsInRole("Admin")) return Forbid("No tienes permiso para iniciar este torneo.");
-        await _torneoService.GenerarBracketsAsync(id);
-        return Ok(new { mensaje = "Torneo iniciado y brackets generados." });
+
+        try
+        {
+            await _torneoService.GenerarBracketsAsync(id);
+            return Ok(new { mensaje = "Torneo iniciado y brackets generados." });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpPost("partidos/{partidoId}/victoria")]

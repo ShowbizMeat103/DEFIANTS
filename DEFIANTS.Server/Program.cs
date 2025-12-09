@@ -1,5 +1,5 @@
 using System.Text;
-// using System.Text.Json.Serialization; // <-- ESTO YA NO ES NECESARIO
+using System.Text.Json.Serialization;
 using DEFIANTS.Server.Data;
 using DEFIANTS.Server.Models.Entities;
 using DEFIANTS.Server.Services;
@@ -12,9 +12,26 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
-// --- SECCIÓN MODIFICADA: Quitamos la configuración de ReferenceHandler.Preserve ---
-builder.Services.AddControllers();
-// --------------------------------------------------------------------------------
+// --- CONFIGURACIÓN DE CORS ---
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+                      policy  =>
+                      {
+                          policy.WithOrigins("http://localhost:5000", "https://localhost:5001") // URLs típicas de desarrollo de Blazor
+                                .AllowAnyHeader()
+                                .AllowAnyMethod();
+                      });
+});
+// ---------------------------
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Esta opción ya no es necesaria si usamos DTOs, pero la dejo por si acaso
+        // options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+    });
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -94,6 +111,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// --- USAR LA POLÍTICA DE CORS ---
+app.UseCors(MyAllowSpecificOrigins);
+// -----------------------------
 
 app.UseAuthentication();
 app.UseAuthorization();

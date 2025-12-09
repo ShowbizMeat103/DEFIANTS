@@ -1,241 +1,272 @@
-###
-# ==============================================================================
-# SCRIPT DE PRUEBA DE FLUJO COMPLETO - DEFIANTS API (v6 - HTTP)
-# ==============================================================================
-# Instrucciones:
-# 1. Asegúrate de que tu API se está ejecutando usando el perfil "http".
-# 2. Ejecuta cada petición en orden.
-# ==============================================================================
+@hostname = http://localhost
+@port = 5031
 
-
-###
-# ------------------------------------------------------------------------------
-# Variables de Configuración Estáticas
-# ------------------------------------------------------------------------------
-# URL base de tu API (Corregida para usar HTTP)
-@baseUrl = http://localhost:5031/api
-
-@admin_user = Sartox1
-@admin_pass = Supergenial123!
-
-@captain_user = CapitanGato
-@captain_pass = Gato123!
-@captain_email = capitan@gato.com
-
-@member_user = MiembroPerro
-@member_pass = Perro123!
-@member_email = miembro@perro.com
-
-
-###
-# ==============================================================================
-# FASE 1: PREPARACIÓN DEL ADMIN
-# ==============================================================================
-
-### 1. Admin inicia sesión
-# @name adminLogin
-POST {{baseUrl}}/auth/login
+### 0. (MANUAL) Registrar adminuser - Ejecuta solo esta petición la primera vez
+# Después de ejecutarla, ve a tu base de datos y asigna manualmente el rol "Admin" a este usuario.
+# Una vez hecho, puedes ejecutar el resto del script.
+POST {{hostname}}:{{port}}/api/auth/register
 Content-Type: application/json
 
 {
-  "username": "{{admin_user}}",
-  "password": "{{admin_pass}}"
+  "username": "adminuser",
+  "email": "admin@example.com",
+  "password": "AdminPass123!"
+}
+
+### SEPARADOR ###
+
+### 1. Login adminuser y capturar token de ADMIN
+POST {{hostname}}:{{port}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "Sartox1",
+  "password": "Supergenial123!"
 }
 
 > {%
     client.global.set("admin_token", response.body.token);
+    client.log("✅ Token de ADMIN capturado: " + client.global.get("admin_token"));
 %}
 
+### 2. Registrar user1 (Jugador)
+POST {{hostname}}:{{port}}/api/auth/register
+Content-Type: application/json
 
-### 2. Admin crea un Juego
-# @name createGame
-POST {{baseUrl}}/admin/juegos
+{
+  "username": "testuser1",
+  "email": "testuser1@example.com",
+  "password": "Password123!"
+}
+
+### 3. Login user1 y capturar token de JUGADOR
+POST {{hostname}}:{{port}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "testuser1",
+  "password": "Password123!"
+}
+
+> {%
+    client.global.set("jwt_token", response.body.token);
+    client.log("✅ Token de JUGADOR (user1) capturado: " + client.global.get("jwt_token"));
+%}
+
+### 4. Crear un Juego (como Admin) y capturar ID
+POST {{hostname}}:{{port}}/api/admin/juegos
 Authorization: Bearer {{admin_token}}
 Content-Type: application/json
 
 {
-  "nombre": "Valorant",
-  "logoUrl": "url_del_logo.png",
-  "integrantesPorEquipo": 5,
-  "tieneSistemaElo": true
+  "nombre": "League of Legends",
+  "integrantesPorEquipo": 5
 }
 
 > {%
-    client.global.set("gameId", response.body.id);
+    if (response.status === 201) {
+        client.global.set("game_id", response.body.id);
+        client.log(`✅ Juego '${response.body.nombre}' creado con ID: ${client.global.get("game_id")}`);
+    } else {
+        client.log("❌ Error al crear el juego: " + response.status);
+    }
 %}
 
+### 5. Crear Perfil de Juego para user1 (como Jugador)
+POST {{hostname}}:{{port}}/api/perfilesjuego
+Authorization: Bearer {{jwt_token}}
+Content-Type: application/json
 
-### 3. Admin crea un Torneo para el juego recién creado
-# @name createTournament
-POST {{baseUrl}}/torneos
+{
+  "juegoId": {{game_id}},
+  "nicknameInGame": "TheLegend27"
+}
+
+> {%
+    if (response.status === 200) {
+        client.log(`✅ Perfil '${response.body.nicknameInGame}' creado para user1 con ID: ${response.body.id}`);
+    }
+%}
+
+### 6. Crear Equipo para user1 (como Jugador) y capturar ID
+POST {{hostname}}:{{port}}/api/equipos
+Authorization: Bearer {{jwt_token}}
+Content-Type: application/json
+
+{
+  "nombre": "Equipo Alpha",
+  "juegoId": {{game_id}}
+}
+
+> {%
+    if (response.status === 201) {
+        client.global.set("team_id_user1", response.body.id);
+        client.log(`✅ Equipo '${response.body.nombre}' creado con ID: ${client.global.get("team_id_user1")}`);
+    } else {
+        client.log("❌ Error al crear el Equipo Alpha: " + response.status);
+    }
+%}
+
+// --- AÑADIR EQUIPO BETA ---
+
+### 7. Registrar user2 (Jugador)
+POST {{hostname}}:{{port}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser2",
+  "email": "testuser2@example.com",
+  "password": "Password456!"
+}
+
+### 8. Login user2 y capturar su token
+POST {{hostname}}:{{port}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "testuser2",
+  "password": "Password456!"
+}
+
+> {%
+    client.global.set("jwt_token_user2", response.body.token);
+    client.log("✅ Token de JUGADOR (user2) capturado: " + client.global.get("jwt_token_user2"));
+%}
+
+### 9. Crear Perfil de Juego para user2
+POST {{hostname}}:{{port}}/api/perfilesjuego
+Authorization: Bearer {{jwt_token_user2}}
+Content-Type: application/json
+
+{
+  "juegoId": {{game_id}},
+  "nicknameInGame": "PlayerTwo"
+}
+
+> {%
+    if (response.status === 200) {
+        client.log(`✅ Perfil '${response.body.nicknameInGame}' creado para user2 con ID: ${response.body.id}`);
+    }
+%}
+
+### 10. Crear Equipo Beta (como user2) y capturar ID
+POST {{hostname}}:{{port}}/api/equipos
+Authorization: Bearer {{jwt_token_user2}}
+Content-Type: application/json
+
+{
+  "nombre": "Equipo Beta",
+  "juegoId": {{game_id}}
+}
+
+> {%
+    if (response.status === 201) {
+        client.global.set("team_id_user2", response.body.id);
+        client.log(`✅ Equipo '${response.body.nombre}' creado con ID: ${client.global.get("team_id_user2")}`);
+    } else {
+        client.log("❌ Error al crear el Equipo Beta: " + response.status);
+    }
+%}
+
+// --- FIN DE AÑADIR EQUIPO BETA ---
+
+### 11. Crear Torneo (como Admin) y capturar ID
+POST {{hostname}}:{{port}}/api/torneos
 Authorization: Bearer {{admin_token}}
 Content-Type: application/json
 
 {
-  "titulo": "Torneo de Verano de Valorant",
-  "juegoId": {{gameId}},
-  "maxEquipos": 8,
-  "precioInscripcion": 0,
-  "prizePool": 1000,
-  "fechaInicio": "2024-09-01T18:00:00Z"
+  "titulo": "Torneo de Verano",
+  "juegoId": {{game_id}},
+  "maxEquipos": 4
 }
 
 > {%
-    client.global.set("torneoId", response.body.id);
+    if (response.status === 201) {
+        client.global.set("tournament_id", response.body.id);
+        client.log(`✅ Torneo '${response.body.titulo}' creado con ID: ${client.global.get("tournament_id")}`);
+    } else {
+        client.log("❌ Error al crear el torneo: " + response.status);
+    }
 %}
 
-
-###
-# ==============================================================================
-# FASE 2: JUGADORES Y EQUIPOS
-# ==============================================================================
-
-### 4. Jugador 1 (Capitán) se registra
-# (Comenta este bloque si el usuario ya existe)
-# @name registerCaptain
-POST {{baseUrl}}/auth/register
+### 12. Inscribir Equipo Alpha en Torneo (como user1)
+POST {{hostname}}:{{port}}/api/torneos/{{tournament_id}}/inscripciones
+Authorization: Bearer {{jwt_token}}
 Content-Type: application/json
 
 {
-  "username": "{{captain_user}}",
-  "email": "{{captain_email}}",
-  "password": "{{captain_pass}}"
+  "equipoId": {{team_id_user1}}
 }
 
+> {% client.log(`✅ Equipo Alpha (ID: ${client.global.get("team_id_user1")}) inscrito en Torneo (ID: ${client.global.get("tournament_id")}).`); %}
 
-### 5. Capitán inicia sesión
-# @name captainLogin
-POST {{baseUrl}}/auth/login
+### 13. Inscribir Equipo Beta en Torneo (como user2)
+POST {{hostname}}:{{port}}/api/torneos/{{tournament_id}}/inscripciones
+Authorization: Bearer {{jwt_token_user2}}
 Content-Type: application/json
 
 {
-  "username": "{{captain_user}}",
-  "password": "{{captain_pass}}"
+  "equipoId": {{team_id_user2}}
 }
 
-> {%
-    client.global.set("captain_token", response.body.token);
-%}
+> {% client.log(`✅ Equipo Beta (ID: ${client.global.get("team_id_user2")}) inscrito en Torneo (ID: ${client.global.get("tournament_id")}).`); %}
 
-
-### 6. Capitán crea su Perfil de Juego para Valorant
-POST {{baseUrl}}/perfilesjuego
-Authorization: Bearer {{captain_token}}
-Content-Type: application/json
-
-{
-  "juegoId": {{gameId}},
-  "nicknameInGame": "CapiGato#123"
-}
-
-
-### 7. Capitán crea un Equipo
-# @name createTeam
-POST {{baseUrl}}/equipos
-Authorization: Bearer {{captain_token}}
-Content-Type: application/json
-
-{
-  "nombre": "Los Gatos Furiosos",
-  "juegoId": {{gameId}}
-}
-
-> {%
-    client.global.set("equipoId", response.body.id);
-%}
-
-
-### 8. Jugador 2 (Miembro) se registra
-# (Comenta este bloque si el usuario ya existe)
-# @name registerMember
-POST {{baseUrl}}/auth/register
-Content-Type: application/json
-
-{
-  "username": "{{member_user}}",
-  "email": "{{member_email}}",
-  "password": "{{member_pass}}"
-}
-
-
-### 9. Miembro inicia sesión y crea su Perfil de Juego
-# @name memberLogin
-POST {{baseUrl}}/auth/login
-Content-Type: application/json
-
-{
-  "username": "{{member_user}}",
-  "password": "{{member_pass}}"
-}
-
-> {%
-    client.global.set("member_token", response.body.token);
-%}
-
-###
-POST {{baseUrl}}/perfilesjuego
-Authorization: Bearer {{member_token}}
-Content-Type: application/json
-
-{
-  "juegoId": {{gameId}},
-  "nicknameInGame": "PerroFeroz#456"
-}
-
-
-### 10. Capitán añade al Miembro a su equipo
-POST {{baseUrl}}/equipos/{{equipoId}}/miembros
-Authorization: Bearer {{captain_token}}
-Content-Type: application/json
-
-{
-  "username": "{{member_user}}"
-}
-
-
-###
-# ==============================================================================
-# FASE 3: FLUJO DEL TORNEO
-# ==============================================================================
-
-### 11. Capitán inscribe a su equipo en el torneo
-POST {{baseUrl}}/torneos/{{torneoId}}/inscripciones
-Authorization: Bearer {{captain_token}}
-Content-Type: application/json
-
-{
-  "equipoId": {{equipoId}}
-}
-
-
-### 12. Admin inicia el torneo (esto genera los partidos)
-POST {{baseUrl}}/torneos/{{torneoId}}/iniciar
+### 14. Iniciar el Torneo (como Admin)
+POST {{hostname}}:{{port}}/api/torneos/{{tournament_id}}/iniciar
 Authorization: Bearer {{admin_token}}
 
+> {% client.log(`✅ Torneo (ID: ${client.global.get("tournament_id")}) iniciado.`); %}
 
-### 13. Capitán consulta sus partidos pendientes
-# @name checkMyMatches
-GET {{baseUrl}}/partidos/mispartidos
-Authorization: Bearer {{captain_token}}
+### 15. Verificar Bracket Generado (público) y capturar IDs
+GET {{hostname}}:{{port}}/api/torneos/{{tournament_id}}
 
 > {%
-    client.global.set("partidoId", response.body[0].id);
+    const partidos = response.body.partidos;
+    if (partidos && partidos.length > 0) {
+        const primerPartidoR1 = partidos.find(p => p.ronda === 1);
+        if (primerPartidoR1) {
+            client.global.set("match_id_r1", primerPartidoR1.id);
+            client.global.set("team_id_r1_a", primerPartidoR1.equipoAId);
+            client.log(`✅ Bracket verificado. Primer partido R1 (ID: ${primerPartidoR1.id}): '${primerPartidoR1.equipoANombre}' vs '${primerPartidoR1.equipoBNombre}'`);
+        }
+    }
 %}
 
-
-### 14. Admin reporta la victoria del equipo "Los Gatos Furiosos"
-POST {{baseUrl}}/torneos/partidos/{{partidoId}}/victoria
+### 16. Reportar Victoria en un Partido (como Admin)
+POST {{hostname}}:{{port}}/api/torneos/partidos/{{match_id_r1}}/victoria
 Authorization: Bearer {{admin_token}}
 Content-Type: application/json
 
+{{team_id_r1_a}}
+
+> {% client.log(`✅ Victoria reportada para el equipo con ID: ${client.global.get("team_id_r1_a")}`); %}
+
+### 17. Verificar Avance en el Bracket (público)
+GET {{hostname}}:{{port}}/api/torneos/{{tournament_id}}
+
+> {%
+    const partidos = response.body.partidos;
+    const partidoR1 = partidos.find(p => p.id == client.global.get("match_id_r1"));
+    if (partidoR1 && partidoR1.estado === "Finalizado") {
+        client.log(`✅ Verificación de avance: El partido (ID: ${partidoR1.id}) está '${partidoR1.estado}'.`);
+    } else {
+        client.log("❌ Verificación de avance: El partido de R1 NO está finalizado.");
+    }
+%}
+
+### 18. Test: Acceso Prohibido (Jugador intenta acción de Admin)
+POST {{hostname}}:{{port}}/api/admin/juegos
+Authorization: Bearer {{jwt_token}}
+Content-Type: application/json
+
 {
-  "ganadorId": {{equipoId}}
+  "nombre": "Juego Prohibido"
 }
 
-
-### 15. Verificación final: Capitán consulta de nuevo el estado del partido
-GET {{baseUrl}}/partidos/{{partidoId}}
-Authorization: Bearer {{captain_token}}
-
-# En la respuesta, deberías ver que el estado del partido es "Finalizado"
-# y el "equipoGanadorId" es el ID de "Los Gatos Furiosos".
+> {%
+    client.test("Request should fail with 403 Forbidden", function() {
+        client.assert(response.status === 403, "Expected 403 Forbidden, but got " + response.status);
+    });
+    client.log("✅ Test de Acceso Prohibido superado.");
+%}

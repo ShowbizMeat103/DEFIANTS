@@ -2,16 +2,16 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using DEFIANTS.Server.Models.Entities;
+using DEFIANTS.Shared.DTOs; // <-- AÑADIDO
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authorization; // Necesario para [AllowAnonymous]
 
 namespace DEFIANTS.Server.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-// [Authorize] // <-- ESTO NO DEBE ESTAR AQUÍ PARA EL AUTH CONTROLLER
 public class AuthController : ControllerBase
 {
     private readonly UserManager<Usuario> _userManager;
@@ -27,8 +27,8 @@ public class AuthController : ControllerBase
 
     [HttpPost]
     [Route("login")]
-    [AllowAnonymous] // <-- AÑADIDO: Permite acceso sin autenticación
-    public async Task<IActionResult> Login([FromBody] LoginModel model)
+    [AllowAnonymous]
+    public async Task<IActionResult> Login([FromBody] LoginDto model) // <-- CAMBIADO
     {
         var user = await _userManager.FindByNameAsync(model.Username);
         if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
@@ -60,8 +60,8 @@ public class AuthController : ControllerBase
 
     [HttpPost]
     [Route("register")]
-    [AllowAnonymous] // <-- AÑADIDO: Permite acceso sin autenticación
-    public async Task<IActionResult> Register([FromBody] RegisterModel model)
+    [AllowAnonymous]
+    public async Task<IActionResult> Register([FromBody] RegisterDto model) // <-- CAMBIADO
     {
         var userExists = await _userManager.FindByNameAsync(model.Username);
         if (userExists != null)
@@ -74,7 +74,7 @@ public class AuthController : ControllerBase
             UserName = model.Username
         };
         var result = await _userManager.CreateAsync(user, model.Password);
-
+        
         if (!result.Succeeded)
         {
             return BadRequest(new { Status = "Error", Errors = result.Errors });
@@ -92,14 +92,13 @@ public class AuthController : ControllerBase
         var token = new JwtSecurityToken(
             issuer: _configuration["Jwt:Issuer"],
             audience: _configuration["Jwt:Audience"],
-            expires: DateTime.Now.AddDays(3),
+            expires: DateTime.Now.AddHours(3),
             claims: authClaims,
             signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
             );
 
         return token;
     }
-
-    public class LoginModel { public required string Username { get; set; } public required string Password { get; set; } }
-    public class RegisterModel { public required string Username { get; set; } public required string Email { get; set; } public required string Password { get; set; } }
+    
+    // --- CLASES ANIDADAS ELIMINADAS ---
 }

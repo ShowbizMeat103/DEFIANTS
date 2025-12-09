@@ -24,23 +24,24 @@ public class EquiposController : ControllerBase
         _userManager = userManager;
     }
 
-    // ... (otros endpoints sin cambios) ...
+    // --- MÉTODO MODIFICADO PARA USAR DTOs ---
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetEquipos()
+    public async Task<ActionResult<List<EquipoResumenDto>>> GetEquipos()
     {
         var equipos = await _context.Equipos
-            .Select(e => new 
+            .Select(e => new EquipoResumenDto
             {
-                e.Id,
-                e.Nombre,
-                e.JuegoId 
+                Id = e.Id,
+                Nombre = e.Nombre,
+                JuegoId = e.JuegoId 
             })
             .ToListAsync();
             
         return Ok(equipos);
     }
 
+    // ... (resto de los métodos) ...
     [HttpGet("misequipos")]
     public async Task<IActionResult> GetMisEquipos()
     {
@@ -62,10 +63,9 @@ public class EquiposController : ControllerBase
         return Ok(misEquipos);
     }
 
-    // --- MÉTODO MODIFICADO PARA USAR DTOs ---
     [HttpGet("{id}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetEquipo(int id)
+    public async Task<ActionResult<EquipoDetalleDto>> GetEquipo(int id)
     {
         var equipoDto = await _context.Equipos
             .Where(e => e.Id == id)
@@ -91,7 +91,6 @@ public class EquiposController : ControllerBase
 
         return Ok(equipoDto);
     }
-    // -----------------------------------------
 
     [HttpPost]
     public async Task<IActionResult> CrearEquipo([FromBody] CrearEquipoDto equipoDto)
@@ -123,7 +122,6 @@ public class EquiposController : ControllerBase
         _context.MiembrosEquipo.Add(miembroCapitan);
         await _context.SaveChangesAsync();
 
-        // Devolvemos el DTO en lugar de la entidad para ser consistentes
         var equipoCreadoDto = new EquipoDetalleDto
         {
             Id = nuevoEquipo.Id,
@@ -140,11 +138,9 @@ public class EquiposController : ControllerBase
                 }
             }
         };
-
-        return CreatedAtAction(nameof(GetEquipo), new { id = nuevoEquipo.Id }, equipoCreadoDto);
+        return StatusCode(StatusCodes.Status201Created, equipoCreadoDto);
     }
     
-    // ... (resto de los endpoints) ...
     [HttpPut("{id}")]
     public async Task<IActionResult> ActualizarEquipo(int id, [FromBody] CrearEquipoDto equipoDto)
     {
