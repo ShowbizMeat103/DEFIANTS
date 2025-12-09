@@ -1,0 +1,31 @@
+﻿h1 {
+    color: white;
+    font-family: 'Anton', sans-serif;
+    margin-bottom: 20px;
+}
+
+.profile-container {
+    display: flex;
+    align-items: center;
+    background-color: #1a1a1a;
+    padding: 20px;
+    border-radius: 5px;
+    color: white;
+}
+
+.profile-avatar img {
+    border-radius: 50%;
+    margin-right: 20px;
+}
+
+.profile-info h2 {
+    font-family: 'Anton', sans-serif;
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.profile-info p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    color: #ccc;
+}

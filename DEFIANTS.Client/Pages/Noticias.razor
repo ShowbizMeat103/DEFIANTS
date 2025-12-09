@@ -1,76 +1,27 @@
 @page "/noticias"
 
-<link
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-    rel="stylesheet" />
-<link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-    rel="stylesheet" />
+<h1>Noticias</h1>
 
-<a class="back-button" href="/">Atrás</a>
-
-<div class="news-page">
-    <!-- Encabezado principal -->
-    <header class="news-header">
-        <img src="/logo.png" alt="Logo" class="news-logo" />
-        <h1 class="news-title">NOTICIAS & TORNEOS</h1>
-        <p class="news-subtitle">
-            Mantente al día con los torneos, convocatorias y eventos competitivos de DEFIANTS.
-        </p>
-    </header>
-
-    <!-- Lista de noticias -->
-    <section class="news-list">
-
-        <!-- Noticia 1 -->
-        <article class="news-card">
-            <div class="news-badge torneo">Torneo</div>
-            <h3 class="news-card-title">Torneo Defiants: Battle Royale 5v5</h3>
-            <p class="news-meta">
-                <span><i class="fas fa-calendar-alt"></i> 18 de enero 2026</span>
-                <span><i class="fas fa-gamepad"></i> VALORANT / 5v5</span>
-                <span><i class="fas fa-users"></i> Cupo: 32 equipos</span>
-            </p>
-            <p class="news-text">
-                Se abre la convocatoria para el Torneo Defiants Battle Royale 5v5.  
-                Equipos de todo nivel son bienvenidos. Fase de grupos y eliminatorias directas,
-                con transmisión en vivo de las finales.
-            </p>
-            <a href="#" class="news-cta">Ver detalles y registrarse</a>
-        </article>
-
-        <!-- Noticia 2 -->
-        <article class="news-card">
-            <div class="news-badge convocatoria">Convocatoria</div>
-            <h3 class="news-card-title">Recruitment: Team Ranked Elite</h3>
-            <p class="news-meta">
-                <span><i class="fas fa-calendar-alt"></i> 10 de febrero 2026</span>
-                <span><i class="fas fa-gamepad"></i> League of Legends</span>
-                <span><i class="fas fa-star"></i> Elo mínimo: Platino II</span>
-            </p>
-            <p class="news-text">
-                Estamos seleccionando jugadores para conformar el roster oficial de Team Ranked Elite.  
-                Buscamos roles MID, ADC y SUP con buena comunicación, disciplina y disponibilidad para scrims.
-            </p>
-            <a href="#" class="news-cta">Aplicar a la convocatoria</a>
-        </article>
-
-        <!-- Noticia 3 -->
-        <article class="news-card">
-            <div class="news-badge proximo">Próximamente</div>
-            <h3 class="news-card-title">Liga interna DEFIANTS: Temporada 1</h3>
-            <p class="news-meta">
-                <span><i class="fas fa-calendar-alt"></i> Próximamente</span>
-                <span><i class="fas fa-trophy"></i> Multi-juego</span>
-                <span><i class="fas fa-clock"></i> Formato: Temporada + Playoffs</span>
-            </p>
-            <p class="news-text">
-                Prepárate para la primera temporada de la Liga interna DEFIANTS con categorías de
-                shooters, MOBAs y juegos de pelea.  
-                El calendario, reglas y premios se publicarán muy pronto.
-            </p>
-            <a href="#" class="news-cta">Recibir notificaciones</a>
-        </article>
-
-    </section>
+<div class="row">
+    <div class="col-md-4">
+        <Card Title="Nueva Temporada Competitiva"
+              Description="La nueva temporada competitiva de DEFIANTS ha comenzado. Prepárate para la acción."
+              ImageUrl="https://via.placeholder.com/300x200"
+              Link="/news/season-start"
+              ButtonText="Leer Más" />
+    </div>
+    <div class="col-md-4">
+        <Card Title="Entrevista con un Jugador Profesional"
+              Description="Hablamos con uno de los mejores jugadores de la escena sobre sus estrategias y consejos."
+              ImageUrl="https://via.placeholder.com/300x200"
+              Link="/news/pro-interview"
+              ButtonText="Leer Más" />
+    </div>
+    <div class="col-md-4">
+        <Card Title="Actualización del Juego"
+              Description="Se ha lanzado una nueva actualización con cambios de equilibrio y corrección de errores."
+              ImageUrl="https://via.placeholder.com/300x200"
+              Link="/news/game-update"
+              ButtonText="Leer Más" />
+    </div>
 </div>

@@ -1,0 +1,32 @@
+﻿@*
+    Reusable Card component for displaying content like news, tournaments, etc.
+*@
+
+<div class="card">
+    @if (ImageUrl != null)
+    {
+        <img src="@ImageUrl" class="card-img-top" alt="@Title">
+    }
+    <div class="card-body">
+        <h5 class="card-title">@Title</h5>
+        <p class="card-text">@Description</p>
+        <a href="@Link" class="btn btn-primary">@ButtonText</a>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string? ImageUrl { get; set; }
+
+    [Parameter]
+    public string Title { get; set; } = "Card Title";
+
+    [Parameter]
+    public string Description { get; set; } = "Card Description";
+
+    [Parameter]
+    public string Link { get; set; } = "#";
+
+    [Parameter]
+    public string ButtonText { get; set; } = "Go somewhere";
+}
