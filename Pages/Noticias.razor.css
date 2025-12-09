@@ -1,0 +1,334 @@
+/* Variables simplificadas */
+:root {
+  --color-primary: #000000;
+  --color-secondary: #d8b48c;
+  --color-bg: #000000;
+  --color-text: #2b1b12;
+}
+
+/* Estilos base y fondo */
+body.bg-light {
+  background: var(--color-bg);
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Botón volver */
+.back-button {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: #ff0000;
+  color: var(--color-primary);
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  text-decoration: none;
+  z-index: 10;
+  transition: transform 0.2s ease;
+}
+.back-button:hover {
+  transform: translateX(-3px);
+}
+.back-button::before {
+  content: "←";
+  margin-right: 6px;
+}
+
+/* Contenedor principal */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 15px;
+}
+
+/* Tarjeta de login */
+.login-card {
+  background: #333333;
+  color: #333333;
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 25px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 400px;
+  padding: 35px 25px;
+  text-align: center;
+  position: relative;
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Animación entrada */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Encabezado y logo */
+.login-header {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #E62020;
+}
+.login-header img {
+  display: block;
+  margin: 0 auto 15px;
+  height: 80px;
+  width: auto;
+  transition: transform 0.5s ease;
+}
+.login-header img:hover {
+  transform: scale(1.05) rotate(5deg);
+}
+.login-header h2 {
+  margin: 0 0 20px;
+  color: var(--color-text);
+  font-size: 1.8rem;
+}
+
+/* Inputs */
+form input {
+  width: 100%;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 20px;
+  border: 1px solid #333333;
+  background-color: #000000;
+  font-size: 1rem;
+  color: var(--color-text);
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+form input:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  transform: scale(1.02);
+  box-shadow: 0 0 0 3px rgba(60,35,23,0.1);
+}
+
+/* Botón de enviar */
+form button {
+  width: 100%;
+  padding: 15px;
+  background: #E62020;
+  color: #000000;
+  border: none;
+  border-radius: 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+form button:hover {
+  background: #000000;
+  color: #E62020;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+form button:active {
+  transform: translateY(0);
+}
+
+/* Enlace de registro */
+.registro {
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: #666;
+}
+.registro a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+  position: relative;
+  overflow: hidden;
+}
+.registro a:hover {
+  text-decoration: underline;
+}
+.registro a::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--color-primary);
+  transition: width 0.3s ease;
+}
+.registro a:hover::after {
+  width: 100%;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .login-card { padding: 25px 20px; }
+  .login-header img { height: 60px; }
+  .login-header h2 { font-size: 1.5rem; }
+}
+
+/* Página de noticias */
+.news-page {
+  min-height: 100vh;
+  padding: 100px 20px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Encabezado de noticias */
+.news-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.news-logo {
+  height: 70px;
+  width: auto;
+  margin-bottom: 15px;
+  transition: transform 0.4s ease;
+}
+.news-logo:hover {
+  transform: scale(1.05) rotate(3deg);
+}
+
+.news-title {
+  font-size: 2rem;
+  color: #E62020;
+  margin: 0 0 10px;
+}
+
+.news-subtitle {
+  font-size: 0.95rem;
+  color: #888;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Lista y tarjetas de noticias */
+.news-list {
+  width: 100%;
+  max-width: 900px;
+  display: grid;
+  gap: 20px;
+}
+
+/* Card estilo similar a login-card, pero adaptado a listado */
+.news-card {
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 20px;
+  border: 1px solid #333333;
+  padding: 20px 24px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.news-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  border-color: #E62020;
+}
+
+/* Badge/etiquetas de tipo de noticia */
+.news-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+.news-badge.torneo {
+  background: rgba(230, 32, 32, 0.2);
+  color: #E62020;
+  border: 1px solid #E62020;
+}
+
+.news-badge.convocatoria {
+  background: rgba(216, 180, 140, 0.15);
+  color: var(--color-secondary);
+  border: 1px solid var(--color-secondary);
+}
+
+.news-badge.proximo {
+  background: rgba(255, 255, 255, 0.07);
+  color: #ffffff;
+  border: 1px solid #555555;
+}
+
+.news-card-title {
+  font-size: 1.2rem;
+  color: #ffffff;
+  margin: 0 0 8px;
+}
+
+/* Meta info (fecha, juego, formato) */
+.news-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  font-size: 0.8rem;
+  color: #aaaaaa;
+  margin-bottom: 10px;
+}
+
+.news-meta i {
+  margin-right: 4px;
+}
+
+/* Texto de la noticia */
+.news-text {
+  font-size: 0.95rem;
+  color: #dddddd;
+  margin-bottom: 14px;
+}
+
+/* Botón/enlace dentro de la noticia */
+.news-cta {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid #E62020;
+  color: #E62020;
+  text-decoration: none;
+  transition: background-color 0.25s ease, color 0.25s ease, transform 0.2s ease;
+}
+
+.news-cta:hover {
+  background-color: #E62020;
+  color: #000000;
+  transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .news-page {
+    padding-top: 80px;
+  }
+
+  .news-title {
+    font-size: 1.6rem;
+  }
+
+  .news-list {
+    gap: 16px;
+  }
+
+  .news-card {
+    padding: 18px 18px;
+  }
+
+  .news-meta {
+    flex-direction: column;
+    gap: 4px;
+  }
+}

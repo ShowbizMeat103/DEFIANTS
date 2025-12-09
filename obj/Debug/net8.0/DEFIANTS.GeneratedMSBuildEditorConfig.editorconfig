@@ -26,10 +26,6 @@ build_property._RazorSourceGeneratorDebug =
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/yapi2/Downloads/Defiants/DEFIANTS/Pages/Home.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSG9tZS5yYXpvcg==
-build_metadata.AdditionalFiles.CssScope = 
-
 [C:/Users/yapi2/Downloads/Defiants/DEFIANTS/_Imports.razor]
 build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
@@ -38,9 +34,17 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = TGF5b3V0XE1haW5MYXlvdXQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = b-ms24cxmrkd
 
+[C:/Users/yapi2/Downloads/Defiants/DEFIANTS/Pages/Home.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSG9tZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-dqtl0j8mgd
+
 [C:/Users/yapi2/Downloads/Defiants/DEFIANTS/Pages/Login.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9naW4ucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = b-9ds1471tbh
+
+[C:/Users/yapi2/Downloads/Defiants/DEFIANTS/Pages/Noticias.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTm90aWNpYXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-sasls6h9yx
 
 [C:/Users/yapi2/Downloads/Defiants/DEFIANTS/Pages/Register.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUmVnaXN0ZXIucmF6b3I=
