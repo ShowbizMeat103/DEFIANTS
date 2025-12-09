@@ -1,0 +1,7 @@
+﻿services:
+  defiants.server:
+    image: defiants.server
+    build:
+      context: .
+      dockerfile: DEFIANTS.Server/Dockerfile
+
