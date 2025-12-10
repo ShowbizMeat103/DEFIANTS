@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DEFIANTS.Shared.Enums;
+using System.Linq;
 
 namespace DEFIANTS.Server.Controllers;
 
@@ -54,7 +55,8 @@ public class EquiposController : ControllerBase
                 Id = m.Equipo.Id,
                 Nombre = m.Equipo.Nombre,
                 JuegoId = m.Equipo.JuegoId,
-                Rol = m.Rol
+                Rol = m.Rol,
+                CantidadMiembros = m.Equipo.Miembros.Count() // <-- AÑADIDO
             })
             .ToListAsync();
 
