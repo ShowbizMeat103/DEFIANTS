@@ -94,8 +94,11 @@ else
                                 <div class="card-footer bg-transparent border-top-0 text-end">
                                     @if (editingProfileId == perfil.Id)
                                     {
-                                        <button class="btn btn-sm btn-success" @onclick="() => HandleActualizarPerfil(perfil)"><i class="fas fa-check"></i> Guardar</button>
-                                        <button class="btn btn-sm btn-secondary" @onclick="() => editingProfileId = null"><i class="fas fa-times"></i> Cancelar</button>
+                                        <button class="btn btn-sm btn-success" @onclick="() => HandleActualizarPerfil(perfil)" disabled="@isSaving">
+                                            @if(isSaving) { <span class="spinner-border spinner-border-sm"></span> }
+                                            Guardar
+                                        </button>
+                                        <button class="btn btn-sm btn-secondary" @onclick="() => editingProfileId = null">Cancelar</button>
                                     }
                                     else
                                     {
@@ -135,7 +138,7 @@ else
                             {
                                 @foreach (var juego in juegosDisponibles)
                                 {
-                                    <option value="@juego.Id">@juego.Nombre</option>
+                                    <option value="@juego.Id" disabled="@(misPerfiles?.Any(p => p.JuegoId == juego.Id) ?? false)">@juego.Nombre</option>
                                 }
                             }
                         </InputSelect>
@@ -146,7 +149,12 @@ else
                         <InputText class="form-control" @bind-Value="nuevoPerfil.NicknameInGame" placeholder="Ej: TheLegend27" />
                         <ValidationMessage For="@(() => nuevoPerfil.NicknameInGame)" />
                     </div>
-                    <div class="d-grid"><button type="submit" class="btn btn-primary">Guardar Perfil</button></div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary" disabled="@isSaving">
+                            @if(isSaving) { <span class="spinner-border spinner-border-sm"></span> }
+                            Guardar Perfil
+                        </button>
+                    </div>
                 </EditForm>
             </div>
         </div></div>
@@ -158,6 +166,7 @@ else
     private List<JuegoDto>? juegosDisponibles;
     private CrearPerfilJuegoDto nuevoPerfil = new();
     private bool showCreateForm = false;
+    private bool isSaving = false;
 
     private int? editingProfileId;
     private string editingNickname = "";
@@ -168,6 +177,11 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
         var misPerfilesTask = ApiClient.GetMisPerfilesJuego();
         var juegosDisponiblesTask = ApiClient.GetJuegos();
         await Task.WhenAll(misPerfilesTask, juegosDisponiblesTask);
@@ -177,10 +191,11 @@ else
 
     private async Task HandleCrearPerfil()
     {
+        isSaving = true;
         try
         {
             var perfilCreado = await ApiClient.CrearPerfilJuego(nuevoPerfil);
-            misPerfiles?.Add(perfilCreado);
+            await LoadData();
             showCreateForm = false;
             nuevoPerfil = new();
             ShowNotification($"Perfil '{perfilCreado.NicknameInGame}' para '{perfilCreado.JuegoNombre}' creado con éxito.", true);
@@ -188,6 +203,10 @@ else
         catch (Exception ex)
         {
             ShowNotification($"Error al crear el perfil: {ex.Message}", false);
+        }
+        finally
+        {
+            isSaving = false;
         }
     }
 
@@ -200,6 +219,7 @@ else
 
     private async Task HandleActualizarPerfil(PerfilJuegoDto perfil)
     {
+        isSaving = true;
         try
         {
             var dto = new ActualizarPerfilJuegoDto
@@ -222,6 +242,10 @@ else
         {
             ShowNotification($"Error al actualizar: {ex.Message}", false);
         }
+        finally
+        {
+            isSaving = false;
+        }
     }
 
     private async Task HandleEliminarPerfil(PerfilJuegoDto perfil)
@@ -229,10 +253,11 @@ else
         var confirmado = await JSRuntime.InvokeAsync<bool>("confirm", $"¿Estás seguro de que quieres eliminar tu perfil '{perfil.NicknameInGame}' de '{perfil.JuegoNombre}'?");
         if (confirmado)
         {
+            // No usamos isSaving aquí para no deshabilitar otros botones
             try
             {
                 await ApiClient.EliminarPerfilJuego(perfil.Id);
-                misPerfiles?.RemoveAll(p => p.Id == perfil.Id);
+                await LoadData(); 
                 ShowNotification($"Perfil de '{perfil.JuegoNombre}' eliminado.", true);
             }
             catch (Exception ex)

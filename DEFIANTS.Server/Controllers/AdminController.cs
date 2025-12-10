@@ -25,40 +25,21 @@ public class AdminController : ControllerBase
         _context = context;
     }
 
-    // --- MÉTODO MODIFICADO PARA USAR DTOs ---
+    // --- MÉTODOS DE USUARIOS ---
     [HttpGet("users")]
     public async Task<ActionResult<List<UsuarioDto>>> GetUsers()
     {
-        var users = await _userManager.Users
-            .Select(u => new UsuarioDto
-            {
-                Id = u.Id,
-                UserName = u.UserName,
-                Email = u.Email,
-                // Roles se cargarán por separado si es necesario para la lista,
-                // o se obtendrán en el detalle del usuario.
-                Roles = new List<string>() // Inicialmente vacío para la lista
-            })
-            .ToListAsync();
+        var users = await _userManager.Users.Select(u => new UsuarioDto { Id = u.Id, UserName = u.UserName, Email = u.Email, Roles = new List<string>() }).ToListAsync();
         return Ok(users);
     }
 
-    // --- MÉTODO MODIFICADO PARA USAR DTOs ---
     [HttpGet("users/{id}")]
     public async Task<ActionResult<UsuarioDto>> GetUser(string id)
     {
         var user = await _userManager.FindByIdAsync(id);
         if (user == null) return NotFound("Usuario no encontrado.");
-
         var roles = await _userManager.GetRolesAsync(user);
-
-        var userDto = new UsuarioDto
-        {
-            Id = user.Id,
-            UserName = user.UserName,
-            Email = user.Email,
-            Roles = roles.ToList()
-        };
+        var userDto = new UsuarioDto { Id = user.Id, UserName = user.UserName, Email = user.Email, Roles = roles.ToList() };
         return Ok(userDto);
     }
 
@@ -79,13 +60,12 @@ public class AdminController : ControllerBase
     {
         var user = await _userManager.FindByIdAsync(id);
         if (user == null) return NotFound("Usuario no encontrado.");
-
         var result = await _userManager.RemoveFromRoleAsync(user, roleName);
         if (result.Succeeded) return NoContent();
-
         return BadRequest(result.Errors);
     }
 
+    // --- MÉTODOS DE JUEGOS ---
     [HttpPost("juegos")]
     public async Task<IActionResult> CrearJuego([FromBody] CrearJuegoDto juegoDto)
     {
@@ -104,6 +84,16 @@ public class AdminController : ControllerBase
         juego.LogoUrl = juegoDto.LogoUrl;
         juego.IntegrantesPorEquipo = juegoDto.IntegrantesPorEquipo;
         juego.TieneSistemaElo = juegoDto.TieneSistemaElo;
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
+
+    [HttpDelete("juegos/{id}")]
+    public async Task<IActionResult> EliminarJuego(int id)
+    {
+        var juego = await _context.Juegos.FindAsync(id);
+        if (juego == null) return NotFound("Juego no encontrado.");
+        _context.Juegos.Remove(juego);
         await _context.SaveChangesAsync();
         return NoContent();
     }

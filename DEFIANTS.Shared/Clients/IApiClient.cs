@@ -1,5 +1,4 @@
 using DEFIANTS.Shared.DTOs;
-using DEFIANTS.Shared.Enums; // Para RolEquipo, EstadoPago, EstadoTorneo
 using Refit;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -22,12 +21,6 @@ public interface IApiClient
 
     [Get("/api/juegos/{id}")]
     Task<JuegoDto> GetJuego(int id);
-
-    [Post("/api/admin/juegos")]
-    Task<JuegoDto> CrearJuego([Body] CrearJuegoDto juegoDto);
-
-    [Put("/api/admin/juegos/{id}")]
-    Task ActualizarJuego(int id, [Body] CrearJuegoDto juegoDto);
     #endregion
 
     #region PerfilesJuego
@@ -76,7 +69,7 @@ public interface IApiClient
     #region Torneos
     [Get("/api/torneos")]
     Task<List<TorneoResumenDto>> GetTorneos();
-
+    
     [Get("/api/torneos/misinscripciones")]
     Task<List<MiInscripcionDto>> GetMisInscripciones();
 
@@ -101,8 +94,6 @@ public interface IApiClient
     [Delete("/api/torneos/{torneoId}/inscripciones/{inscripcionId}")]
     Task CancelarInscripcion(int torneoId, int inscripcionId);
 
-
-
     [Post("/api/torneos/{id}/iniciar")]
     Task IniciarTorneo(int id);
 
@@ -111,9 +102,6 @@ public interface IApiClient
     #endregion
 
     #region Partidos
-    [Get("/api/partidos")] // <-- NUEVO MÉTODO
-    Task<List<PartidoDto>> GetPartidos();
-
     [Get("/api/partidos/mispartidos")]
     Task<List<PartidoDto>> GetMisPartidos();
 
@@ -136,5 +124,14 @@ public interface IApiClient
 
     [Delete("/api/admin/users/{id}/roles/{roleName}")]
     Task RemoveRoleFromUser(string id, string roleName);
+
+    [Post("/api/admin/juegos")]
+    Task<JuegoDto> CrearJuego([Body] CrearJuegoDto juegoDto);
+
+    [Put("/api/admin/juegos/{id}")]
+    Task ActualizarJuego(int id, [Body] CrearJuegoDto juegoDto);
+
+    [Delete("/api/admin/juegos/{id}")]
+    Task EliminarJuego(int id);
     #endregion
 }

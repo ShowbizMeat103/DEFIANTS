@@ -34,10 +34,9 @@
                     <Authorized>
                         <!-- Contenido para usuarios AUTENTICADOS -->
                         
-                        <!-- Enlace temporal solo para Admins -->
                         @if (context.User.IsInRole("Admin"))
                         {
-                            <a href="/admin/crear-juego" class="btn btn-sm btn-danger">CREAR JUEGO</a>
+                            <a href="/admin/gestionar-juegos" class="btn btn-sm btn-danger">GESTIONAR JUEGOS</a>
                         }
                         
                         <a href="#" @onclick="HandleLogout" class="btn btn-sm btn-outline">LOGOUT</a>
@@ -137,17 +136,11 @@
 
     private async Task HandleLogout()
     {
-        // 1. Eliminar el token del localStorage
         await LocalStorage.RemoveItemAsync("authToken");
-
-        // 2. Notificar al AuthenticationStateProvider que el usuario ha cerrado sesión
-        //    Esto actualizará el estado de autenticación en toda la aplicación.
         if (AuthenticationStateProvider is CustomAuthenticationStateProvider customProvider)
         {
             customProvider.MarkUserAsLoggedOut();
         }
-
-        // 3. Redirigir al usuario a la página de inicio (o login)
         Navigation.NavigateTo("/", forceLoad: true);
     }
 }
