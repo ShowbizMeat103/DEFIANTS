@@ -28,4 +28,8 @@
       <ProjectReference Include="..\DEFIANTS.Shared\DEFIANTS.Shared.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Models\Enums\" />
+    </ItemGroup>
+
 </Project>

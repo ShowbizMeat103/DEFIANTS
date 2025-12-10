@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using DEFIANTS.Server.Models.Enums;
+
+using DEFIANTS.Shared.Enums;
 
 namespace DEFIANTS.Server.Models.Entities;
 

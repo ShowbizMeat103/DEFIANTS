@@ -1,10 +1,11 @@
 using System.Security.Claims;
 using DEFIANTS.Server.Data;
-using DEFIANTS.Server.Models.Enums;
 using DEFIANTS.Shared.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq; // Necesario para Select
+using DEFIANTS.Shared.Enums; // <-- AÑADIDO
 
 namespace DEFIANTS.Server.Controllers;
 
@@ -20,7 +21,28 @@ public class PartidosController : ControllerBase
         _context = context;
     }
 
-    // --- MÉTODO MODIFICADO PARA USAR DTOs ---
+    [HttpGet]
+    [AllowAnonymous]
+    public async Task<ActionResult<List<PartidoDto>>> GetPartidos()
+    {
+        var partidos = await _context.Partidos
+            .Select(p => new PartidoDto
+            {
+                Id = p.Id,
+                Ronda = p.Ronda,
+                IndicePartido = p.IndicePartido,
+                EquipoAId = p.EquipoA_Id,
+                EquipoANombre = p.EquipoA != null ? p.EquipoA.Nombre : "TBD",
+                EquipoBId = p.EquipoB_Id,
+                EquipoBNombre = p.EquipoB != null ? p.EquipoB.Nombre : "TBD",
+                EquipoGanadorId = p.EquipoGanadorId,
+                Estado = p.Estado // <-- YA ES EL ENUM
+            })
+            .ToListAsync();
+
+        return Ok(partidos);
+    }
+
     [HttpGet("mispartidos")]
     public async Task<ActionResult<List<PartidoDto>>> GetMisPartidos()
     {
@@ -40,7 +62,7 @@ public class PartidosController : ControllerBase
                 EquipoBId = p.EquipoB_Id,
                 EquipoBNombre = p.EquipoB != null ? p.EquipoB.Nombre : "TBD",
                 EquipoGanadorId = p.EquipoGanadorId,
-                Estado = p.Estado.ToString()
+                Estado = p.Estado // <-- YA ES EL ENUM
             })
             .ToListAsync();
 
@@ -49,30 +71,28 @@ public class PartidosController : ControllerBase
 
     [HttpGet("{id}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetPartido(int id)
+    public async Task<ActionResult<PartidoDetalleDto>> GetPartido(int id)
     {
-        var partido = await _context.Partidos
-            .Include(p => p.EquipoA)
-            .Include(p => p.EquipoB)
-            .Include(p => p.Torneo)
-            .Select(p => new
+        var partidoDto = await _context.Partidos
+            .Where(p => p.Id == id)
+            .Select(p => new PartidoDetalleDto
             {
-                p.Id,
-                Torneo = new { p.Torneo.Id, p.Torneo.Titulo },
-                p.Ronda,
-                p.IndicePartido,
-                p.Estado,
-                EquipoA = p.EquipoA != null ? new { p.EquipoA.Id, p.EquipoA.Nombre } : null,
-                EquipoB = p.EquipoB != null ? new { p.EquipoB.Id, p.EquipoB.Nombre } : null,
-                p.ScoreA,
-                p.ScoreB,
-                p.EquipoGanadorId
+                Id = p.Id,
+                Ronda = p.Ronda,
+                IndicePartido = p.IndicePartido,
+                EquipoAId = p.EquipoA_Id,
+                EquipoANombre = p.EquipoA != null ? p.EquipoA.Nombre : "TBD",
+                EquipoBId = p.EquipoB_Id,
+                EquipoBNombre = p.EquipoB != null ? p.EquipoB.Nombre : "TBD",
+                EquipoGanadorId = p.EquipoGanadorId,
+                Estado = p.Estado, // <-- YA ES EL ENUM
+                TorneoTitulo = p.Torneo.Titulo
             })
-            .FirstOrDefaultAsync(p => p.Id == id);
+            .FirstOrDefaultAsync();
 
-        if (partido == null) return NotFound("Partido no encontrado.");
+        if (partidoDto == null) return NotFound("Partido no encontrado.");
 
-        return Ok(partido);
+        return Ok(partidoDto);
     }
 
     [HttpPut("{id}")]
@@ -88,7 +108,7 @@ public class PartidosController : ControllerBase
 
         if (partido.EquipoGanadorId.HasValue)
         {
-            partido.Estado = EstadoPartido.Finalizado;
+            partido.Estado = DEFIANTS.Shared.Enums.EstadoPartido.Finalizado;
         }
 
         await _context.SaveChangesAsync();

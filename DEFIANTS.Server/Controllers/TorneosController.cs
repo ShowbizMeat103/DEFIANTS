@@ -1,13 +1,18 @@
+using System; // Necesario para DateTime
+using System.Collections.Generic; // Necesario para List
+using System.Linq; // <-- AÑADIDO EXPLÍCITAMENTE
 using System.Security.Claims;
+using System.Threading.Tasks; // Necesario para Task
+
 using DEFIANTS.Server.Data;
 using DEFIANTS.Server.Models.Entities;
-using DEFIANTS.Server.Models.Enums;
 using DEFIANTS.Server.Services;
 using DEFIANTS.Shared.DTOs;
+using DEFIANTS.Shared.Enums; // <-- Asegúrate de que este sea el único using para los Enums
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using DEFIANTS.Shared.Enums; // <-- AÑADIDO
 
 namespace DEFIANTS.Server.Controllers;
 
@@ -41,7 +46,6 @@ public class TorneosController : ControllerBase
         return Ok(torneos);
     }
 
-    // --- MÉTODO MODIFICADO PARA USAR DTOs ---
     [HttpGet("misinscripciones")]
     public async Task<ActionResult<List<MiInscripcionDto>>> GetMisInscripciones()
     {
@@ -83,7 +87,7 @@ public class TorneosController : ControllerBase
                     EquipoBId = p.EquipoB_Id,
                     EquipoBNombre = p.EquipoB != null ? p.EquipoB.Nombre : "TBD",
                     EquipoGanadorId = p.EquipoGanadorId,
-                    Estado = p.Estado.ToString()
+                    Estado = p.Estado
                 }).OrderBy(p => p.Ronda).ThenBy(p => p.IndicePartido).ToList()
             })
             .FirstOrDefaultAsync();
@@ -93,7 +97,6 @@ public class TorneosController : ControllerBase
         return Ok(torneoDto);
     }
 
-    // --- MÉTODO MODIFICADO PARA USAR DTOs ---
     [HttpGet("{torneoId}/inscripciones")]
     public async Task<ActionResult<List<InscripcionDetalleDto>>> GetInscripciones(int torneoId)
     {
@@ -121,7 +124,7 @@ public class TorneosController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CrearTorneo([FromBody] CrearTorneoDto torneoDto)
+    public async Task<ActionResult<TorneoDto>> CrearTorneo([FromBody] CrearTorneoDto torneoDto)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var nuevoTorneo = new Torneo { Titulo = torneoDto.Titulo, JuegoId = torneoDto.JuegoId, MaxEquipos = torneoDto.MaxEquipos, PrecioInscripcion = torneoDto.PrecioInscripcion, PrizePool = torneoDto.PrizePool, FechaInicio = torneoDto.FechaInicio, Status = EstadoTorneo.InscripcionesAbiertas, CreadorId = userId! };
@@ -129,7 +132,20 @@ public class TorneosController : ControllerBase
         _context.Torneos.Add(nuevoTorneo);
         await _context.SaveChangesAsync();
 
-        return StatusCode(StatusCodes.Status201Created, nuevoTorneo);
+        var responseDto = new TorneoDto
+        {
+            Id = nuevoTorneo.Id,
+            Titulo = nuevoTorneo.Titulo,
+            JuegoId = nuevoTorneo.JuegoId,
+            MaxEquipos = nuevoTorneo.MaxEquipos,
+            PrecioInscripcion = nuevoTorneo.PrecioInscripcion,
+            PrizePool = nuevoTorneo.PrizePool,
+            FechaInicio = nuevoTorneo.FechaInicio,
+            Status = nuevoTorneo.Status,
+            CreadorId = nuevoTorneo.CreadorId
+        };
+
+        return StatusCode(StatusCodes.Status201Created, responseDto);
     }
 
     [HttpPut("{id}")]

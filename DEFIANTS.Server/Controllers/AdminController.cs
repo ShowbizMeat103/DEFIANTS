@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq; // Necesario para Select
 
 namespace DEFIANTS.Server.Controllers;
 
@@ -24,31 +25,41 @@ public class AdminController : ControllerBase
         _context = context;
     }
 
-    // ... (otros métodos sin cambios) ...
+    // --- MÉTODO MODIFICADO PARA USAR DTOs ---
     [HttpGet("users")]
-    public async Task<IActionResult> GetUsers()
+    public async Task<ActionResult<List<UsuarioDto>>> GetUsers()
     {
         var users = await _userManager.Users
-            .Select(u => new { u.Id, u.UserName, u.Email })
+            .Select(u => new UsuarioDto
+            {
+                Id = u.Id,
+                UserName = u.UserName,
+                Email = u.Email,
+                // Roles se cargarán por separado si es necesario para la lista,
+                // o se obtendrán en el detalle del usuario.
+                Roles = new List<string>() // Inicialmente vacío para la lista
+            })
             .ToListAsync();
         return Ok(users);
     }
-    
+
+    // --- MÉTODO MODIFICADO PARA USAR DTOs ---
     [HttpGet("users/{id}")]
-    public async Task<IActionResult> GetUser(string id)
+    public async Task<ActionResult<UsuarioDto>> GetUser(string id)
     {
         var user = await _userManager.FindByIdAsync(id);
         if (user == null) return NotFound("Usuario no encontrado.");
 
         var roles = await _userManager.GetRolesAsync(user);
 
-        return Ok(new
+        var userDto = new UsuarioDto
         {
-            user.Id,
-            user.UserName,
-            user.Email,
-            Roles = roles
-        });
+            Id = user.Id,
+            UserName = user.UserName,
+            Email = user.Email,
+            Roles = roles.ToList()
+        };
+        return Ok(userDto);
     }
 
     [HttpPost("assign-role")]
@@ -62,7 +73,7 @@ public class AdminController : ControllerBase
         if (result.Succeeded) return Ok(new { message = $"Rol '{updateRoleDto.RoleName}' asignado a '{updateRoleDto.Username}' correctamente." });
         return BadRequest(result.Errors);
     }
-    
+
     [HttpDelete("users/{id}/roles/{roleName}")]
     public async Task<IActionResult> RemoveRoleFromUser(string id, string roleName)
     {
@@ -78,18 +89,9 @@ public class AdminController : ControllerBase
     [HttpPost("juegos")]
     public async Task<IActionResult> CrearJuego([FromBody] CrearJuegoDto juegoDto)
     {
-        var nuevoJuego = new Juego
-        {
-            Nombre = juegoDto.Nombre,
-            LogoUrl = juegoDto.LogoUrl,
-            IntegrantesPorEquipo = juegoDto.IntegrantesPorEquipo,
-            TieneSistemaElo = juegoDto.TieneSistemaElo
-        };
-
+        var nuevoJuego = new Juego { Nombre = juegoDto.Nombre, LogoUrl = juegoDto.LogoUrl, IntegrantesPorEquipo = juegoDto.IntegrantesPorEquipo, TieneSistemaElo = juegoDto.TieneSistemaElo };
         _context.Juegos.Add(nuevoJuego);
         await _context.SaveChangesAsync();
-
-        // --- SOLUCIÓN: Devolver un 201 Created con el objeto directamente ---
         return StatusCode(StatusCodes.Status201Created, nuevoJuego);
     }
 

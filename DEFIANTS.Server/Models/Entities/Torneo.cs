@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-using DEFIANTS.Server.Models.Enums;
+using DEFIANTS.Shared.Enums;
+
 
 namespace DEFIANTS.Server.Models.Entities;
 

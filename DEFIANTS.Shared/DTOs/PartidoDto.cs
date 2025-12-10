@@ -1,3 +1,5 @@
+using DEFIANTS.Shared.Enums; // <-- AÑADIDO
+
 namespace DEFIANTS.Shared.DTOs;
 
 public class PartidoDto
@@ -10,5 +12,5 @@ public class PartidoDto
     public int? EquipoBId { get; set; }
     public string? EquipoBNombre { get; set; }
     public int? EquipoGanadorId { get; set; }
-    public string Estado { get; set; }
+    public EstadoPartido Estado { get; set; } // <-- CAMBIADO DE string A Enum
 }

@@ -1,6 +1,6 @@
 using DEFIANTS.Server.Data;
 using DEFIANTS.Server.Models.Entities;
-using DEFIANTS.Server.Models.Enums;
+using DEFIANTS.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
 using EstadoPago = DEFIANTS.Shared.Enums.EstadoPago;
 
