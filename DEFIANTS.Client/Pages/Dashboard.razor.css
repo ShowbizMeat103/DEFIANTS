@@ -2,7 +2,8 @@
 :root {
     --defiant-red: #E62020;
     --void-black: #0A0A0A;
-    --card-bg: rgba(20, 20, 20, 0.85);
+    /* CAMBIO: Color sólido (Hexadecimal) en lugar de rgba con transparencia */
+    --card-bg: #1A1A1A;
     --card-border: rgba(255, 255, 255, 0.1);
     --text-muted: #888;
 }
@@ -133,25 +134,23 @@
     color: var(--defiant-red);
 }
 
-/* --- GRID SYSTEM --- */
+/* --- GRID SYSTEM (CORRECCIÓN AQUÍ) --- */
 .dashboard-grid {
     display: grid;
     gap: 20px;
+    width: 100%; /* Aseguramos que ocupe todo el ancho */
 }
 
-/* CLASE GENÉRICA (Torneos) */
+/* SOLUCIÓN DEFINITIVA:
+   - 'auto-fit' en lugar de 'auto-fill': Si solo tienes 2 tarjetas, se expanden para llenar la fila.
+   - '300px': Un tamaño más seguro para asegurar que quepan 2 en pantallas medianas.
+*/
 .col-2 {
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }
 
-/* CLASE ESPECÍFICA PARA EQUIPOS (.grid-teams)
-   - 'repeat(auto-fill, ...)' pone tantas columnas como quepan.
-   - 'minmax(320px, 1fr)' asegura que cada tarjeta mida al menos 320px.
-     Si hay espacio para 3 tarjetas de 320px, las pondrá en 1 fila.
-     Si no hay espacio, las bajará a la siguiente fila automáticamente.
-*/
 .grid-teams {
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }
 
 /* CLASE ESPECÍFICA PARA PARTIDOS (.col-1) */
