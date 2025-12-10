@@ -15,6 +15,7 @@
 <div class="login-container">
     <div class="login-card">
 
+        <!-- Encabezado con logo (se mantiene intacto) -->
         <div class="login-header">
             <img src="/logo.png" alt="Logo" width="60" />
             <h2>Iniciar sesión</h2>
@@ -35,6 +36,7 @@
                 @oninput="@(() => errorMessage = null)" />
             <ValidationMessage For="@(() => loginDto.Username)" />
 
+            <!-- Componente InputText con la clase CSS para tus estilos -->
             <InputText
                 @bind-Value="loginDto.Password"
                 type="password"
@@ -68,6 +70,11 @@
     private string? errorMessage;
     private bool isSubmitting = false;
 
+    protected override void OnInitialized()
+    {
+        // No hay lógica de returnUrl aquí
+    }
+
     private async Task HandleLogin()
     {
         isSubmitting = true;
@@ -77,6 +84,8 @@
         {
             var result = await ApiClient.Login(loginDto);
             await LocalStorage.SetItemAsync("authToken", result.Token);
+
+            // Redirigir siempre al inicio
             Navigation.NavigateTo("/", forceLoad: true);
         }
         catch (ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)

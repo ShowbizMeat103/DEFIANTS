@@ -1,6 +1,9 @@
-﻿@page "/cuenta/dashboard"
+﻿@page "/dashboard"
 @attribute [Authorize]
 @using Microsoft.AspNetCore.Authorization
+@using DEFIANTS.Shared.Clients
+@using DEFIANTS.Shared.DTOs
+@inject IApiClient ApiClient
 
 <PageTitle>Dashboard - DEFIANTS</PageTitle>
 
@@ -11,7 +14,7 @@
 <div class="dashboard-layout">
     <div class="container">
 
-        <!-- HEADER / BIENVENIDA -->
+        <!-- HEADER / BIENVENIDA (Sin cambios) -->
         <header class="dashboard-header">
             <div class="header-content">
                 <p class="system-status">/// SYSTEM_CONNECTED /// V.2.0.1</p>
@@ -27,7 +30,6 @@
                 </AuthorizeView>
                 <p class="header-subtitle">Bienvenido al centro de comando. Revisa tus estadísticas y gestiona tu próxima batalla.</p>
             </div>
-
             <div class="header-stats">
                 <div class="stat-badge">
                     <span class="label">ESTADO</span>
@@ -45,50 +47,40 @@
                     <a href="/cuenta/equipos" class="btn-link">[Ver Todos]</a>
                 </div>
             </div>
-
-            <!-- CAMBIO AQUÍ: Usamos una clase específica 'grid-teams' -->
             <div class="dashboard-grid grid-teams">
-                <!-- Tarjeta Equipo 1 -->
-                <article class="dashboard-card team-card">
-                    <div class="card-header">
-                        <h3>EQUIPO ALPHA</h3>
-                        <span class="tag game-lol">LoL</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="data-row">
-                            <span class="label">Rol:</span>
-                            <span class="value">Capitán</span>
-                        </div>
-                        <div class="data-row">
-                            <span class="label">Miembros:</span>
-                            <span class="value">5/5</span>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <a href="/equipos/1" class="btn-action">GESTIONAR</a>
-                    </div>
-                </article>
-
-                <!-- Tarjeta Equipo 2 -->
-                <article class="dashboard-card team-card">
-                    <div class="card-header">
-                        <h3>EQUIPO BETA</h3>
-                        <span class="tag game-val">VALORANT</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="data-row">
-                            <span class="label">Rol:</span>
-                            <span class="value">Titular</span>
-                        </div>
-                        <div class="data-row">
-                            <span class="label">Miembros:</span>
-                            <span class="value">4/5</span>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <a href="/equipos/2" class="btn-action">GESTIONAR</a>
-                    </div>
-                </article>
+                @if (misEquipos == null || juegos == null)
+                {
+                    <p class="loading-message">Cargando equipos...</p>
+                }
+                else if (!misEquipos.Any())
+                {
+                    <p class="no-data-message">Aún no perteneces a ningún equipo.</p>
+                }
+                else
+                {
+                    @foreach (var equipo in misEquipos)
+                    {
+                        <article class="dashboard-card team-card">
+                            <div class="card-header">
+                                <h3>@equipo.Nombre.ToUpper()</h3>
+                                <span class="tag game-lol">@GetJuegoNombre(equipo.JuegoId)</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="data-row">
+                                    <span class="label">Rol:</span>
+                                    <span class="value">@equipo.Rol</span>
+                                </div>
+                                <div class="data-row">
+                                    <span class="label">Miembros:</span>
+                                    <span class="value">@equipo.CantidadMiembros</span>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <a href="/equipos/@equipo.Id" class="btn-action">GESTIONAR</a>
+                            </div>
+                        </article>
+                    }
+                }
             </div>
         </section>
 
@@ -100,33 +92,32 @@
                     <a href="/torneos" class="btn-link">[Explorar Torneos]</a>
                 </div>
             </div>
-
             <div class="dashboard-grid col-2">
-                <!-- Torneo 1 -->
-                <article class="dashboard-card tournament-card active">
-                    <div class="status-indicator"></div>
-                    <div class="card-content">
-                        <h3>TORNEO DE VERANO</h3>
-                        <div class="meta-info">
-                            <span><i class="fas fa-circle status-dot"></i> En Curso</span>
-                            <span><i class="fas fa-users"></i> Equipo Alpha</span>
-                        </div>
-                    </div>
-                    <a href="/torneos/1" class="card-arrow"><i class="fas fa-chevron-right"></i></a>
-                </article>
-
-                <!-- Torneo 2 -->
-                <article class="dashboard-card tournament-card open">
-                    <div class="status-indicator"></div>
-                    <div class="card-content">
-                        <h3>COPA DE INVIERNO</h3>
-                        <div class="meta-info">
-                            <span><i class="far fa-circle status-dot"></i> Insc. Abiertas</span>
-                            <span><i class="fas fa-users"></i> Equipo Beta</span>
-                        </div>
-                    </div>
-                    <a href="/torneos/2" class="card-arrow"><i class="fas fa-chevron-right"></i></a>
-                </article>
+                @if (misInscripciones == null)
+                {
+                    <p class="loading-message">Cargando torneos...</p>
+                }
+                else if (!misInscripciones.Any())
+                {
+                    <p class="no-data-message">No estás inscrito en ningún torneo.</p>
+                }
+                else
+                {
+                    @foreach (var inscripcion in misInscripciones)
+                    {
+                        <article class="dashboard-card tournament-card @GetTournamentStatusClass(inscripcion.Status)">
+                            <div class="status-indicator"></div>
+                            <div class="card-content">
+                                <h3>@inscripcion.TorneoTitulo.ToUpper()</h3>
+                                <div class="meta-info">
+                                    <span><i class="fas fa-circle status-dot"></i> @inscripcion.Status</span>
+                                    <span><i class="fas fa-users"></i> @inscripcion.NombreEquipo</span>
+                                </div>
+                            </div>
+                            <a href="/torneos/@inscripcion.TorneoId" class="card-arrow"><i class="fas fa-chevron-right"></i></a>
+                        </article>
+                    }
+                }
             </div>
         </section>
 
@@ -138,24 +129,36 @@
                     <a href="/partidos" class="btn-link">[Ver Todos Mis Partidos]</a>
                 </div>
             </div>
-
             <div class="dashboard-grid col-1">
-                <!-- Partido Row -->
-                <article class="dashboard-card match-card">
-                    <div class="match-info">
-                        <span class="match-tournament">TORNEO X</span>
-                        <span class="match-round">RONDA 2</span>
-                    </div>
-                    <div class="match-versus">
-                        <span class="team-name own-team">ALPHA</span>
-                        <span class="vs">VS</span>
-                        <span class="team-name enemy-team">GAMMA</span>
-                    </div>
-                    <div class="match-action">
-                        <span class="match-time">20:00 HRS</span>
-                        <a href="/partidos/123" class="btn-small">SALA DE JUEGO</a>
-                    </div>
-                </article>
+                @if (misPartidos == null)
+                {
+                    <p class="loading-message">Cargando partidos...</p>
+                }
+                else if (!misPartidos.Any())
+                {
+                    <p class="no-data-message">No tienes partidos próximos.</p>
+                }
+                else
+                {
+                    @foreach (var partido in misPartidos)
+                    {
+                        <article class="dashboard-card match-card">
+                            <div class="match-info">
+                                <span class="match-tournament">Torneo ID: @partido.Id</span>
+                                <span class="match-round">RONDA @partido.Ronda</span>
+                            </div>
+                            <div class="match-versus">
+                                <span class="team-name own-team">@partido.EquipoANombre?.ToUpper()</span>
+                                <span class="vs">VS</span>
+                                <span class="team-name enemy-team">@partido.EquipoBNombre?.ToUpper()</span>
+                            </div>
+                            <div class="match-action">
+                                <span class="match-time">@partido.Estado.ToString().ToUpper()</span>
+                                <a href="/partidos/@partido.Id" class="btn-small">SALA DE JUEGO</a>
+                            </div>
+                        </article>
+                    }
+                }
             </div>
         </section>
 
@@ -204,5 +207,50 @@
 </div>
 
 @code {
-    // Código C# mock
+    private List<MiEquipoDto>? misEquipos;
+    private List<MiInscripcionDto>? misInscripciones;
+    private List<PartidoDto>? misPartidos;
+    private List<JuegoDto>? juegos;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var equiposTask = ApiClient.GetMisEquipos();
+            var inscripcionesTask = ApiClient.GetMisInscripciones();
+            var partidosTask = ApiClient.GetMisPartidos();
+            var juegosTask = ApiClient.GetJuegos(); // <-- AÑADIDO
+
+            await Task.WhenAll(equiposTask, inscripcionesTask, partidosTask, juegosTask);
+
+            misEquipos = await equiposTask;
+            misInscripciones = await inscripcionesTask;
+            misPartidos = await partidosTask;
+            juegos = await juegosTask; // <-- AÑADIDO
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar los datos del dashboard: {ex.Message}");
+            misEquipos ??= new List<MiEquipoDto>();
+            misInscripciones ??= new List<MiInscripcionDto>();
+            misPartidos ??= new List<PartidoDto>();
+            juegos ??= new List<JuegoDto>();
+        }
+    }
+
+    private string GetJuegoNombre(int juegoId)
+    {
+        return juegos?.FirstOrDefault(j => j.Id == juegoId)?.Nombre ?? "Desconocido";
+    }
+
+    private string GetTournamentStatusClass(string status)
+    {
+        return status switch
+        {
+            "EnCurso" => "active",
+            "InscripcionesAbiertas" => "open",
+            "Finalizado" => "finished",
+            _ => "default"
+        };
+    }
 }
