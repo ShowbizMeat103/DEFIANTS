@@ -92,7 +92,7 @@
         {
             <div class="empty-state">
                 <p>No has creado ningún torneo aún.</p>
-                <p><a href="/tournaments" class="btn-link">Crear uno ahora</a></p>
+                <p><button class="btn-link" @onclick="ShowCreateModal">Crear uno ahora</button></p>
             </div>
         }
     </div>
@@ -169,36 +169,24 @@
 
     protected override void OnInitialized()
     {
-        // Simular que el usuario tiene algunos torneos creados
-        // En producción, esto vendría de un API
-        myTournaments = new List<Tournament>
-        {
-            new Tournament 
-            { 
-                Tag = "VALORANT · 5v5", 
-                Title = "Torneo Interno - Valorant", 
-                DateText = "15 de diciembre 2025", 
-                Info = "16 equipos · Bo3",
-                Description = "Torneo interno para jugadores del equipo. Clasificación hacia la fase final.",
-                Participants = new List<string> { "Equipo Alpha", "Equipo Beta", "Equipo Gamma" }
-            }
-        };
+        // No tournaments by default; will be loaded from API in the future.
+        myTournaments = new List<Tournament>();
     }
 
     private class Tournament
     {
         public bool IsExpanded { get; set; }
-        public string Tag { get; set; }
-        public string Title { get; set; }
+        public string Tag { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
         public DateTime? Date { get; set; }
-        public string DateText { get; set; }
-        public string Info { get; set; }
-        public string Description { get; set; }
+        public string DateText { get; set; } = string.Empty;
+        public string Info { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public List<string> Participants { get; set; } = new();
-        public string ParticipantsRaw { get; set; }
-        public string Bracket { get; set; }
-        public string Rules { get; set; }
-        public string Link { get; set; }
+        public string ParticipantsRaw { get; set; } = string.Empty;
+        public string Bracket { get; set; } = string.Empty;
+        public string Rules { get; set; } = string.Empty;
+        public string Link { get; set; } = string.Empty;
     }
 
     private void ToggleDetails(Tournament t)

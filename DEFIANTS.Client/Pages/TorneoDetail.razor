@@ -1,0 +1,109 @@
+@page "/torneos/{id:int}"
+@using DEFIANTS.Shared.DTOs
+@inject DEFIANTS.Shared.Clients.IApiClient ApiClient
+@inject NavigationManager Navigation
+
+<div class="torneo-detail-container">
+    @if (isLoading)
+    {
+        <div class="loading">Cargando torneo...</div>
+    }
+    else if (!string.IsNullOrEmpty(error))
+    {
+        <div class="error">Error: @error</div>
+        <button class="btn" @onclick="GoBack">Volver</button>
+    }
+    else if (torneo is null)
+    {
+        <div>No se encontró el torneo.</div>
+        <button class="btn" @onclick="GoBack">Volver</button>
+    }
+    else
+    {
+        <div class="header">
+            <h2>@torneo.Titulo</h2>
+            <span class="status">@torneo.Status</span>
+        </div>
+
+        <div class="meta">
+            <span><strong>ID:</strong> @torneo.Id</span>
+            <button class="btn small" @onclick="GoBack">Volver</button>
+        </div>
+
+        <h3>Bracket</h3>
+        @if (torneo.Partidos == null || !torneo.Partidos.Any())
+        {
+            <div class="empty">No hay partidos disponibles para este torneo.</div>
+        }
+        else
+        {
+            <div class="bracket">
+                @foreach (var rondaGroup in Rondas)
+                {
+                    <div class="round">
+                        <div class="round-header">Ronda @rondaGroup.Key</div>
+                        <div class="matches">
+                            @foreach (var partido in rondaGroup.OrderBy(p => p.IndicePartido))
+                            {
+                                <div class="match @(IsWinner(partido, partido.EquipoAId) ? "winner-a" : IsWinner(partido, partido.EquipoBId) ? "winner-b" : "")">
+                                    <div class="team team-a">
+                                        <div class="team-name">@DisplayTeam(partido.EquipoANombre)</div>
+                                    </div>
+                                    <div class="vs">vs</div>
+                                    <div class="team team-b">
+                                        <div class="team-name">@DisplayTeam(partido.EquipoBNombre)</div>
+                                    </div>
+                                    <div class="meta-match">@partido.Estado</div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    private TorneoDetalleDto? torneo;
+    private bool isLoading = true;
+    private string? error;
+
+    private IOrderedEnumerable<IGrouping<int, PartidoDto>> Rondas =>
+        (torneo?.Partidos ?? new List<PartidoDto>())
+            .GroupBy(p => p.Ronda)
+            .OrderBy(g => g.Key);
+
+    protected override async Task OnParametersSetAsync()
+    {
+        isLoading = true;
+        error = null;
+        torneo = null;
+        try
+        {
+            torneo = await ApiClient.GetTorneo(id);
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private string DisplayTeam(string? name) => string.IsNullOrWhiteSpace(name) ? "(pendiente)" : name;
+
+    private bool IsWinner(PartidoDto p, int? equipoId)
+    {
+        if (!equipoId.HasValue) return false;
+        if (!p.EquipoGanadorId.HasValue) return false;
+        return p.EquipoGanadorId.Value == equipoId.Value;
+    }
+
+    private void GoBack() => Navigation.NavigateTo("/torneos");
+}

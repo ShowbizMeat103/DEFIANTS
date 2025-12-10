@@ -1,5 +1,7 @@
 ﻿@page "/tournaments"
 @inject Microsoft.JSInterop.IJSRuntime JS
+@inject NavigationManager Navigation
+@inject DEFIANTS.Shared.Clients.IApiClient ApiClient
 
 <div class="section section-tournaments">
     <div class="container">
@@ -8,7 +10,17 @@
             <p class="section-subtitle">Alístate para las siguientes batallas. Los lugares son limitados y la competencia no espera.</p>
         </div>
 
-        <div class="tournaments-grid">
+        @if (isLoading)
+        {
+            <div class="loading">Cargando torneos...</div>
+        }
+        else if (!string.IsNullOrEmpty(loadError))
+        {
+            <div class="error">Error al cargar: @loadError</div>
+        }
+        else
+        {
+            <div class="tournaments-grid">
             @{
                 var anyExpanded = tournaments.Any(x => x.IsExpanded);
             }
@@ -80,36 +92,39 @@
 
                             
                             <p><strong>Más info:</strong> @t.Info</p>
+
+                            <div style="margin-top:10px">
+                                <button class="tournament-cta" @onclick="() => ViewTournament(t.Id)">Ir al torneo</button>
+                            </div>
                         </div>
                     }
                 </article>
             }
-        </div>
+            </div>
+        }
     </div>
 </div>
 
 @code {
-    private List<Tournament> tournaments = new()
-    {
-        new Tournament { Tag = "VALORANT · 5v5", Title = "Defiants Clash: Neon Protocol", DateText = "18 de enero 2026 · Online", Info = "32 equipos · Eliminación directa", Link = "/tournaments/verano" },
-        new Tournament { Tag = "LoL · Ranked", Title = "Summoner’s Grid: Tier Trials", DateText = "10 de febrero 2026 · Online", Info = "Elo mínimo: Platino II", Link = "/tournaments/invierno" },
-        new Tournament { Tag = "MULTI GAME", Title = "DEFIANTS League · Temporada 1", DateText = "Próximamente", Info = "Shooters · MOBAs · Fighting", Link = "/tournaments/primavera" }
-    };
+    private List<Tournament> tournaments = new();
+    private bool isLoading = true;
+    private string? loadError;
 
     private class Tournament
     {
         public bool IsExpanded { get; set; }
-        public string Tag { get; set; }
-        public string Title { get; set; }
+        public string Tag { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
         public DateTime? Date { get; set; }
-        public string DateText { get; set; }
-        public string Info { get; set; }
-        public string Description { get; set; }
+        public string DateText { get; set; } = string.Empty;
+        public string Info { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public List<string> Participants { get; set; } = new();
-        public string ParticipantsRaw { get; set; }
-        public string Bracket { get; set; }
-        public string Rules { get; set; }
-        public string Link { get; set; }
+        public string ParticipantsRaw { get; set; } = string.Empty;
+        public string Bracket { get; set; } = string.Empty;
+        public string Rules { get; set; } = string.Empty;
+        public string Link { get; set; } = string.Empty;
+        public int Id { get; set; }
     }
 
     private List<string> ParseParticipants(string raw)
@@ -121,6 +136,38 @@
                        .Where(p => !string.IsNullOrWhiteSpace(p))
                        .ToList();
         return lines;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        loadError = null;
+        try
+        {
+            var lista = await ApiClient.GetTorneos();
+            tournaments = lista.Select(dto => new Tournament
+            {
+                Id = dto.Id,
+                Tag = dto.Status,
+                Title = dto.Titulo,
+                Date = null,
+                DateText = string.Empty,
+                Info = dto.MaxEquipos > 0 ? $"Máx equipos: {dto.MaxEquipos}" : string.Empty,
+                Description = string.Empty,
+                Participants = new List<string>(),
+                Bracket = string.Empty,
+                Rules = string.Empty,
+                Link = $"/torneos/{dto.Id}"
+            }).ToList();
+        }
+        catch (Exception ex)
+        {
+            loadError = ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private bool IsImageUrl(string url)
@@ -139,5 +186,10 @@
         }
 
         t.IsExpanded = !t.IsExpanded;
+    }
+
+    private void ViewTournament(int id)
+    {
+        Navigation.NavigateTo($"/torneos/{id}");
     }
 }
