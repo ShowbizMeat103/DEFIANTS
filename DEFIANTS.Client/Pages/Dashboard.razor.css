@@ -1,19 +1,18 @@
-﻿/* --- VARIABLES --- */
-:root {
+﻿/* --- VARIABLES (MOVIDAS AL CONTENEDOR) --- */
+/* IMPORTANTE: En Blazor, :root no funciona bien en CSS aislado.
+   Se mueven a .dashboard-layout para que apliquen correctamente. */
+.dashboard-layout {
     --defiant-red: #E62020;
     --void-black: #0A0A0A;
-    /* CAMBIO: Color sólido (Hexadecimal) en lugar de rgba con transparencia */
-    --card-bg: #1A1A1A;
+    --card-bg: rgba(20, 20, 20, 0.85);
     --card-border: rgba(255, 255, 255, 0.1);
     --text-muted: #888;
-}
 
-/* --- LAYOUT GENERAL --- */
-.dashboard-layout {
     min-height: 100vh;
     background-color: var(--void-black);
     color: white;
     font-family: 'JetBrains Mono', monospace;
+    /* Fondo de grilla */
     background-image:
             linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
             linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
@@ -22,7 +21,7 @@
 }
 
 .container {
-    max-width: 1200px; /* Ancho estándar mantenido */
+    max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
 }
@@ -134,26 +133,26 @@
     color: var(--defiant-red);
 }
 
-/* --- GRID SYSTEM (CORRECCIÓN AQUÍ) --- */
+/* --- GRID SYSTEM --- */
 .dashboard-grid {
     display: grid;
     gap: 20px;
-    width: 100%; /* Aseguramos que ocupe todo el ancho */
+    width: 100%;
 }
 
-/* SOLUCIÓN DEFINITIVA:
-   - 'auto-fit' en lugar de 'auto-fill': Si solo tienes 2 tarjetas, se expanden para llenar la fila.
-   - '300px': Un tamaño más seguro para asegurar que quepan 2 en pantallas medianas.
+/* LAYOUT DESEADO: auto-fill + minmax
+   - Mantiene el tamaño de tarjeta (mínimo 300px).
+   - NO las estira gigantes.
+   - Las apila si no caben.
 */
 .col-2 {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 }
 
 .grid-teams {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 }
 
-/* CLASE ESPECÍFICA PARA PARTIDOS (.col-1) */
 .col-1 {
     grid-template-columns: 1fr;
     max-width: 1000px;
@@ -163,7 +162,8 @@
 
 /* --- CARDS GENERAL --- */
 .dashboard-card {
-    background: var(--card-bg);
+    /* Aquí usamos la variable que ahora SÍ existe gracias a moverla a .dashboard-layout */
+    background-color: var(--card-bg);
     border: 1px solid var(--card-border);
     padding: 20px;
     position: relative;
