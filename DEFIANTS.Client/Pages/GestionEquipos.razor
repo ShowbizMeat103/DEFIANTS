@@ -1,0 +1,297 @@
+@page "/equipos/gestion"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@using DEFIANTS.Shared.Clients
+@using DEFIANTS.Shared.DTOs
+@inject IApiClient ApiClient
+@inject NavigationManager Navigation
+
+<div class="section section-teams">
+    <div class="container">
+        <div class="section-header">
+            <h1 class="section-title">Gestión de Equipos</h1>
+            <p class="section-subtitle">Crea y administra tus equipos. Sólo los capitanes pueden editar o disolver.</p>
+        </div>
+
+        <div class="team-management">
+            <div class="create-team">
+                <h3>Crear nuevo equipo</h3>
+                <EditForm Model="newTeam" OnValidSubmit="CreateTeam">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="form-group">
+                        <label>Nombre del equipo</label>
+                        <InputText class="form-control" @bind-Value="newTeam.Nombre" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Juego</label>
+                        <InputSelect class="form-control" @bind-Value="newTeam.JuegoId">
+                            <option value="0">-- Selecciona --</option>
+                            @foreach (var j in juegos)
+                            {
+                                <option value="@j.Id">@j.Nombre</option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <div style="margin-top:8px">
+                        <button class="btn btn-primary" type="submit" disabled="@isCreating">@((isCreating) ? "Creando..." : "Crear equipo")</button>
+                    </div>
+                </EditForm>
+                @if (!string.IsNullOrEmpty(createMessage)) { <div class="info">@createMessage</div> }
+                @if (!string.IsNullOrEmpty(createError)) { <div class="error">@createError</div> }
+            </div>
+
+            <div class="my-teams" style="margin-top:20px">
+                <h3>Mis equipos</h3>
+                @if (isLoading)
+                {
+                    <div>Cargando equipos...</div>
+                }
+                else if (!string.IsNullOrEmpty(loadError))
+                {
+                    <div class="error">Error: @loadError</div>
+                }
+                else
+                {
+                    @if (misEquipos == null || !misEquipos.Any())
+                    {
+                        <div>No tienes equipos todavía.</div>
+                    }
+                    else
+                    {
+                        <div class="teams-list">
+                            @foreach (var t in misEquipos)
+                            {
+                                <div class="team-card">
+                                    <div class="team-main">
+                                        <strong>@t.Nombre</strong> <small>(Juego: @GetJuegoNombre(t.JuegoId))</small>
+                                    </div>
+                                    <div class="team-actions">
+                                        <button class="btn btn-secondary" @onclick="() => ViewEquipo(t.Id)">Ver</button>
+                                        <button class="btn btn-ghost" @onclick="() => ToggleEdit(t)">Editar</button>
+                                        <button class="btn btn-danger" @onclick="() => ConfirmDisolver(t.Id)">Disolver</button>
+                                    </div>
+
+                                    @if (t.IsEditing)
+                                    {
+                                        <div class="team-edit" style="margin-top:8px">
+                                            <InputText class="form-control" @bind-Value="t.EditNombre" />
+                                            <div style="margin-top:6px">
+                                                <button class="btn btn-primary" @onclick="() => SaveEdit(t)" disabled="@t.IsSaving">Guardar</button>
+                                                <button class="btn btn-secondary" @onclick="() => CancelEdit(t)">Cancelar</button>
+                                            </div>
+                                            @if (!string.IsNullOrEmpty(t.EditError)) { <div class="error">@t.EditError</div> }
+                                        </div>
+                                    }
+
+                                    <div class="team-invite" style="margin-top:8px">
+                                        <InputText placeholder="username a invitar" @bind-Value="t.InviteUsername" class="form-control" />
+                                        <div style="margin-top:6px">
+                                            <button class="btn btn-primary" @onclick="() => InviteToTeam(t)" disabled="@t.IsInviting">Invitar</button>
+                                            @if (!string.IsNullOrEmpty(t.InviteMessage)) { <span class="info">@t.InviteMessage</span> }
+                                            @if (!string.IsNullOrEmpty(t.InviteError)) { <span class="error">@t.InviteError</span> }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<JuegoDto> juegos = new();
+    private List<MiEquipoView> misEquipos = new();
+    private CrearEquipoDto newTeam = new();
+    private bool isLoading = true;
+    private bool isCreating = false;
+    private string? loadError;
+    private string? createMessage;
+    private string? createError;
+
+    private class MiEquipoView : MiEquipoDto
+    {
+        public bool IsEditing { get; set; }
+        public string EditNombre { get; set; } = string.Empty;
+        public bool IsSaving { get; set; }
+        public string? EditError { get; set; }
+
+        public string InviteUsername { get; set; } = string.Empty;
+        public bool IsInviting { get; set; }
+        public string? InviteMessage { get; set; }
+        public string? InviteError { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        isLoading = true;
+        loadError = null;
+        try
+        {
+            juegos = await ApiClient.GetJuegos();
+            var lista = await ApiClient.GetMisEquipos();
+            misEquipos = lista.Select(dto => new MiEquipoView
+            {
+                Id = dto.Id,
+                Nombre = dto.Nombre,
+                JuegoId = dto.JuegoId,
+                Rol = dto.Rol,
+                EditNombre = dto.Nombre
+            }).ToList();
+        }
+        catch (Exception ex)
+        {
+            loadError = ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private string GetJuegoNombre(int juegoId)
+    {
+        var j = juegos.FirstOrDefault(x => x.Id == juegoId);
+        return j == null ? "Desconocido" : j.Nombre;
+    }
+
+    private async Task CreateTeam()
+    {
+        createMessage = null;
+        createError = null;
+        isCreating = true;
+        try
+        {
+            var created = await ApiClient.CrearEquipo(newTeam);
+            createMessage = $"Equipo '{created.Nombre}' creado.";
+            // Refresh list
+            await LoadData();
+            newTeam = new CrearEquipoDto();
+        }
+        catch (Exception ex)
+        {
+            createError = ex.Message;
+        }
+        finally
+        {
+            isCreating = false;
+        }
+    }
+
+    private void ViewEquipo(int id)
+    {
+        Navigation.NavigateTo($"/equipos/{id}");
+    }
+
+    private void ToggleEdit(MiEquipoView t)
+    {
+        t.IsEditing = !t.IsEditing;
+        t.EditError = null;
+    }
+
+    private void CancelEdit(MiEquipoView t)
+    {
+        t.IsEditing = false;
+        t.EditNombre = t.Nombre;
+        t.EditError = null;
+    }
+
+    private async Task SaveEdit(MiEquipoView t)
+    {
+        t.EditError = null;
+        t.IsSaving = true;
+        try
+        {
+            var dto = new CrearEquipoDto { Nombre = t.EditNombre, JuegoId = t.JuegoId };
+            await ApiClient.ActualizarEquipo(t.Id, dto);
+            t.Nombre = t.EditNombre;
+            t.IsEditing = false;
+        }
+        catch (Exception ex)
+        {
+            t.EditError = ex.Message;
+        }
+        finally
+        {
+            t.IsSaving = false;
+        }
+    }
+
+    private async Task InviteToTeam(MiEquipoView t)
+    {
+        t.InviteError = null;
+        t.InviteMessage = null;
+        t.IsInviting = true;
+        try
+        {
+            var dto = new InvitarMiembroDto { Username = t.InviteUsername };
+            await ApiClient.AnadirMiembro(t.Id, dto);
+            t.InviteMessage = $"Invitación enviada a '{t.InviteUsername}'.";
+            t.InviteUsername = string.Empty;
+            // Optionally refresh details elsewhere
+        }
+        catch (Exception ex)
+        {
+            t.InviteError = ex.Message;
+        }
+        finally
+        {
+            t.IsInviting = false;
+        }
+    }
+
+    private async Task ConfirmDisolver(int id)
+    {
+        if (!await JsConfirmAsync($"¿Deseas disolver el equipo #{id}? Esta acción no se puede deshacer.")) return;
+        await DisolverEquipo(id);
+    }
+
+    private async Task DisolverEquipo(int id)
+    {
+        try
+        {
+            await ApiClient.DisolverEquipo(id);
+            await LoadData();
+        }
+        catch (Exception ex)
+        {
+            // Show a simple alert
+            await JsAlertAsync($"Error al disolver: {ex.Message}");
+        }
+    }
+
+    // Small JS helpers via NavigationManager + window.confirm/alert through JSInterop
+    [Microsoft.AspNetCore.Components.Inject]
+    private Microsoft.JSInterop.IJSRuntime JS { get; set; } = default!;
+
+    private async Task<bool> JsConfirmAsync(string message)
+    {
+        try
+        {
+            return await JS.InvokeAsync<bool>("confirm", message);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private async Task JsAlertAsync(string message)
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("alert", message);
+        }
+        catch { }
+    }
+}
