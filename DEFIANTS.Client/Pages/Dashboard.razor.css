@@ -21,13 +21,7 @@
 }
 
 .container {
-    /* AJUSTE USER (ANCHO TOTAL):
-       Cambia '1400px' si quieres la página más ancha o más estrecha.
-       - 1200px: Estándar clásico.
-       - 1400px: Ancho moderno.
-       - 1600px+: Muy ancho (estilo ultrawide).
-    */
-    max-width: 1400px;
+    max-width: 1200px; /* Ancho estándar mantenido */
     margin: 0 auto;
     padding: 20px;
 }
@@ -145,21 +139,22 @@
     gap: 20px;
 }
 
-/* AJUSTE USER (COLUMNAS):
-   - 'minmax(300px, 1fr)': Significa que cada tarjeta medirá MÍNIMO 300px.
-   - Si bajas este número (ej. 250px), cabrán más tarjetas en la misma fila.
-   - Si lo subes (ej. 400px), cabrán menos y se bajarán antes.
-   - 'auto-fit': Rellena el hueco automáticamente.
-*/
+/* CLASE GENÉRICA (Torneos) */
 .col-2 {
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }
 
-/* AJUSTE ESPECÍFICO PARA PARTIDOS (.col-1):
-   Le ponemos un 'max-width' propio y lo centramos con 'margin: 0 auto'.
-   Así, aunque la pantalla sea enorme, la tarjeta de partido se queda en 1000px
-   y no se deforma.
+/* CLASE ESPECÍFICA PARA EQUIPOS (.grid-teams)
+   - 'repeat(auto-fill, ...)' pone tantas columnas como quepan.
+   - 'minmax(320px, 1fr)' asegura que cada tarjeta mida al menos 320px.
+     Si hay espacio para 3 tarjetas de 320px, las pondrá en 1 fila.
+     Si no hay espacio, las bajará a la siguiente fila automáticamente.
 */
+.grid-teams {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+
+/* CLASE ESPECÍFICA PARA PARTIDOS (.col-1) */
 .col-1 {
     grid-template-columns: 1fr;
     max-width: 1000px;
@@ -174,7 +169,6 @@
     padding: 20px;
     position: relative;
     transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
-    /* Aseguramos que el contenido no se rompa */
     min-width: 0;
 }
 
@@ -410,12 +404,7 @@
 }
 
 /* --- RESPONSIVE --- */
-/* Mobile fallback: 1 sola columna si la pantalla es muy pequeña (<600px) */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
     .match-versus { font-size: 1.2rem; }
     .header-content h1 { font-size: 1.8rem; }
-
-    .col-2 {
-        grid-template-columns: 1fr;
-    }
 }

@@ -28,9 +28,6 @@
                 <p class="header-subtitle">Bienvenido al centro de comando. Revisa tus estadísticas y gestiona tu próxima batalla.</p>
             </div>
 
-            <!-- ACCIONES RÁPIDAS (Movido arriba para acceso inmediato o según preferencia,
-                 pero el esquema lo pone abajo. Lo pondré abajo según esquema,
-                 pero dejo este espacio por si quieres status global) -->
             <div class="header-stats">
                 <div class="stat-badge">
                     <span class="label">ESTADO</span>
@@ -49,8 +46,49 @@
                 </div>
             </div>
 
-            <div class="dashboard-grid col-2">
+            <!-- CAMBIO AQUÍ: Usamos una clase específica 'grid-teams' -->
+            <div class="dashboard-grid grid-teams">
                 <!-- Tarjeta Equipo 1 -->
+                <article class="dashboard-card team-card">
+                    <div class="card-header">
+                        <h3>EQUIPO ALPHA</h3>
+                        <span class="tag game-lol">LoL</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="data-row">
+                            <span class="label">Rol:</span>
+                            <span class="value">Capitán</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="label">Miembros:</span>
+                            <span class="value">5/5</span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a href="/equipos/1" class="btn-action">GESTIONAR</a>
+                    </div>
+                </article>
+
+                <article class="dashboard-card team-card">
+                    <div class="card-header">
+                        <h3>EQUIPO ALPHA</h3>
+                        <span class="tag game-lol">LoL</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="data-row">
+                            <span class="label">Rol:</span>
+                            <span class="value">Capitán</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="label">Miembros:</span>
+                            <span class="value">5/5</span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a href="/equipos/1" class="btn-action">GESTIONAR</a>
+                    </div>
+                </article>
+
                 <article class="dashboard-card team-card">
                     <div class="card-header">
                         <h3>EQUIPO ALPHA</h3>
@@ -105,6 +143,30 @@
 
             <div class="dashboard-grid col-2">
                 <!-- Torneo 1 -->
+                <article class="dashboard-card tournament-card active">
+                    <div class="status-indicator"></div>
+                    <div class="card-content">
+                        <h3>TORNEO DE VERANO</h3>
+                        <div class="meta-info">
+                            <span><i class="fas fa-circle status-dot"></i> En Curso</span>
+                            <span><i class="fas fa-users"></i> Equipo Alpha</span>
+                        </div>
+                    </div>
+                    <a href="/torneos/1" class="card-arrow"><i class="fas fa-chevron-right"></i></a>
+                </article>
+
+                <article class="dashboard-card tournament-card active">
+                    <div class="status-indicator"></div>
+                    <div class="card-content">
+                        <h3>TORNEO DE VERANO</h3>
+                        <div class="meta-info">
+                            <span><i class="fas fa-circle status-dot"></i> En Curso</span>
+                            <span><i class="fas fa-users"></i> Equipo Alpha</span>
+                        </div>
+                    </div>
+                    <a href="/torneos/1" class="card-arrow"><i class="fas fa-chevron-right"></i></a>
+                </article>
+
                 <article class="dashboard-card tournament-card active">
                     <div class="status-indicator"></div>
                     <div class="card-content">
@@ -206,6 +268,5 @@
 </div>
 
 @code {
-    // Aquí iría la carga de datos real mediante IApiClient
-    // Por ahora usamos la estructura estática para diseño
+    // Código C# mock
 }
