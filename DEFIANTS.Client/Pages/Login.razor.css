@@ -90,8 +90,11 @@ body.bg-light {
   font-size: 1.8rem;
 }
 
+/* --- SELECTORES CORREGIDOS CON ::deep --- */
+
 /* Inputs */
-form input {
+/* Le decimos que busque .login-input-field en cualquier nivel de profundidad dentro del componente */
+::deep .login-input-field {
   width: 100%;
   padding: 15px;
   margin-bottom: 15px;
@@ -103,7 +106,7 @@ form input {
   box-sizing: border-box;
   transition: all 0.3s ease;
 }
-form input:focus {
+::deep .login-input-field:focus {
   border-color: var(--color-primary);
   outline: none;
   transform: scale(1.02);
@@ -111,7 +114,9 @@ form input:focus {
 }
 
 /* Botón de enviar */
-form button {
+/* El botón es un elemento HTML estándar, por lo que no siempre necesita ::deep,
+   pero usarlo por consistencia no hace daño y lo hace más robusto. */
+::deep .login-submit-button {
   width: 100%;
   padding: 15px;
   background: #E62020;
@@ -123,15 +128,17 @@ form button {
   cursor: pointer;
   transition: all 0.3s ease;
 }
-form button:hover {
+::deep .login-submit-button:hover {
   background: #000000;
   color: #E62020;
   transform: translateY(-3px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
-form button:active {
+::deep .login-submit-button:active {
   transform: translateY(0);
 }
+
+/* ------------------------------------ */
 
 /* Enlace de registro */
 .registro {

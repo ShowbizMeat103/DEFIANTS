@@ -7,6 +7,7 @@ using DEFIANTS.Shared.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using DEFIANTS.Shared.Enums; // <-- AÑADIDO
 
 namespace DEFIANTS.Server.Controllers;
 
@@ -24,7 +25,6 @@ public class TorneosController : ControllerBase
         _context = context;
     }
 
-    // --- MÉTODO MODIFICADO PARA USAR DTOs ---
     [HttpGet]
     [AllowAnonymous]
     public async Task<ActionResult<List<TorneoResumenDto>>> GetTorneos()
@@ -41,21 +41,20 @@ public class TorneosController : ControllerBase
         return Ok(torneos);
     }
 
-    // ... (resto de los métodos) ...
+    // --- MÉTODO MODIFICADO PARA USAR DTOs ---
     [HttpGet("misinscripciones")]
-    public async Task<IActionResult> GetMisInscripciones()
+    public async Task<ActionResult<List<MiInscripcionDto>>> GetMisInscripciones()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
         var misInscripciones = await _context.Inscripciones
             .Where(i => i.Equipo.Miembros.Any(m => m.PerfilJuego.UsuarioId == userId))
-            .Include(i => i.Torneo)
-            .Select(i => new
+            .Select(i => new MiInscripcionDto
             {
-                i.Torneo.Id,
-                i.Torneo.Titulo,
-                i.Torneo.Status,
+                TorneoId = i.Torneo.Id,
+                TorneoTitulo = i.Torneo.Titulo,
+                Status = i.Torneo.Status.ToString(),
                 NombreEquipo = i.Equipo.Nombre
             })
             .ToListAsync();
@@ -94,8 +93,9 @@ public class TorneosController : ControllerBase
         return Ok(torneoDto);
     }
 
+    // --- MÉTODO MODIFICADO PARA USAR DTOs ---
     [HttpGet("{torneoId}/inscripciones")]
-    public async Task<IActionResult> GetInscripciones(int torneoId)
+    public async Task<ActionResult<List<InscripcionDetalleDto>>> GetInscripciones(int torneoId)
     {
         var torneo = await _context.Torneos.FindAsync(torneoId);
         if (torneo == null) return NotFound("Torneo no encontrado.");
@@ -108,8 +108,13 @@ public class TorneosController : ControllerBase
 
         var inscripciones = await _context.Inscripciones
             .Where(i => i.TorneoId == torneoId)
-            .Include(i => i.Equipo)
-            .Select(i => new { i.Id, i.EquipoId, i.Equipo.Nombre, i.EstadoPago })
+            .Select(i => new InscripcionDetalleDto
+            {
+                Id = i.Id,
+                EquipoId = i.EquipoId,
+                NombreEquipo = i.Equipo.Nombre,
+                EstadoPago = i.EstadoPago
+            })
             .ToListAsync();
 
         return Ok(inscripciones);

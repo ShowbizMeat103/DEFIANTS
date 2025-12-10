@@ -1,44 +1,60 @@
 @page "/login"
+@using DEFIANTS.Shared.Clients
+@using DEFIANTS.Shared.DTOs
+@using Refit
+@inject IApiClient ApiClient
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject NavigationManager Navigation
 
-<!-- Normalmente estos <link> van en index.html o _Host.cshtml, 
-     los dejo aquí para que veas qué estilos necesitas -->
+<PageTitle>Iniciar Sesión</PageTitle>
 
-<link
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-    rel="stylesheet" />
-<link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-    rel="stylesheet" />
-
-
+<!-- NOTA: Estos <link> deberían moverse al index.html para no cargarlos en cada página -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
 <div class="login-container">
     <div class="login-card">
 
-        
-
-        <!-- Encabezado con logo -->
         <div class="login-header">
             <img src="/logo.png" alt="Logo" width="60" />
             <h2>Iniciar sesión</h2>
         </div>
 
-        <!-- Solo estructura visual del formulario -->
-        <form>
-            <input
-                type="text"
-                name="usuario"
+        <EditForm Model="@loginDto" OnValidSubmit="HandleLogin" class="login-form">
+            <DataAnnotationsValidator />
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="login-error-message">@errorMessage</div>
+            }
+
+            <InputText
+                @bind-Value="loginDto.Username"
                 placeholder="Gamertag"
-                required />
+                class="login-input-field"
+                @oninput="@(() => errorMessage = null)" />
+            <ValidationMessage For="@(() => loginDto.Username)" />
 
-            <input
+            <InputText
+                @bind-Value="loginDto.Password"
                 type="password"
-                name="contrasena"
                 placeholder="Contraseña"
-                required />
+                class="login-input-field"
+                @oninput="@(() => errorMessage = null)" />
+            <ValidationMessage For="@(() => loginDto.Password)" />
 
-            <button type="submit">Iniciar sesión</button>
-        </form>
+            <button type="submit" class="login-submit-button" disabled="@isSubmitting">
+                @if (isSubmitting)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span> Ingresando...</span>
+                }
+                else
+                {
+                    <span>Iniciar sesión</span>
+                }
+            </button>
+        </EditForm>
 
         <p class="registro">
             ¿No tienes una cuenta?
@@ -46,3 +62,34 @@
         </p>
     </div>
 </div>
+
+@code {
+    private LoginDto loginDto = new();
+    private string? errorMessage;
+    private bool isSubmitting = false;
+
+    private async Task HandleLogin()
+    {
+        isSubmitting = true;
+        errorMessage = null;
+
+        try
+        {
+            var result = await ApiClient.Login(loginDto);
+            await LocalStorage.SetItemAsync("authToken", result.Token);
+            Navigation.NavigateTo("/", forceLoad: true);
+        }
+        catch (ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            errorMessage = "Nombre de usuario o contraseña incorrectos.";
+        }
+        catch (Exception)
+        {
+            errorMessage = "Ocurrió un error de conexión. Por favor, intenta de nuevo.";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+}

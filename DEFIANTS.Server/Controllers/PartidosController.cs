@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using DEFIANTS.Server.Data;
-using DEFIANTS.Server.Models.Entities;
 using DEFIANTS.Server.Models.Enums;
 using DEFIANTS.Shared.DTOs;
 using Microsoft.AspNetCore.Authorization;
@@ -21,48 +20,33 @@ public class PartidosController : ControllerBase
         _context = context;
     }
 
-    // GET: api/partidos/mispartidos
+    // --- MÉTODO MODIFICADO PARA USAR DTOs ---
     [HttpGet("mispartidos")]
-    public async Task<IActionResult> GetMisPartidos()
+    public async Task<ActionResult<List<PartidoDto>>> GetMisPartidos()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
-        var misEquiposIds = await _context.MiembrosEquipo
-            .Where(m => m.PerfilJuego.UsuarioId == userId)
-            .Select(m => m.EquipoId)
-            .Distinct()
-            .ToListAsync();
-
-        if (!misEquiposIds.Any())
-        {
-            return Ok(new List<object>()); 
-        }
-
         var misPartidos = await _context.Partidos
-            .Where(p => (p.EquipoA_Id.HasValue && misEquiposIds.Contains(p.EquipoA_Id.Value)) ||
-                        (p.EquipoB_Id.HasValue && misEquiposIds.Contains(p.EquipoB_Id.Value)))
-            .Include(p => p.EquipoA)
-            .Include(p => p.EquipoB)
-            .Include(p => p.Torneo)
-            .Select(p => new
+            .Where(p => (p.EquipoA != null && p.EquipoA.Miembros.Any(m => m.PerfilJuego.UsuarioId == userId)) ||
+                        (p.EquipoB != null && p.EquipoB.Miembros.Any(m => m.PerfilJuego.UsuarioId == userId)))
+            .Select(p => new PartidoDto
             {
-                p.Id,
-                TorneoTitulo = p.Torneo.Titulo,
-                EquipoA = p.EquipoA != null ? p.EquipoA.Nombre : "TBD",
-                EquipoB = p.EquipoB != null ? p.EquipoB.Nombre : "TBD",
-                p.Ronda,
-                p.Estado,
-                p.EquipoGanadorId,
-                p.ScoreA,
-                p.ScoreB
+                Id = p.Id,
+                Ronda = p.Ronda,
+                IndicePartido = p.IndicePartido,
+                EquipoAId = p.EquipoA_Id,
+                EquipoANombre = p.EquipoA != null ? p.EquipoA.Nombre : "TBD",
+                EquipoBId = p.EquipoB_Id,
+                EquipoBNombre = p.EquipoB != null ? p.EquipoB.Nombre : "TBD",
+                EquipoGanadorId = p.EquipoGanadorId,
+                Estado = p.Estado.ToString()
             })
             .ToListAsync();
 
         return Ok(misPartidos);
     }
 
-    // GET: api/partidos/5
     [HttpGet("{id}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetPartido(int id)
@@ -91,7 +75,6 @@ public class PartidosController : ControllerBase
         return Ok(partido);
     }
 
-    // PUT: api/partidos/5
     [HttpPut("{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CorregirPartido(int id, [FromBody] CorregirPartidoDto partidoDto)

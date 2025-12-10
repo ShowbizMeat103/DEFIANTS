@@ -24,7 +24,6 @@ public class EquiposController : ControllerBase
         _userManager = userManager;
     }
 
-    // --- MÉTODO MODIFICADO PARA USAR DTOs ---
     [HttpGet]
     [AllowAnonymous]
     public async Task<ActionResult<List<EquipoResumenDto>>> GetEquipos()
@@ -41,22 +40,21 @@ public class EquiposController : ControllerBase
         return Ok(equipos);
     }
 
-    // ... (resto de los métodos) ...
+    // --- MÉTODO MODIFICADO PARA USAR DTOs ---
     [HttpGet("misequipos")]
-    public async Task<IActionResult> GetMisEquipos()
+    public async Task<ActionResult<List<MiEquipoDto>>> GetMisEquipos()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
         var misEquipos = await _context.MiembrosEquipo
             .Where(m => m.PerfilJuego.UsuarioId == userId)
-            .Include(m => m.Equipo)
-            .Select(m => new
+            .Select(m => new MiEquipoDto
             {
-                m.Equipo.Id,
-                m.Equipo.Nombre,
-                m.Equipo.JuegoId,
-                m.Rol
+                Id = m.Equipo.Id,
+                Nombre = m.Equipo.Nombre,
+                JuegoId = m.Equipo.JuegoId,
+                Rol = m.Rol
             })
             .ToListAsync();
 

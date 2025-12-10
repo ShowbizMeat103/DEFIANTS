@@ -2,6 +2,7 @@ using DEFIANTS.Server.Data;
 using DEFIANTS.Server.Models.Entities;
 using DEFIANTS.Server.Models.Enums;
 using Microsoft.EntityFrameworkCore;
+using EstadoPago = DEFIANTS.Shared.Enums.EstadoPago;
 
 namespace DEFIANTS.Server.Services;
 

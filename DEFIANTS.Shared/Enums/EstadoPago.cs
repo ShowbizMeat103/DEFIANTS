@@ -1,4 +1,4 @@
-namespace DEFIANTS.Server.Models.Enums;
+namespace DEFIANTS.Shared.Enums;
 
 public enum EstadoPago
 {

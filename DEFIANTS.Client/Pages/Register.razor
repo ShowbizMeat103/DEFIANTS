@@ -1,57 +1,67 @@
 @page "/registro"
+@using DEFIANTS.Shared.Clients
+@using DEFIANTS.Shared.DTOs
+@using Refit
+@inject IApiClient ApiClient
+@inject NavigationManager Navigation
 
-<link
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-    rel="stylesheet" />
-<link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-    rel="stylesheet" />
+<PageTitle>Crear Cuenta</PageTitle>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
 <a class="back-button" href="/">Atrás</a>
 
 <div class="login-container">
     <div class="login-card register-card">
-        <!-- Encabezado con logo -->
         <div class="login-header">
             <img src="/logo.png" alt="Logo" width="60" />
             <h2>Crear cuenta</h2>
             <p class="login-subtitle">Únete a la experiencia DEFIANTS</p>
         </div>
 
-        <!-- Formulario de registro -->
-        <form>
-            <input
-                type="text"
-                name="nombreCompleto"
-                placeholder="Nombre completo"
-                required />
+        <EditForm Model="@registerDto" OnValidSubmit="HandleRegistration" class="register-form">
+            <DataAnnotationsValidator />
 
-            <input
-                type="text"
-                name="gametag"
-                placeholder="Gametag"
-                required />
+            @if (errorMessages.Any())
+            {
+                <div class="login-error-message">
+                    <ul>
+                        @foreach (var error in errorMessages)
+                        {
+                            <li>@error</li>
+                        }
+                    </ul>
+                </div>
+            }
+            @if (isSuccess)
+            {
+                <div class="login-success-message">
+                    ¡Registro exitoso! Serás redirigido al login en 3 segundos...
+                </div>
+            }
 
-            <input
-                type="date"
-                name="fechaNacimiento"
-                placeholder="Fecha de nacimiento"
-                required />
+            <InputText @bind-Value="registerDto.Username" placeholder="Gametag" class="register-input-field" />
+            <ValidationMessage For="@(() => registerDto.Username)" />
 
-            <input
-                type="email"
-                name="correo"
-                placeholder="Correo electrónico"
-                required />
+            <InputText @bind-Value="registerDto.Email" type="email" placeholder="Correo electrónico" class="register-input-field" />
+            <ValidationMessage For="@(() => registerDto.Email)" />
 
-            <input
-                type="password"
-                name="contrasena"
-                placeholder="Contraseña"
-                required />
+            <InputText @bind-Value="registerDto.Password" type="password" placeholder="Contraseña" class="register-input-field" />
+            <ValidationMessage For="@(() => registerDto.Password)" />
 
-            <button type="submit">Registrarme</button>
-        </form>
+            <button type="submit" class="register-submit-button" disabled="@isSubmitting">
+                @if (isSubmitting)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span> Registrando...</span>
+                }
+                else
+                {
+                    <span>Registrarme</span>
+                }
+            </button>
+        </EditForm>
 
         <p class="switch-auth">
             ¿Ya tienes una cuenta?
@@ -59,3 +69,57 @@
         </p>
     </div>
 </div>
+
+@code {
+    private RegisterDto registerDto = new();
+    private List<string> errorMessages = new();
+    private bool isSubmitting = false;
+    private bool isSuccess = false;
+
+    private async Task HandleRegistration()
+    {
+        isSubmitting = true;
+        errorMessages.Clear();
+        isSuccess = false;
+
+        try
+        {
+            await ApiClient.Register(registerDto);
+            isSuccess = true;
+
+            await Task.Delay(3000);
+            Navigation.NavigateTo("/login");
+        }
+        catch (ApiException ex)
+        {
+            if (ex.StatusCode == System.Net.HttpStatusCode.BadRequest && ex.Content != null)
+            {
+                var errorResponse = System.Text.Json.JsonSerializer.Deserialize<ErrorResponseDto>(ex.Content, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                if (errorResponse?.Errors != null)
+                {
+                    errorMessages = errorResponse.Errors.Select(e => e.Description).ToList();
+                }
+                else
+                {
+                    errorMessages.Add("Ocurrió un error con los datos enviados.");
+                }
+            }
+            else if (ex.StatusCode == System.Net.HttpStatusCode.Conflict)
+            {
+                errorMessages.Add("El nombre de usuario o el email ya están en uso.");
+            }
+            else
+            {
+                errorMessages.Add("Ocurrió un error inesperado. Por favor, intenta de nuevo.");
+            }
+        }
+        catch (Exception)
+        {
+            errorMessages.Add("Ocurrió un error de conexión. Por favor, revisa tu conexión a internet.");
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+}

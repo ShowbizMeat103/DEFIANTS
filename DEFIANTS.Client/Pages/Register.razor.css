@@ -90,8 +90,8 @@ body.bg-light {
   font-size: 1.8rem;
 }
 
-/* Inputs */
-form input {
+/* --- SELECTORES CORREGIDOS CON ::deep --- */
+::deep .register-input-field {
   width: 100%;
   padding: 15px;
   margin-bottom: 15px;
@@ -103,15 +103,14 @@ form input {
   box-sizing: border-box;
   transition: all 0.3s ease;
 }
-form input:focus {
+::deep .register-input-field:focus {
   border-color: var(--color-primary);
   outline: none;
   transform: scale(1.02);
   box-shadow: 0 0 0 3px rgba(60,35,23,0.1);
 }
 
-/* Botón de enviar */
-form button {
+::deep .register-submit-button {
   width: 100%;
   padding: 15px;
   background: #E62020;
@@ -123,15 +122,16 @@ form button {
   cursor: pointer;
   transition: all 0.3s ease;
 }
-form button:hover {
+::deep .register-submit-button:hover {
   background: #000000;
   color: #E62020;
   transform: translateY(-3px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
-form button:active {
+::deep .register-submit-button:active {
   transform: translateY(0);
 }
+/* ------------------------------------ */
 
 /* Enlace de registro */
 .registro {
@@ -172,9 +172,6 @@ form button:active {
 
 /* Variante visual para la tarjeta de registro (opcional) */
 .register-card {
-  /* Si quieres que se vea casi igual que login, esto puede quedarse vacío
-     o puedes cambiar ligeros detalles como bordes o sombra */
-  /* ejemplo: */
   box-shadow: 0 10px 30px rgba(0,0,0,0.25);
 }
 

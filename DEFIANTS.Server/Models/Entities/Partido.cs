@@ -19,7 +19,6 @@ public class Partido
     public int? PartidoSiguienteId { get; set; }
     [ForeignKey("PartidoSiguienteId")]
     public virtual Partido? PartidoSiguiente { get; set; }
-
     public int? EquipoA_Id { get; set; }
     [ForeignKey("EquipoA_Id")]
     public virtual Equipo? EquipoA { get; set; }

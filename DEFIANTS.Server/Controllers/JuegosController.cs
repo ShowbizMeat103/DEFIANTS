@@ -1,7 +1,9 @@
 using DEFIANTS.Server.Data;
+using DEFIANTS.Shared.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace DEFIANTS.Server.Controllers;
 
@@ -16,21 +18,38 @@ public class JuegosController : ControllerBase
         _context = context;
     }
 
-    // GET: api/juegos
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetJuegos()
+    public async Task<ActionResult<List<JuegoDto>>> GetJuegos()
     {
-        var juegos = await _context.Juegos.ToListAsync();
+        var juegos = await _context.Juegos
+            .Select(j => new JuegoDto
+            {
+                Id = j.Id,
+                Nombre = j.Nombre,
+                LogoUrl = j.LogoUrl,
+                IntegrantesPorEquipo = j.IntegrantesPorEquipo,
+                TieneSistemaElo = j.TieneSistemaElo
+            })
+            .ToListAsync();
         return Ok(juegos);
     }
 
-    // GET: api/juegos/5
     [HttpGet("{id}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetJuego(int id)
+    public async Task<ActionResult<JuegoDto>> GetJuego(int id)
     {
-        var juego = await _context.Juegos.FindAsync(id);
+        var juego = await _context.Juegos
+            .Select(j => new JuegoDto
+            {
+                Id = j.Id,
+                Nombre = j.Nombre,
+                LogoUrl = j.LogoUrl,
+                IntegrantesPorEquipo = j.IntegrantesPorEquipo,
+                TieneSistemaElo = j.TieneSistemaElo
+            })
+            .FirstOrDefaultAsync(j => j.Id == id);
+
         if (juego == null)
         {
             return NotFound();

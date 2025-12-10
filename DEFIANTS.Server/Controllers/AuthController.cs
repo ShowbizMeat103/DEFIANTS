@@ -25,6 +25,9 @@ public class AuthController : ControllerBase
         _configuration = configuration;
     }
 
+
+
+
     [HttpPost]
     [Route("login")]
     [AllowAnonymous]

@@ -19,7 +19,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: MyAllowSpecificOrigins,
                       policy  =>
                       {
-                          policy.WithOrigins("http://localhost:5000", "https://localhost:5001") // URLs típicas de desarrollo de Blazor
+                          policy.WithOrigins("http://localhost:5210", "https://localhost:5001") // URLs típicas de desarrollo de Blazor
                                 .AllowAnyHeader()
                                 .AllowAnyMethod();
                       });
@@ -110,7 +110,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 // --- USAR LA POLÍTICA DE CORS ---
 app.UseCors(MyAllowSpecificOrigins);
