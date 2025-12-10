@@ -1,6 +1,272 @@
-@DEFIANTS.Server_HostAddress = http://localhost:5031
+@hostname = http://localhost
+@port = 5031
 
-GET {{DEFIANTS.Server_HostAddress}}/weatherforecast/
-Accept: application/json
+### 0. (MANUAL) Registrar adminuser - Ejecuta solo esta petición la primera vez
+# Después de ejecutarla, ve a tu base de datos y asigna manualmente el rol "Admin" a este usuario.
+# Una vez hecho, puedes ejecutar el resto del script.
+POST {{hostname}}:{{port}}/api/auth/register
+Content-Type: application/json
 
-###
+{
+  "username": "adminuser",
+  "email": "admin@example.com",
+  "password": "AdminPass123!"
+}
+
+### SEPARADOR ###
+
+### 1. Login adminuser y capturar token de ADMIN
+POST {{hostname}}:{{port}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "Sartox1",
+  "password": "Supergenial123!"
+}
+
+> {%
+    client.global.set("admin_token", response.body.token);
+    client.log("✅ Token de ADMIN capturado: " + client.global.get("admin_token"));
+%}
+
+### 2. Registrar user1 (Jugador)
+POST {{hostname}}:{{port}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser1",
+  "email": "testuser1@example.com",
+  "password": "Password123!"
+}
+
+### 3. Login user1 y capturar token de JUGADOR
+POST {{hostname}}:{{port}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "testuser1",
+  "password": "Password123!"
+}
+
+> {%
+    client.global.set("jwt_token", response.body.token);
+    client.log("✅ Token de JUGADOR (user1) capturado: " + client.global.get("jwt_token"));
+%}
+
+### 4. Crear un Juego (como Admin) y capturar ID
+POST {{hostname}}:{{port}}/api/admin/juegos
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "nombre": "League of Legends",
+  "integrantesPorEquipo": 5
+}
+
+> {%
+    if (response.status === 201) {
+        client.global.set("game_id", response.body.id);
+        client.log(`✅ Juego '${response.body.nombre}' creado con ID: ${client.global.get("game_id")}`);
+    } else {
+        client.log("❌ Error al crear el juego: " + response.status);
+    }
+%}
+
+### 5. Crear Perfil de Juego para user1 (como Jugador)
+POST {{hostname}}:{{port}}/api/perfilesjuego
+Authorization: Bearer {{jwt_token}}
+Content-Type: application/json
+
+{
+  "juegoId": {{game_id}},
+  "nicknameInGame": "TheLegend27"
+}
+
+> {%
+    if (response.status === 200) {
+        client.log(`✅ Perfil '${response.body.nicknameInGame}' creado para user1 con ID: ${response.body.id}`);
+    }
+%}
+
+### 6. Crear Equipo para user1 (como Jugador) y capturar ID
+POST {{hostname}}:{{port}}/api/equipos
+Authorization: Bearer {{jwt_token}}
+Content-Type: application/json
+
+{
+  "nombre": "Equipo Alpha",
+  "juegoId": {{game_id}}
+}
+
+> {%
+    if (response.status === 201) {
+        client.global.set("team_id_user1", response.body.id);
+        client.log(`✅ Equipo '${response.body.nombre}' creado con ID: ${client.global.get("team_id_user1")}`);
+    } else {
+        client.log("❌ Error al crear el Equipo Alpha: " + response.status);
+    }
+%}
+
+// --- AÑADIR EQUIPO BETA ---
+
+### 7. Registrar user2 (Jugador)
+POST {{hostname}}:{{port}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser2",
+  "email": "testuser2@example.com",
+  "password": "Password456!"
+}
+
+### 8. Login user2 y capturar su token
+POST {{hostname}}:{{port}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "testuser2",
+  "password": "Password456!"
+}
+
+> {%
+    client.global.set("jwt_token_user2", response.body.token);
+    client.log("✅ Token de JUGADOR (user2) capturado: " + client.global.get("jwt_token_user2"));
+%}
+
+### 9. Crear Perfil de Juego para user2
+POST {{hostname}}:{{port}}/api/perfilesjuego
+Authorization: Bearer {{jwt_token_user2}}
+Content-Type: application/json
+
+{
+  "juegoId": {{game_id}},
+  "nicknameInGame": "PlayerTwo"
+}
+
+> {%
+    if (response.status === 200) {
+        client.log(`✅ Perfil '${response.body.nicknameInGame}' creado para user2 con ID: ${response.body.id}`);
+    }
+%}
+
+### 10. Crear Equipo Beta (como user2) y capturar ID
+POST {{hostname}}:{{port}}/api/equipos
+Authorization: Bearer {{jwt_token_user2}}
+Content-Type: application/json
+
+{
+  "nombre": "Equipo Beta",
+  "juegoId": {{game_id}}
+}
+
+> {%
+    if (response.status === 201) {
+        client.global.set("team_id_user2", response.body.id);
+        client.log(`✅ Equipo '${response.body.nombre}' creado con ID: ${client.global.get("team_id_user2")}`);
+    } else {
+        client.log("❌ Error al crear el Equipo Beta: " + response.status);
+    }
+%}
+
+// --- FIN DE AÑADIR EQUIPO BETA ---
+
+### 11. Crear Torneo (como Admin) y capturar ID
+POST {{hostname}}:{{port}}/api/torneos
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "titulo": "Torneo de Verano",
+  "juegoId": {{game_id}},
+  "maxEquipos": 4
+}
+
+> {%
+    if (response.status === 201) {
+        client.global.set("tournament_id", response.body.id);
+        client.log(`✅ Torneo '${response.body.titulo}' creado con ID: ${client.global.get("tournament_id")}`);
+    } else {
+        client.log("❌ Error al crear el torneo: " + response.status);
+    }
+%}
+
+### 12. Inscribir Equipo Alpha en Torneo (como user1)
+POST {{hostname}}:{{port}}/api/torneos/{{tournament_id}}/inscripciones
+Authorization: Bearer {{jwt_token}}
+Content-Type: application/json
+
+{
+  "equipoId": {{team_id_user1}}
+}
+
+> {% client.log(`✅ Equipo Alpha (ID: ${client.global.get("team_id_user1")}) inscrito en Torneo (ID: ${client.global.get("tournament_id")}).`); %}
+
+### 13. Inscribir Equipo Beta en Torneo (como user2)
+POST {{hostname}}:{{port}}/api/torneos/{{tournament_id}}/inscripciones
+Authorization: Bearer {{jwt_token_user2}}
+Content-Type: application/json
+
+{
+  "equipoId": {{team_id_user2}}
+}
+
+> {% client.log(`✅ Equipo Beta (ID: ${client.global.get("team_id_user2")}) inscrito en Torneo (ID: ${client.global.get("tournament_id")}).`); %}
+
+### 14. Iniciar el Torneo (como Admin)
+POST {{hostname}}:{{port}}/api/torneos/{{tournament_id}}/iniciar
+Authorization: Bearer {{admin_token}}
+
+> {% client.log(`✅ Torneo (ID: ${client.global.get("tournament_id")}) iniciado.`); %}
+
+### 15. Verificar Bracket Generado (público) y capturar IDs
+GET {{hostname}}:{{port}}/api/torneos/{{tournament_id}}
+
+> {%
+    const partidos = response.body.partidos;
+    if (partidos && partidos.length > 0) {
+        const primerPartidoR1 = partidos.find(p => p.ronda === 1);
+        if (primerPartidoR1) {
+            client.global.set("match_id_r1", primerPartidoR1.id);
+            client.global.set("team_id_r1_a", primerPartidoR1.equipoAId);
+            client.log(`✅ Bracket verificado. Primer partido R1 (ID: ${primerPartidoR1.id}): '${primerPartidoR1.equipoANombre}' vs '${primerPartidoR1.equipoBNombre}'`);
+        }
+    }
+%}
+
+### 16. Reportar Victoria en un Partido (como Admin)
+POST {{hostname}}:{{port}}/api/torneos/partidos/{{match_id_r1}}/victoria
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{{team_id_r1_a}}
+
+> {% client.log(`✅ Victoria reportada para el equipo con ID: ${client.global.get("team_id_r1_a")}`); %}
+
+### 17. Verificar Avance en el Bracket (público)
+GET {{hostname}}:{{port}}/api/torneos/{{tournament_id}}
+
+> {%
+    const partidos = response.body.partidos;
+    const partidoR1 = partidos.find(p => p.id == client.global.get("match_id_r1"));
+    if (partidoR1 && partidoR1.estado === "Finalizado") {
+        client.log(`✅ Verificación de avance: El partido (ID: ${partidoR1.id}) está '${partidoR1.estado}'.`);
+    } else {
+        client.log("❌ Verificación de avance: El partido de R1 NO está finalizado.");
+    }
+%}
+
+### 18. Test: Acceso Prohibido (Jugador intenta acción de Admin)
+POST {{hostname}}:{{port}}/api/admin/juegos
+Authorization: Bearer {{jwt_token}}
+Content-Type: application/json
+
+{
+  "nombre": "Juego Prohibido"
+}
+
+> {%
+    client.test("Request should fail with 403 Forbidden", function() {
+        client.assert(response.status === 403, "Expected 403 Forbidden, but got " + response.status);
+    });
+    client.log("✅ Test de Acceso Prohibido superado.");
+%}
