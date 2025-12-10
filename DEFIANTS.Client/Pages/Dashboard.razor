@@ -1,0 +1,279 @@
+﻿@page "/dashboard"
+@inject Microsoft.JSInterop.IJSRuntime JS
+
+<div class="section section-dashboard">
+    <div class="container">
+        <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <div>
+                <h1 class="section-title">// MIS TORNEOS</h1>
+                <p class="section-subtitle">Torneos que has creado y gestionado.</p>
+            </div>
+
+            <div>
+                <button class="register-btn" @onclick="() => ShowCreateModal()">+ Registrar torneo</button>
+            </div>
+        </div>
+
+        @if (myTournaments.Any())
+        {
+            <div class="tournaments-grid">
+                @foreach (var t in myTournaments)
+                {
+                    var expandedClass = t.IsExpanded ? "tournament-card expanded" : "tournament-card";
+                    <article class="@expandedClass">
+                        <div class="tournament-main">
+                            <div>
+                                <span class="tournament-tag">@t.Tag</span>
+                                <h3>@t.Title</h3>
+                                <p class="tournament-info">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    @((t.Date.HasValue) ? t.Date.Value.ToString("d") : t.DateText)
+                                    <i class="fas fa-users" style="margin-left:10px; color: #ffd57a"></i>
+                                    @t.Info
+                                </p>
+                            </div>
+
+                            <div class="tournament-actions">
+                                <button class="tournament-cta" @onclick="() => ToggleDetails(t)">
+                                    @(t.IsExpanded ? "Ocultar detalles" : "Ver detalles")
+                                </button>
+                                <button class="tournament-delete" title="Eliminar torneo" @onclick="async () => await DeleteTournament(t)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        @if (t.IsExpanded)
+                        {
+                            <div class="tournament-details">
+                                <p class="detail-desc">@((!string.IsNullOrWhiteSpace(t.Description)) ? t.Description : "Descripción no disponible.")</p>
+                                @if (t.Participants != null && t.Participants.Any())
+                                {
+                                    <div class="detail-participants">
+                                        <strong>Participantes:</strong>
+                                        <ul>
+                                            @foreach (var p in t.Participants)
+                                            {
+                                                <li>@p</li>
+                                            }
+                                        </ul>
+                                    </div>
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(t.Bracket))
+                                {
+                                    if (IsImageUrl(t.Bracket))
+                                    {
+                                        <div class="bracket-embed-wrap">
+                                            <img src="@t.Bracket" alt="Bracket" class="bracket-embed" />
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="bracket-embed-wrap">
+                                            <iframe src="@t.Bracket" class="bracket-iframe" frameborder="0" loading="lazy" title="Bracket"></iframe>
+                                        </div>
+                                    }
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(t.Rules))
+                                {
+                                    <div class="detail-rules"><strong>Reglas:</strong><p>@t.Rules</p></div>
+                                }
+
+                                <p><strong>Más info:</strong> @t.Info</p>
+                            </div>
+                        }
+                    </article>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <p>No has creado ningún torneo aún.</p>
+                <p><a href="/tournaments" class="btn-link">Crear uno ahora</a></p>
+            </div>
+        }
+    </div>
+</div>
+
+@if (showCreateModal)
+{
+    <div class="modal-backdrop-custom" @onclick="CloseModal">
+        <div class="modal-custom" @onclick:stopPropagation>
+            <header class="modal-header-custom">
+                <h3>Registrar Torneo</h3>
+                <button class="btn-close-custom" @onclick="CloseModal">×</button>
+            </header>
+
+            <EditForm Model="newTournament" OnValidSubmit="CreateTournament">
+                <div class="form-row">
+                    <label>Nombre</label>
+                    <InputText class="form-control" @bind-Value="newTournament.Title" />
+                </div>
+
+                <div class="form-row">
+                    <label>Etiqueta</label>
+                    <InputText class="form-control" @bind-Value="newTournament.Tag" />
+                </div>
+
+                <div class="form-row">
+                    <label>Fecha</label>
+                    <InputDate class="form-control" @bind-Value="newTournament.Date" />
+                </div>
+
+                <div class="form-row">
+                    <label>Información (equipos/condición)</label>
+                    <InputText class="form-control" @bind-Value="newTournament.Info" />
+                </div>
+
+                <div class="form-row">
+                    <label>Descripción</label>
+                    <InputTextArea class="form-control" @bind-Value="newTournament.Description" />
+                </div>
+
+                <div class="form-row">
+                    <label>Participantes (uno por línea)</label>
+                    <InputTextArea class="form-control" @bind-Value="newTournament.ParticipantsRaw" />
+                </div>
+
+                <div class="form-row">
+                    <label>Bracket (enlace)</label>
+                    <InputText class="form-control" @bind-Value="newTournament.Bracket" />
+                </div>
+
+                <div class="form-row">
+                    <label>Reglas</label>
+                    <InputTextArea class="form-control" @bind-Value="newTournament.Rules" />
+                </div>
+
+                <div class="form-row">
+                    <label>Enlace</label>
+                    <InputText class="form-control" @bind-Value="newTournament.Link" />
+                </div>
+
+                <div class="form-actions modal-actions">
+                    <button type="submit" class="btn-create">Crear torneo</button>
+                    <button type="button" class="btn-cancel" @onclick="CloseModal">Cancelar</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    private bool showCreateModal = false;
+    private Tournament newTournament = new();
+    private List<Tournament> myTournaments = new();
+
+    protected override void OnInitialized()
+    {
+        // Simular que el usuario tiene algunos torneos creados
+        // En producción, esto vendría de un API
+        myTournaments = new List<Tournament>
+        {
+            new Tournament 
+            { 
+                Tag = "VALORANT · 5v5", 
+                Title = "Torneo Interno - Valorant", 
+                DateText = "15 de diciembre 2025", 
+                Info = "16 equipos · Bo3",
+                Description = "Torneo interno para jugadores del equipo. Clasificación hacia la fase final.",
+                Participants = new List<string> { "Equipo Alpha", "Equipo Beta", "Equipo Gamma" }
+            }
+        };
+    }
+
+    private class Tournament
+    {
+        public bool IsExpanded { get; set; }
+        public string Tag { get; set; }
+        public string Title { get; set; }
+        public DateTime? Date { get; set; }
+        public string DateText { get; set; }
+        public string Info { get; set; }
+        public string Description { get; set; }
+        public List<string> Participants { get; set; } = new();
+        public string ParticipantsRaw { get; set; }
+        public string Bracket { get; set; }
+        public string Rules { get; set; }
+        public string Link { get; set; }
+    }
+
+    private void ToggleDetails(Tournament t)
+    {
+        foreach (var item in myTournaments)
+        {
+            if (!object.ReferenceEquals(item, t)) item.IsExpanded = false;
+        }
+
+        t.IsExpanded = !t.IsExpanded;
+    }
+
+    private async Task DeleteTournament(Tournament t)
+    {
+        try
+        {
+            var confirmed = await JS.InvokeAsync<bool>("confirm", $"¿Eliminar el torneo '{t.Title}'? Esta acción no se puede deshacer.");
+            if (!confirmed) return;
+
+            myTournaments.Remove(t);
+        }
+        catch
+        {
+            // ignore JS interop errors silently
+        }
+    }
+
+    private bool IsImageUrl(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return false;
+        var u = url.ToLowerInvariant().Split('?')[0].Split('#')[0].Trim();
+        return u.EndsWith(".png") || u.EndsWith(".jpg") || u.EndsWith(".jpeg") || u.EndsWith(".gif") || u.EndsWith(".webp") || u.EndsWith(".svg");
+    }
+
+    private void ShowCreateModal()
+    {
+        newTournament = new Tournament();
+        showCreateModal = true;
+    }
+
+    private void CloseModal()
+    {
+        showCreateModal = false;
+        newTournament = new Tournament();
+    }
+
+    private void CreateTournament()
+    {
+        var t = new Tournament
+        {
+            Tag = newTournament.Tag ?? "TORNEO",
+            Title = newTournament.Title ?? "Torneo nuevo",
+            Date = newTournament.Date,
+            DateText = newTournament.Date?.ToString("d") ?? "Próximamente",
+            Info = newTournament.Info ?? string.Empty,
+            Description = newTournament.Description ?? string.Empty,
+            Participants = ParseParticipants(newTournament.ParticipantsRaw),
+            Bracket = newTournament.Bracket ?? string.Empty,
+            Rules = newTournament.Rules ?? string.Empty,
+            Link = string.IsNullOrWhiteSpace(newTournament.Link) ? "#" : newTournament.Link
+        };
+
+        myTournaments.Insert(0, t);
+        showCreateModal = false;
+        newTournament = new Tournament();
+    }
+
+    private List<string> ParseParticipants(string raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return new List<string>();
+        // Split by new lines and commas
+        var lines = raw.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                       .SelectMany(l => l.Split(',').Select(p => p.Trim()))
+                       .Where(p => !string.IsNullOrWhiteSpace(p))
+                       .ToList();
+        return lines;
+    }
+}

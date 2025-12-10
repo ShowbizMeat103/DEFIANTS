@@ -1,0 +1,143 @@
+﻿@page "/tournaments"
+@inject Microsoft.JSInterop.IJSRuntime JS
+
+<div class="section section-tournaments">
+    <div class="container">
+        <div class="section-header">
+            <h1 class="section-title">// PRÓXIMOS TORNEOS</h1>
+            <p class="section-subtitle">Alístate para las siguientes batallas. Los lugares son limitados y la competencia no espera.</p>
+        </div>
+
+        <div class="tournaments-grid">
+            @{
+                var anyExpanded = tournaments.Any(x => x.IsExpanded);
+            }
+            @foreach (var t in tournaments)
+            {
+                if (anyExpanded && !t.IsExpanded)
+                {
+                    continue; // hide other tournaments when one is expanded
+                }
+                var expandedClass = t.IsExpanded ? "tournament-card expanded" : "tournament-card";
+                <article class="@expandedClass">
+                    <div class="tournament-main">
+                        <div>
+                            <span class="tournament-tag">@t.Tag</span>
+                            <h3>@t.Title</h3>
+                            <p class="tournament-info">
+                                <i class="fas fa-calendar-alt"></i>
+                                @((t.Date.HasValue) ? t.Date.Value.ToString("d") : t.DateText)
+                                <i class="fas fa-users" style="margin-left:10px; color: #ffd57a"></i>
+                                @t.Info
+                            </p>
+                        </div>
+
+                        <div class="tournament-actions">
+                            <button class="tournament-cta" @onclick="() => ToggleDetails(t)">
+                                @(t.IsExpanded ? "Ocultar detalles" : "Ver detalles")
+                            </button>
+                        </div>
+                    </div>
+
+                    @if (t.IsExpanded)
+                    {
+                        <div class="tournament-details">
+                            <p class="detail-desc">@((!string.IsNullOrWhiteSpace(t.Description)) ? t.Description : "Descripción no disponible.")</p>
+                            @if (t.Participants != null && t.Participants.Any())
+                            {
+                                <div class="detail-participants">
+                                    <strong>Participantes:</strong>
+                                    <ul>
+                                        @foreach (var p in t.Participants)
+                                        {
+                                            <li>@p</li>
+                                        }
+                                    </ul>
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(t.Bracket))
+                            {
+                                if (IsImageUrl(t.Bracket))
+                                {
+                                    <div class="bracket-embed-wrap">
+                                        <img src="@t.Bracket" alt="Bracket" class="bracket-embed" />
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="bracket-embed-wrap">
+                                        <iframe src="@t.Bracket" class="bracket-iframe" frameborder="0" loading="lazy" title="Bracket"></iframe>
+                                    </div>
+                                }
+
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(t.Rules))
+                            {
+                                <div class="detail-rules"><strong>Reglas:</strong><p>@t.Rules</p></div>
+                            }
+
+                            
+                            <p><strong>Más info:</strong> @t.Info</p>
+                        </div>
+                    }
+                </article>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Tournament> tournaments = new()
+    {
+        new Tournament { Tag = "VALORANT · 5v5", Title = "Defiants Clash: Neon Protocol", DateText = "18 de enero 2026 · Online", Info = "32 equipos · Eliminación directa", Link = "/tournaments/verano" },
+        new Tournament { Tag = "LoL · Ranked", Title = "Summoner’s Grid: Tier Trials", DateText = "10 de febrero 2026 · Online", Info = "Elo mínimo: Platino II", Link = "/tournaments/invierno" },
+        new Tournament { Tag = "MULTI GAME", Title = "DEFIANTS League · Temporada 1", DateText = "Próximamente", Info = "Shooters · MOBAs · Fighting", Link = "/tournaments/primavera" }
+    };
+
+    private class Tournament
+    {
+        public bool IsExpanded { get; set; }
+        public string Tag { get; set; }
+        public string Title { get; set; }
+        public DateTime? Date { get; set; }
+        public string DateText { get; set; }
+        public string Info { get; set; }
+        public string Description { get; set; }
+        public List<string> Participants { get; set; } = new();
+        public string ParticipantsRaw { get; set; }
+        public string Bracket { get; set; }
+        public string Rules { get; set; }
+        public string Link { get; set; }
+    }
+
+    private List<string> ParseParticipants(string raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return new List<string>();
+        // Split by new lines and commas
+        var lines = raw.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                       .SelectMany(l => l.Split(',').Select(p => p.Trim()))
+                       .Where(p => !string.IsNullOrWhiteSpace(p))
+                       .ToList();
+        return lines;
+    }
+
+    private bool IsImageUrl(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return false;
+        var u = url.ToLowerInvariant().Split('?')[0].Split('#')[0].Trim();
+        return u.EndsWith(".png") || u.EndsWith(".jpg") || u.EndsWith(".jpeg") || u.EndsWith(".gif") || u.EndsWith(".webp") || u.EndsWith(".svg");
+    }
+
+    private void ToggleDetails(Tournament t)
+    {
+        // Collapse others
+        foreach (var item in tournaments)
+        {
+            if (!object.ReferenceEquals(item, t)) item.IsExpanded = false;
+        }
+
+        t.IsExpanded = !t.IsExpanded;
+    }
+}
