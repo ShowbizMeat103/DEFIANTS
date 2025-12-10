@@ -80,7 +80,7 @@ public class AuthController : ControllerBase
         
         if (!result.Succeeded)
         {
-            return BadRequest(new { Status = "Error", Errors = result.Errors });
+            return BadRequest(new { Status = "Error", result.Errors });
         }
 
         await _userManager.AddToRoleAsync(user, "Jugador");
