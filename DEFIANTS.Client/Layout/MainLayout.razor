@@ -24,6 +24,7 @@
             <nav class="nav-links">
                 <a href="tournaments" class="nav-item">Torneos</a>
                 <a href="dashboard" class="nav-item">Dashboard</a>
+                <a href="mis-perfiles-juego" class="nav-item">Mis Perfiles</a>
                 <a href="noticias" class="nav-item">Noticias</a>
             </nav>
 
@@ -32,6 +33,13 @@
                 <AuthorizeView>
                     <Authorized>
                         <!-- Contenido para usuarios AUTENTICADOS -->
+                        
+                        <!-- Enlace temporal solo para Admins -->
+                        @if (context.User.IsInRole("Admin"))
+                        {
+                            <a href="/admin/crear-juego" class="btn btn-sm btn-danger">CREAR JUEGO</a>
+                        }
+                        
                         <a href="#" @onclick="HandleLogout" class="btn btn-sm btn-outline">LOGOUT</a>
                         <a href="profile" class="user-avatar">
                             <!-- Icono User -->

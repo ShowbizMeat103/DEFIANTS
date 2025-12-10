@@ -2,7 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using DEFIANTS.Server.Models.Entities;
-using DEFIANTS.Shared.DTOs; // <-- AÑADIDO
+using DEFIANTS.Shared.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -25,13 +25,10 @@ public class AuthController : ControllerBase
         _configuration = configuration;
     }
 
-
-
-
     [HttpPost]
     [Route("login")]
     [AllowAnonymous]
-    public async Task<IActionResult> Login([FromBody] LoginDto model) // <-- CAMBIADO
+    public async Task<IActionResult> Login([FromBody] LoginDto model)
     {
         var user = await _userManager.FindByNameAsync(model.Username);
         if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
@@ -41,6 +38,7 @@ public class AuthController : ControllerBase
             var authClaims = new List<Claim>
             {
                 new(ClaimTypes.Name, user.UserName!),
+                new(ClaimTypes.Email, user.Email!), // <-- AÑADIDO
                 new(ClaimTypes.NameIdentifier, user.Id),
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
@@ -64,7 +62,7 @@ public class AuthController : ControllerBase
     [HttpPost]
     [Route("register")]
     [AllowAnonymous]
-    public async Task<IActionResult> Register([FromBody] RegisterDto model) // <-- CAMBIADO
+    public async Task<IActionResult> Register([FromBody] RegisterDto model)
     {
         var userExists = await _userManager.FindByNameAsync(model.Username);
         if (userExists != null)
@@ -102,6 +100,4 @@ public class AuthController : ControllerBase
 
         return token;
     }
-    
-    // --- CLASES ANIDADAS ELIMINADAS ---
 }

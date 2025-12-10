@@ -39,6 +39,9 @@ public interface IApiClient
 
     [Put("/api/perfilesjuego/{id}")]
     Task ActualizarPerfilJuego(int id, [Body] ActualizarPerfilJuegoDto perfilDto);
+
+    [Delete("/api/perfilesjuego/{id}")]
+    Task EliminarPerfilJuego(int id);
     #endregion
 
     #region Equipos
@@ -97,6 +100,8 @@ public interface IApiClient
 
     [Delete("/api/torneos/{torneoId}/inscripciones/{inscripcionId}")]
     Task CancelarInscripcion(int torneoId, int inscripcionId);
+
+
 
     [Post("/api/torneos/{id}/iniciar")]
     Task IniciarTorneo(int id);
