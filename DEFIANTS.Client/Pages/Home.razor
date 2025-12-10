@@ -1,33 +1,46 @@
 @page "/"
+@using DEFIANTS.Shared.Clients
+@using DEFIANTS.Shared.DTOs
+@inject IApiClient ApiClient
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
 <div class="landing">
-
-    
-
     <main>
         <!-- HERO -->
         <div class="container">
             <header class="hero">
                 <p class="hero-status">/// SYSTEM_READY /// V.2.0.1</p>
-
                 <h1 class="glitch-wrapper">
                     <span class="glitch-text" data-text="DEFIANTS">DEFIANTS</span>
                 </h1>
-
                 <p class="hero-copy">
                     LA ARENA DE CAOS CONTROLADO. <br />
                     DONDE LA GEOMETRÍA SE ROMPE Y TÚ DEMUESTRAS QUIÉN ERES.
                 </p>
 
-                <div class="hero-actions">
-                    <a href="/login" class="btn btn-primary">UNIRSE A LA ARENA</a>
-                    <a href="/noticias" class="btn btn-secondary btn-ghost">
-                        <i class="fas fa-bullhorn"></i> Ver noticias
-                    </a>
-                </div>
+                <!-- INICIO DE LA LÓGICA DE AUTORIZACIÓN -->
+                <AuthorizeView>
+                    <Authorized>
+                        <div class="hero-actions">
+                            <a href="/cuenta/dashboard" class="btn btn-primary">IR A MI PANEL</a>
+                            <a href="/torneos" class="btn btn-secondary btn-ghost">
+                                <i class="fas fa-trophy"></i> Explorar Torneos
+                            </a>
+                        </div>
+                    </Authorized>
+                    <NotAuthorized>
+                        <div class="hero-actions">
+                            <a href="/login" class="btn btn-primary">UNIRSE A LA ARENA</a>
+                            <a href="/noticias" class="btn btn-secondary btn-ghost">
+                                <i class="fas fa-bullhorn"></i> Ver noticias
+                            </a>
+                        </div>
+                    </NotAuthorized>
+                </AuthorizeView>
+                <!-- FIN DE LA LÓGICA DE AUTORIZACIÓN -->
+
             </header>
         </div>
 
@@ -41,7 +54,6 @@
                         y escalar en un ecosistema de torneos que no perdona errores.
                     </p>
                 </div>
-
                 <div class="about-grid">
                     <div class="about-card">
                         <h3>Matchmaking Competitivo</h3>
@@ -53,7 +65,7 @@
                     <div class="about-card">
                         <h3>Estadísticas en Tiempo Real</h3>
                         <p>
-                            K/D, winrate, desempeño por mapa y más.  
+                            K/D, winrate, desempeño por mapa y más.
                             Tus números hablan por ti, tú solo concéntrate en ganar.
                         </p>
                     </div>
@@ -78,50 +90,26 @@
                         como si fuera una operación militar.
                     </p>
                 </div>
-
                 <div class="features-grid">
                     <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-trophy"></i>
-                        </div>
+                        <div class="feature-icon"><i class="fas fa-trophy"></i></div>
                         <h3>Gestor de Torneos</h3>
-                        <p>
-                            Crea brackets, administra rondas y controla cada fase
-                            del torneo desde una sola interfaz.
-                        </p>
+                        <p>Crea brackets, administra rondas y controla cada fase del torneo desde una sola interfaz.</p>
                     </div>
-
                     <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-users-cog"></i>
-                        </div>
+                        <div class="feature-icon"><i class="fas fa-users-cog"></i></div>
                         <h3>Control de Jugadores</h3>
-                        <p>
-                            Perfiles, roles, equipos y sanciones.  
-                            Todo bajo un sistema de permisos bien definido.
-                        </p>
+                        <p>Perfiles, roles, equipos y sanciones. Todo bajo un sistema de permisos bien definido.</p>
                     </div>
-
                     <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-bullhorn"></i>
-                        </div>
+                        <div class="feature-icon"><i class="fas fa-bullhorn"></i></div>
                         <h3>Convocatorias</h3>
-                        <p>
-                            Publica nuevas competencias, filtra por juego, rango
-                            y fecha de inscripción.
-                        </p>
+                        <p>Publica nuevas competencias, filtra por juego, rango y fecha de inscripción.</p>
                     </div>
-
                     <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
+                        <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
                         <h3>Panel de Admin</h3>
-                        <p>
-                            Métricas globales de actividad, participación y resultados.
-                            Ideal para ligas, clubes o comunidades serias.
-                        </p>
+                        <p>Métricas globales de actividad, participación y resultados. Ideal para ligas, clubes o comunidades serias.</p>
                     </div>
                 </div>
             </div>
@@ -133,41 +121,33 @@
                 <div class="section-header">
                     <h2 class="section-title">// PRÓXIMOS TORNEOS</h2>
                     <p class="section-subtitle">
-                        Alístate para las siguientes batallas.  
+                        Alístate para las siguientes batallas.
                         Los lugares son limitados y la competencia no espera.
                     </p>
                 </div>
-
                 <div class="tournaments-grid">
-                    <article class="tournament-card">
-                        <span class="tournament-tag">VALORANT · 5v5</span>
-                        <h3>Defiants Clash: Neon Protocol</h3>
-                        <p class="tournament-info">
-                            <i class="fas fa-calendar-alt"></i> 18 de enero 2026 · Online  
-                            <i class="fas fa-users"></i> 32 equipos · Eliminación directa
-                        </p>
-                        <a href="/noticias" class="tournament-cta">Ver detalles</a>
-                    </article>
-
-                    <article class="tournament-card">
-                        <span class="tournament-tag">LoL · Ranked</span>
-                        <h3>Summoner’s Grid: Tier Trials</h3>
-                        <p class="tournament-info">
-                            <i class="fas fa-calendar-alt"></i> 10 de febrero 2026 · Online  
-                            <i class="fas fa-star"></i> Elo mínimo: Platino II
-                        </p>
-                        <a href="/noticias" class="tournament-cta">Ver convocatoria</a>
-                    </article>
-
-                    <article class="tournament-card">
-                        <span class="tournament-tag">MULTI GAME</span>
-                        <h3>DEFIANTS League · Temporada 1</h3>
-                        <p class="tournament-info">
-                            <i class="fas fa-calendar-alt"></i> Próximamente  
-                            <i class="fas fa-gamepad"></i> Shooters · MOBAs · Fighting
-                        </p>
-                        <a href="/noticias" class="tournament-cta">Recibir avisos</a>
-                    </article>
+                    @if (isLoading)
+                    {
+                        <p class="loading-message">Cargando torneos desde el núcleo...</p>
+                    }
+                    else if (torneos != null && torneos.Any())
+                    {
+                        @foreach (var torneo in torneos)
+                        {
+                            <article class="tournament-card">
+                                <span class="tournament-tag">@torneo.Status.ToUpper()</span>
+                                <h3>@torneo.Titulo</h3>
+                                <p class="tournament-info">
+                                    <i class="fas fa-users"></i> @torneo.MaxEquipos equipos
+                                </p>
+                                <a href="/torneos/@torneo.Id" class="tournament-cta">Ver detalles</a>
+                            </article>
+                        }
+                    }
+                    else
+                    {
+                        <p class="no-tournaments-message">No hay torneos disponibles en este momento. Vuelve a revisar más tarde.</p>
+                    }
                 </div>
             </div>
         </section>
@@ -200,16 +180,51 @@
                         hablen por ti. La arena no espera.
                     </p>
                 </div>
-                <div class="cta-buttons">
-                    <a href="/registro" class="btn btn-primary">CREAR CUENTA</a>
-                    <a href="/login" class="btn btn-secondary btn-ghost">
-                        YA TENGO CUENTA
-                    </a>
-                </div>
+
+                <!-- INICIO DE LA LÓGICA DE AUTORIZACIÓN -->
+                <AuthorizeView>
+                    <Authorized>
+                        <div class="cta-buttons">
+                            <a href="/cuenta/equipos" class="btn btn-primary">GESTIONAR MIS EQUIPOS</a>
+                            <a href="/cuenta/perfiles" class="btn btn-secondary btn-ghost">
+                                ADMINISTRAR PERFILES
+                            </a>
+                        </div>
+                    </Authorized>
+                    <NotAuthorized>
+                        <div class="cta-buttons">
+                            <a href="/registro" class="btn btn-primary">CREAR CUENTA</a>
+                            <a href="/login" class="btn btn-secondary btn-ghost">
+                                YA TENGO CUENTA
+                            </a>
+                        </div>
+                    </NotAuthorized>
+                </AuthorizeView>
+                <!-- FIN DE LA LÓGICA DE AUTORIZACIÓN -->
+
             </div>
         </section>
     </main>
-
-    
-
 </div>
+
+@code {
+    private List<TorneoResumenDto>? torneos;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            torneos = await ApiClient.GetTorneos();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al obtener los torneos: {ex.Message}");
+            torneos = new List<TorneoResumenDto>();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

@@ -1,4 +1,107 @@
-# DEFIANTS Backend API Documentation
+# Guía Rápida para el Frontend: Consumo de API y Autenticación
+
+Esta sección contiene las prácticas recomendadas para interactuar con el backend desde el proyecto Blazor.
+
+### Consumo de la API con Refit (`IApiClient`)
+
+Para todas las llamadas al backend, **se debe utilizar la interfaz `IApiClient`**. Esta interfaz, definida en `DEFIANTS.Shared/Clients/IApiClient.cs`, es la única fuente de verdad para la comunicación con la API.
+
+**¿Qué es y por qué usarlo?**
+
+`IApiClient` utiliza una librería llamada **Refit** para convertir la API REST en una interfaz de C# fuertemente tipada. En lugar de escribir URLs como cadenas de texto, llamas a métodos de C# como si estuvieras usando una librería local.
+
+**Ventajas Clave:**
+*   **Cero Errores de Tipeo:** El compilador te avisará si escribes mal el nombre de un método o si los parámetros no coinciden. Se acabaron los errores 404 por una URL mal escrita.
+*   **Fuertemente Tipado:** Trabajas directamente con tus DTOs (`TorneoResumenDto`, `LoginDto`, etc.). El compilador asegura que los datos que envías y recibes son del tipo correcto.
+*   **Autocompletado y Claridad:** Tu IDE te ofrecerá autocompletado para todos los endpoints disponibles. El código se vuelve mucho más legible.
+*   **Autenticación Integrada:** Ya está configurado para adjuntar automáticamente el token JWT a las peticiones que lo necesiten. No tienes que preocuparte por añadir la cabecera `Authorization` manualmente.
+
+**Cómo Usarlo en un Componente Blazor:**
+
+1.  **Inyectar el cliente** en la parte superior de tu archivo `.razor`:
+    ```csharp
+    @using DEFIANTS.Shared.Clients
+    @inject IApiClient ApiClient
+    ```
+
+2.  **Llamar a un método** dentro de tu bloque `@code`:
+    ```csharp
+    private List<TorneoResumenDto> torneos;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // SIN REFIT (Propenso a errores):
+        // torneos = await Http.GetFromJsonAsync<List<TorneoResumenDto>>("api/torneoss"); // ¡Error de tipeo en la URL!
+
+        // CON REFIT (Limpio y seguro):
+        torneos = await ApiClient.GetTorneos(); 
+    }
+    ```
+
+### Autenticación en la Interfaz de Usuario
+
+El sistema de autenticación del frontend ya está configurado. Para usarlo, tienes dos herramientas principales:
+
+#### a) Proteger Páginas Completas con `[Authorize]`
+
+Para restringir el acceso a una página entera (como un panel de control) a usuarios autenticados, añade el atributo `@attribute [Authorize]` en la parte superior del archivo `.razor`.
+
+**Ejemplo (`Dashboard.razor`):**
+```csharp
+@page "/cuenta/dashboard"
+@attribute [Authorize] // <-- Si un anónimo intenta entrar, es redirigido al login.
+
+<PageTitle>Mi Panel</PageTitle>
+<h1>¡Bienvenido!</h1>
+```
+
+**Para proteger por roles:**
+```csharp
+@attribute [Authorize(Roles = "Admin, Organizador")]
+```
+
+#### b) Mostrar/Ocultar Elementos con `<AuthorizeView>` (Ejemplo en `Home.razor`)
+
+Para mostrar diferentes botones, menús o cualquier elemento en la misma página dependiendo de si el usuario está logueado, usa el componente `<AuthorizeView>`.
+
+**Caso Práctico: Adaptar los botones de la página de inicio.**
+
+En tu `Home.razor`, tenemos una sección "Hero" y una sección "CTA Final". Ambas deben mostrar diferentes botones si el usuario ha iniciado sesión.
+
+**Código de Ejemplo para `Home.razor`:**
+
+```html
+<!-- En la sección "Hero" -->
+<div class="hero-actions">
+    <AuthorizeView>
+        <Authorized>
+            <!-- Contenido para usuarios AUTENTICADOS -->
+            <!-- Le damos la bienvenida y un enlace a su panel. -->
+            <a href="/cuenta/dashboard" class="btn btn-primary">IR A MI PANEL</a>
+            <a href="/torneos" class="btn btn-secondary btn-ghost">
+                <i class="fas fa-trophy"></i> Explorar Torneos
+            </a>
+        </Authorized>
+        <NotAuthorized>
+            <!-- Contenido para usuarios ANÓNIMOS -->
+            <!-- Lo invitamos a unirse o iniciar sesión. -->
+            <a href="/login" class="btn btn-primary">UNIRSE A LA ARENA</a>
+            <a href="/noticias" class="btn btn-secondary btn-ghost">
+                <i class="fas fa-bullhorn"></i> Ver noticias
+            </a>
+        </NotAuthorized>
+    </AuthorizeView>
+</div>
+```
+
+*   **`<Authorized>`**: El HTML dentro de esta etiqueta solo se renderiza si el `CustomAuthenticationStateProvider` confirma que hay un token válido.
+*   **`<NotAuthorized>`**: El HTML aquí solo se renderiza si no hay un token o este es inválido.
+*   **Acceder a Datos del Usuario:** Dentro de la sección `<Authorized>`, puedes usar la variable `context` para personalizar aún más la experiencia: `<span>Hola, @context.User.Identity?.Name!</span>`.
+
+---
+---
+
+# DEFIANTS Backend API Documentation (Referencia Completa)
 
 ## 1. Introducción
 
@@ -81,191 +184,140 @@ Los endpoints están agrupados por controlador. Los que requieren autenticación
 ### 6.1. `AuthController` (`/api/auth`)
 
 *   **`POST /register`** (Público)
-    *   **Descripción:** Registra un nuevo usuario en la plataforma. Por defecto, se le asigna el rol "Jugador".
-    *   **DTO de Entrada:** `RegisterModel` (en `AuthController.cs` - se recomienda mover a `DEFIANTS.Shared/DTOs`).
-        ```
-        public class RegisterModel
-        {
-            public required string Username { get; set; }
-            public required string Email { get; set; }
-            public required string Password { get; set; }
-        }
-        ```
-    *   **Respuesta:** `200 OK` con `{ status: "Success", message: "User created successfully!" }`. `400 Bad Request` con `{ status: "Error", errors: [...] }` si la contraseña es débil o `409 Conflict` si el usuario ya existe.
+    *   **DTO de Entrada:** `RegisterDto`.
+    *   **Respuesta:** `200 OK`. `400 Bad Request` con `ErrorResponseDto` si la validación falla. `409 Conflict` si el usuario ya existe.
 
 *   **`POST /login`** (Público)
-    *   **Descripción:** Autentica un usuario y devuelve un JWT.
-    *   **DTO de Entrada:** `LoginModel` (en `AuthController.cs` - se recomienda mover a `DEFIANTS.Shared/DTOs`).
-        ```
-        public class LoginModel
-        {
-            public required string Username { get; set; }
-            public required string Password { get; set; }
-        }
-        ```
-    *   **Respuesta:** `200 OK` con `{ token: "...", expiration: "..." }`. `401 Unauthorized` si las credenciales son incorrectas.
+    *   **DTO de Entrada:** `LoginDto`.
+    *   **Respuesta:** `200 OK` con `LoginResultDto`. `401 Unauthorized` si las credenciales son incorrectas.
 
 ### 6.2. `JuegosController` (`/api/juegos`)
 
 *   **`GET /`** (Público)
-    *   **Descripción:** Obtiene una lista de todos los juegos disponibles en la plataforma.
-    *   **Respuesta:** `200 OK` con `List<Juego>`.
+    *   **Respuesta:** `200 OK` con `List<JuegoDto>`.
 
 *   **`GET /{id}`** (Público)
-    *   **Descripción:** Obtiene los detalles de un juego específico por su ID.
-    *   **Respuesta:** `200 OK` con `Juego`. `404 Not Found` si el juego no existe.
+    *   **Respuesta:** `200 OK` con `JuegoDto`.
 
 ### 6.3. `PerfilesJuegoController` (`/api/perfilesjuego`)
 
 *   **`GET /misperfiles`** (Auth)
-    *   **Descripción:** Obtiene todos los perfiles de juego del usuario autenticado.
-    *   **Respuesta:** `200 OK` con `List<PerfilJuego>`.
+    *   **Respuesta:** `200 OK` con `List<PerfilJuegoDto>`.
 
 *   **`POST /`** (Auth)
-    *   **Descripción:** Crea un nuevo perfil de juego para el usuario autenticado.
     *   **DTO de Entrada:** `CrearPerfilJuegoDto`.
-    *   **Respuesta:** `200 OK` con `PerfilJuego` creado. `409 Conflict` si el usuario ya tiene un perfil para ese juego.
+    *   **Respuesta:** `200 OK` con la entidad `PerfilJuego` creada.
 
 *   **`PUT /{id}`** (Auth)
-    *   **Descripción:** Actualiza el nickname de un perfil de juego específico del usuario autenticado.
     *   **DTO de Entrada:** `ActualizarPerfilJuegoDto`.
-    *   **Respuesta:** `204 No Content`. `404 Not Found` si el perfil no existe. `403 Forbidden` si el perfil no pertenece al usuario.
+    *   **Respuesta:** `204 No Content`.
 
 ### 6.4. `EquiposController` (`/api/equipos`)
 
 *   **`GET /`** (Público)
-    *   **Descripción:** Obtiene una lista de todos los equipos registrados.
-    *   **Respuesta:** `200 OK` con `List<{ Id, Nombre, JuegoId }>`.
+    *   **Respuesta:** `200 OK` con `List<EquipoResumenDto>`.
 
 *   **`GET /misequipos`** (Auth)
-    *   **Descripción:** Obtiene una lista de los equipos a los que pertenece el usuario autenticado.
-    *   **Respuesta:** `200 OK` con `List<{ Id, Nombre, JuegoId, Rol }>`.
+    *   **Respuesta:** `200 OK` con `List<MiEquipoDto>`.
 
 *   **`GET /{id}`** (Público)
-    *   **Descripción:** Obtiene los detalles completos de un equipo, incluyendo sus miembros.
-    *   **Respuesta:** `200 OK` con `EquipoDetalleDto`. `404 Not Found` si el equipo no existe.
+    *   **Respuesta:** `200 OK` con `EquipoDetalleDto`.
 
 *   **`POST /`** (Auth)
-    *   **Descripción:** Crea un nuevo equipo. El usuario autenticado se convierte en el capitán.
     *   **DTO de Entrada:** `CrearEquipoDto`.
-    *   **Respuesta:** `201 Created` con `EquipoDetalleDto` del equipo creado. `400 Bad Request` si el usuario no tiene perfil para el juego.
+    *   **Respuesta:** `201 Created` con `EquipoDetalleDto`.
 
 *   **`PUT /{id}`** (Auth, Capitán)
-    *   **Descripción:** Actualiza el nombre de un equipo. Solo el capitán puede hacerlo.
     *   **DTO de Entrada:** `CrearEquipoDto` (solo se usa `Nombre`).
-    *   **Respuesta:** `204 No Content`. `403 Forbidden` si no es el capitán.
+    *   **Respuesta:** `204 No Content`.
 
 *   **`POST /{equipoId}/miembros`** (Auth, Capitán)
-    *   **Descripción:** Añade un miembro a un equipo. Solo el capitán puede hacerlo.
     *   **DTO de Entrada:** `InvitarMiembroDto`.
-    *   **Respuesta:** `200 OK` con `{ message: string }`. `400 Bad Request` si el usuario a invitar no existe o no tiene perfil para el juego. `409 Conflict` si ya es miembro.
+    *   **Respuesta:** `200 OK`.
 
 *   **`PUT /{equipoId}/miembros/{miembroId}/rol`** (Auth, Capitán)
-    *   **Descripción:** Actualiza el rol de un miembro del equipo. Solo el capitán puede hacerlo.
     *   **DTO de Entrada:** `ActualizarRolMiembroDto`.
-    *   **Respuesta:** `204 No Content`. `403 Forbidden` si no es el capitán. `400 Bad Request` si intenta cambiar el rol del capitán a algo que no sea "Lider".
+    *   **Respuesta:** `204 No Content`.
 
 *   **`DELETE /{equipoId}/miembros/{miembroId}`** (Auth, Capitán)
-    *   **Descripción:** Expulsa a un miembro del equipo. Solo el capitán puede hacerlo.
-    *   **Respuesta:** `204 No Content`. `403 Forbidden` si no es el capitán. `400 Bad Request` si intenta expulsar al capitán.
+    *   **Respuesta:** `204 No Content`.
 
 *   **`DELETE /{id}`** (Auth, Capitán)
-    *   **Descripción:** Disuelve un equipo, eliminando todos sus miembros. Solo el capitán puede hacerlo.
-    *   **Respuesta:** `204 No Content`. `403 Forbidden` si no es el capitán.
+    *   **Respuesta:** `204 No Content`.
 
 ### 6.5. `TorneosController` (`/api/torneos`)
 
 *   **`GET /`** (Público)
-    *   **Descripción:** Obtiene una lista de todos los torneos disponibles.
-    *   **Respuesta:** `200 OK` con `List<{ Id, Titulo, Status, MaxEquipos }>`.
+    *   **Respuesta:** `200 OK` con `List<TorneoResumenDto>`.
 
 *   **`GET /misinscripciones`** (Auth)
-    *   **Descripción:** Obtiene una lista de los torneos en los que el usuario autenticado tiene un equipo inscrito.
-    *   **Respuesta:** `200 OK` con `List<{ Id, Titulo, Status, NombreEquipo }>`.
+    *   **Respuesta:** `200 OK` con `List<MiInscripcionDto>`.
 
 *   **`GET /{id}`** (Público)
-    *   **Descripción:** Obtiene los detalles completos de un torneo específico, incluyendo su bracket de partidos.
-    *   **Respuesta:** `200 OK` con `TorneoDetalleDto`. `404 Not Found` si el torneo no existe.
+    *   **Respuesta:** `200 OK` con `TorneoDetalleDto`.
 
-*   **`GET /{torneoId}/inscripciones`** (Auth, Admin/Creador del Torneo)
-    *   **Descripción:** Lista todas las inscripciones para un torneo específico.
-    *   **Respuesta:** `200 OK` con `List<{ Id, EquipoId, Nombre, EstadoPago }>`. `403 Forbidden` si no es Admin o creador.
+*   **`GET /{torneoId}/inscripciones`** (Auth, Admin/Creador)
+    *   **Respuesta:** `200 OK` con `List<InscripcionDetalleDto>`.
 
 *   **`POST /`** (Auth)
-    *   **Descripción:** Crea un nuevo torneo. El usuario autenticado se convierte en el creador.
     *   **DTO de Entrada:** `CrearTorneoDto`.
-    *   **Respuesta:** `201 Created` con `Torneo` creado.
+    *   **Respuesta:** `201 Created` con la entidad `Torneo` creada.
 
-*   **`PUT /{id}`** (Auth, Admin/Creador del Torneo)
-    *   **Descripción:** Actualiza los detalles de un torneo.
+*   **`PUT /{id}`** (Auth, Admin/Creador)
     *   **DTO de Entrada:** `CrearTorneoDto`.
-    *   **Respuesta:** `204 No Content`. `403 Forbidden` si no es Admin o creador. `400 Bad Request` si el torneo ya ha comenzado.
+    *   **Respuesta:** `204 No Content`.
 
-*   **`DELETE /{id}`** (Auth, Admin/Creador del Torneo)
-    *   **Descripción:** Cancela un torneo (cambia su estado a `Cancelado`).
-    *   **Respuesta:** `204 No Content`. `403 Forbidden` si no es Admin o creador.
+*   **`DELETE /{id}`** (Auth, Admin/Creador)
+    *   **Respuesta:** `204 No Content`.
 
-*   **`POST /{torneoId}/inscripciones`** (Auth)
-    *   **Descripción:** Inscribe un equipo en un torneo. Solo el capitán del equipo puede hacerlo.
+*   **`POST /{torneoId}/inscripciones`** (Auth, Capitán)
     *   **DTO de Entrada:** `InscribirEquipoDto`.
-    *   **Respuesta:** `200 OK` con `{ message: string }`. `400 Bad Request` si el torneo no está abierto, el juego no coincide, etc. `409 Conflict` si ya está inscrito o no hay cupos.
+    *   **Respuesta:** `200 OK`.
 
-*   **`DELETE /{torneoId}/inscripciones/{inscripcionId}`** (Auth, Admin/Creador del Torneo)
-    *   **Descripción:** Cancela una inscripción específica de un torneo.
-    *   **Respuesta:** `204 No Content`. `403 Forbidden` si no es Admin o creador.
+*   **`DELETE /{torneoId}/inscripciones/{inscripcionId}`** (Auth, Admin/Creador)
+    *   **Respuesta:** `204 No Content`.
 
-*   **`POST /{id}/iniciar`** (Auth, Admin/Creador del Torneo)
-    *   **Descripción:** Inicia el torneo y genera el bracket de partidos.
-    *   **Respuesta:** `200 OK` con `{ message: string }`. `403 Forbidden` si no es Admin o creador. `400 Bad Request` si no hay suficientes equipos inscritos.
+*   **`POST /{id}/iniciar`** (Auth, Admin/Creador)
+    *   **Respuesta:** `200 OK`. `400 Bad Request` si no hay suficientes equipos.
 
-*   **`POST /partidos/{partidoId}/victoria`** (Auth, Admin/Creador del Torneo)
-    *   **Descripción:** Reporta la victoria de un equipo en un partido, propagando el ganador al siguiente partido del bracket.
+*   **`POST /partidos/{partidoId}/victoria`** (Auth, Admin/Creador)
     *   **DTO de Entrada:** `int` (ID del equipo ganador).
-    *   **Respuesta:** `200 OK` con `{ message: string }`. `403 Forbidden` si no es Admin o creador. `400 Bad Request` si el ganador no es un participante o el partido ya está finalizado.
+    *   **Respuesta:** `200 OK`.
 
 ### 6.6. `PartidosController` (`/api/partidos`)
 
 *   **`GET /mispartidos`** (Auth)
-    *   **Descripción:** Obtiene una lista de los partidos en los que el usuario autenticado está involucrado.
-    *   **Respuesta:** `200 OK` con `List<{ TorneoTitulo, EquipoA, EquipoB, Ronda, Estado, EquipoGanadorId, ScoreA, ScoreB }>`.
+    *   **Respuesta:** `200 OK` con `List<PartidoDto>`.
 
 *   **`GET /{id}`** (Público)
-    *   **Descripción:** Obtiene los detalles de un partido específico.
-    *   **Respuesta:** `200 OK` con `PartidoDto`. `404 Not Found` si el partido no existe.
+    *   **Respuesta:** `200 OK` con un objeto anónimo (debería ser un `PartidoDetalleDto`).
 
 *   **`PUT /{id}`** (Auth, Admin)
-    *   **Descripción:** Permite a un administrador corregir manualmente el resultado de un partido.
     *   **DTO de Entrada:** `CorregirPartidoDto`.
-    *   **Respuesta:** `204 No Content`. `403 Forbidden` si no es Admin.
+    *   **Respuesta:** `204 No Content`.
 
 ### 6.7. `AdminController` (`/api/admin`)
 
 *   **`GET /users`** (Auth, Admin)
-    *   **Descripción:** Lista todos los usuarios registrados en la plataforma.
     *   **Respuesta:** `200 OK` con `List<{ Id, UserName, Email }>`.
 
 *   **`GET /users/{id}`** (Auth, Admin)
-    *   **Descripción:** Obtiene los detalles de un usuario específico, incluyendo sus roles.
     *   **Respuesta:** `200 OK` con `{ id, userName, email, roles: List<string> }`.
 
 *   **`POST /assign-role`** (Auth, Admin)
-    *   **Descripción:** Asigna un rol a un usuario.
     *   **DTO de Entrada:** `UpdateRoleDto`.
-    *   **Respuesta:** `200 OK` con `{ message: string }`. `400 Bad Request` si el usuario o rol no existen.
+    *   **Respuesta:** `200 OK`.
 
 *   **`DELETE /users/{id}/roles/{roleName}`** (Auth, Admin)
-    *   **Descripción:** Elimina un rol específico de un usuario.
-    *   **Respuesta:** `204 No Content`. `400 Bad Request` si el usuario o rol no existen.
+    *   **Respuesta:** `204 No Content`.
 
 *   **`POST /juegos`** (Auth, Admin)
-    *   **Descripción:** Crea un nuevo juego en la plataforma.
     *   **DTO de Entrada:** `CrearJuegoDto`.
-    *   **Respuesta:** `201 Created` con `Juego` creado.
+    *   **Respuesta:** `201 Created` con la entidad `Juego` creada.
 
 *   **`PUT /juegos/{id}`** (Auth, Admin)
-    *   **Descripción:** Actualiza los detalles de un juego existente.
     *   **DTO de Entrada:** `CrearJuegoDto`.
-    *   **Respuesta:** `204 No Content`. `404 Not Found` si el juego no existe.
+    *   **Respuesta:** `204 No Content`.
 
 ## 7. Secuencia General de Uso de la Página
 
