@@ -1,267 +1,211 @@
-﻿@page "/dashboard"
-@inject Microsoft.JSInterop.IJSRuntime JS
+﻿@page "/cuenta/dashboard"
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
 
-<div class="section section-dashboard">
+<PageTitle>Dashboard - DEFIANTS</PageTitle>
+
+<!-- Aseguramos que las fuentes e iconos estén disponibles -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+<div class="dashboard-layout">
     <div class="container">
-        <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-            <div>
-                <h1 class="section-title">// MIS TORNEOS</h1>
-                <p class="section-subtitle">Torneos que has creado y gestionado.</p>
+
+        <!-- HEADER / BIENVENIDA -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <p class="system-status">/// SYSTEM_CONNECTED /// V.2.0.1</p>
+                <AuthorizeView>
+                    <Authorized>
+                        <h1>
+                            HOLA, <span class="user-highlight">@context.User.Identity?.Name?.ToUpper()</span>
+                        </h1>
+                    </Authorized>
+                    <NotAuthorized>
+                        <h1>HOLA, <span class="user-highlight">AGENTE</span></h1>
+                    </NotAuthorized>
+                </AuthorizeView>
+                <p class="header-subtitle">Bienvenido al centro de comando. Revisa tus estadísticas y gestiona tu próxima batalla.</p>
             </div>
 
-            <div>
-                <button class="register-btn" @onclick="() => ShowCreateModal()">+ Registrar torneo</button>
+            <!-- ACCIONES RÁPIDAS (Movido arriba para acceso inmediato o según preferencia,
+                 pero el esquema lo pone abajo. Lo pondré abajo según esquema,
+                 pero dejo este espacio por si quieres status global) -->
+            <div class="header-stats">
+                <div class="stat-badge">
+                    <span class="label">ESTADO</span>
+                    <span class="value online">EN LÍNEA</span>
+                </div>
             </div>
-        </div>
+        </header>
 
-        @if (myTournaments.Any())
-        {
-            <div class="tournaments-grid">
-                @foreach (var t in myTournaments)
-                {
-                    var expandedClass = t.IsExpanded ? "tournament-card expanded" : "tournament-card";
-                    <article class="@expandedClass">
-                        <div class="tournament-main">
-                            <div>
-                                <span class="tournament-tag">@t.Tag</span>
-                                <h3>@t.Title</h3>
-                                <p class="tournament-info">
-                                    <i class="fas fa-calendar-alt"></i>
-                                    @((t.Date.HasValue) ? t.Date.Value.ToString("d") : t.DateText)
-                                    <i class="fas fa-users" style="margin-left:10px; color: #ffd57a"></i>
-                                    @t.Info
-                                </p>
-                            </div>
+        <!-- SECCIÓN 1: MIS EQUIPOS -->
+        <section class="dashboard-section">
+            <div class="section-title-bar">
+                <h2>// MIS EQUIPOS</h2>
+                <div class="section-actions">
+                    <a href="/equipos/crear" class="btn-link">[Crear Nuevo Equipo]</a>
+                    <a href="/cuenta/equipos" class="btn-link">[Ver Todos]</a>
+                </div>
+            </div>
 
-                            <div class="tournament-actions">
-                                <button class="tournament-cta" @onclick="() => ToggleDetails(t)">
-                                    @(t.IsExpanded ? "Ocultar detalles" : "Ver detalles")
-                                </button>
-                                <button class="tournament-delete" title="Eliminar torneo" @onclick="async () => await DeleteTournament(t)">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
+            <div class="dashboard-grid col-2">
+                <!-- Tarjeta Equipo 1 -->
+                <article class="dashboard-card team-card">
+                    <div class="card-header">
+                        <h3>EQUIPO ALPHA</h3>
+                        <span class="tag game-lol">LoL</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="data-row">
+                            <span class="label">Rol:</span>
+                            <span class="value">Capitán</span>
                         </div>
+                        <div class="data-row">
+                            <span class="label">Miembros:</span>
+                            <span class="value">5/5</span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a href="/equipos/1" class="btn-action">GESTIONAR</a>
+                    </div>
+                </article>
 
-                        @if (t.IsExpanded)
-                        {
-                            <div class="tournament-details">
-                                <p class="detail-desc">@((!string.IsNullOrWhiteSpace(t.Description)) ? t.Description : "Descripción no disponible.")</p>
-                                @if (t.Participants != null && t.Participants.Any())
-                                {
-                                    <div class="detail-participants">
-                                        <strong>Participantes:</strong>
-                                        <ul>
-                                            @foreach (var p in t.Participants)
-                                            {
-                                                <li>@p</li>
-                                            }
-                                        </ul>
-                                    </div>
-                                }
-
-                                @if (!string.IsNullOrWhiteSpace(t.Bracket))
-                                {
-                                    if (IsImageUrl(t.Bracket))
-                                    {
-                                        <div class="bracket-embed-wrap">
-                                            <img src="@t.Bracket" alt="Bracket" class="bracket-embed" />
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <div class="bracket-embed-wrap">
-                                            <iframe src="@t.Bracket" class="bracket-iframe" frameborder="0" loading="lazy" title="Bracket"></iframe>
-                                        </div>
-                                    }
-                                }
-
-                                @if (!string.IsNullOrWhiteSpace(t.Rules))
-                                {
-                                    <div class="detail-rules"><strong>Reglas:</strong><p>@t.Rules</p></div>
-                                }
-
-                                <p><strong>Más info:</strong> @t.Info</p>
-                            </div>
-                        }
-                    </article>
-                }
+                <!-- Tarjeta Equipo 2 -->
+                <article class="dashboard-card team-card">
+                    <div class="card-header">
+                        <h3>EQUIPO BETA</h3>
+                        <span class="tag game-val">VALORANT</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="data-row">
+                            <span class="label">Rol:</span>
+                            <span class="value">Titular</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="label">Miembros:</span>
+                            <span class="value">4/5</span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a href="/equipos/2" class="btn-action">GESTIONAR</a>
+                    </div>
+                </article>
             </div>
-        }
-        else
-        {
-            <div class="empty-state">
-                <p>No has creado ningún torneo aún.</p>
-                <p><button class="btn-link" @onclick="ShowCreateModal">Crear uno ahora</button></p>
+        </section>
+
+        <!-- SECCIÓN 2: MIS TORNEOS -->
+        <section class="dashboard-section">
+            <div class="section-title-bar">
+                <h2>// MIS TORNEOS</h2>
+                <div class="section-actions">
+                    <a href="/torneos" class="btn-link">[Explorar Torneos]</a>
+                </div>
             </div>
-        }
+
+            <div class="dashboard-grid col-2">
+                <!-- Torneo 1 -->
+                <article class="dashboard-card tournament-card active">
+                    <div class="status-indicator"></div>
+                    <div class="card-content">
+                        <h3>TORNEO DE VERANO</h3>
+                        <div class="meta-info">
+                            <span><i class="fas fa-circle status-dot"></i> En Curso</span>
+                            <span><i class="fas fa-users"></i> Equipo Alpha</span>
+                        </div>
+                    </div>
+                    <a href="/torneos/1" class="card-arrow"><i class="fas fa-chevron-right"></i></a>
+                </article>
+
+                <!-- Torneo 2 -->
+                <article class="dashboard-card tournament-card open">
+                    <div class="status-indicator"></div>
+                    <div class="card-content">
+                        <h3>COPA DE INVIERNO</h3>
+                        <div class="meta-info">
+                            <span><i class="far fa-circle status-dot"></i> Insc. Abiertas</span>
+                            <span><i class="fas fa-users"></i> Equipo Beta</span>
+                        </div>
+                    </div>
+                    <a href="/torneos/2" class="card-arrow"><i class="fas fa-chevron-right"></i></a>
+                </article>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3: PRÓXIMOS PARTIDOS -->
+        <section class="dashboard-section">
+            <div class="section-title-bar">
+                <h2>// PRÓXIMOS PARTIDOS</h2>
+                <div class="section-actions">
+                    <a href="/partidos" class="btn-link">[Ver Todos Mis Partidos]</a>
+                </div>
+            </div>
+
+            <div class="dashboard-grid col-1">
+                <!-- Partido Row -->
+                <article class="dashboard-card match-card">
+                    <div class="match-info">
+                        <span class="match-tournament">TORNEO X</span>
+                        <span class="match-round">RONDA 2</span>
+                    </div>
+                    <div class="match-versus">
+                        <span class="team-name own-team">ALPHA</span>
+                        <span class="vs">VS</span>
+                        <span class="team-name enemy-team">GAMMA</span>
+                    </div>
+                    <div class="match-action">
+                        <span class="match-time">20:00 HRS</span>
+                        <a href="/partidos/123" class="btn-small">SALA DE JUEGO</a>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 4: ACCIONES RÁPIDAS -->
+        <section class="dashboard-section section-quick-actions">
+            <div class="section-title-bar">
+                <h2>// ACCIONES RÁPIDAS</h2>
+            </div>
+            <div class="actions-grid">
+                <a href="/cuenta/perfiles" class="quick-action-btn">
+                    <i class="fas fa-id-card"></i>
+                    <span>Mis Perfiles</span>
+                </a>
+                <a href="/torneos/crear" class="quick-action-btn">
+                    <i class="fas fa-plus-square"></i>
+                    <span>Crear Torneo</span>
+                </a>
+                <a href="/configuracion" class="quick-action-btn">
+                    <i class="fas fa-cog"></i>
+                    <span>Configuración</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 5: ADMIN PANEL (Condicional) -->
+        <AuthorizeView Roles="Admin">
+            <Authorized>
+                <section class="dashboard-section section-admin">
+                    <div class="section-title-bar">
+                        <h2>// PANEL DE ADMINISTRACIÓN</h2>
+                        <span class="admin-badge">NIVEL 5 - ACCESO TOTAL</span>
+                    </div>
+                    <div class="actions-grid">
+                        <a href="/admin/usuarios" class="admin-btn">
+                            <i class="fas fa-user-shield"></i> Gestionar Usuarios
+                        </a>
+                        <a href="/admin/juegos" class="admin-btn">
+                            <i class="fas fa-gamepad"></i> Gestionar Juegos
+                        </a>
+                    </div>
+                </section>
+            </Authorized>
+        </AuthorizeView>
+
     </div>
 </div>
 
-@if (showCreateModal)
-{
-    <div class="modal-backdrop-custom" @onclick="CloseModal">
-        <div class="modal-custom" @onclick:stopPropagation>
-            <header class="modal-header-custom">
-                <h3>Registrar Torneo</h3>
-                <button class="btn-close-custom" @onclick="CloseModal">×</button>
-            </header>
-
-            <EditForm Model="newTournament" OnValidSubmit="CreateTournament">
-                <div class="form-row">
-                    <label>Nombre</label>
-                    <InputText class="form-control" @bind-Value="newTournament.Title" />
-                </div>
-
-                <div class="form-row">
-                    <label>Etiqueta</label>
-                    <InputText class="form-control" @bind-Value="newTournament.Tag" />
-                </div>
-
-                <div class="form-row">
-                    <label>Fecha</label>
-                    <InputDate class="form-control" @bind-Value="newTournament.Date" />
-                </div>
-
-                <div class="form-row">
-                    <label>Información (equipos/condición)</label>
-                    <InputText class="form-control" @bind-Value="newTournament.Info" />
-                </div>
-
-                <div class="form-row">
-                    <label>Descripción</label>
-                    <InputTextArea class="form-control" @bind-Value="newTournament.Description" />
-                </div>
-
-                <div class="form-row">
-                    <label>Participantes (uno por línea)</label>
-                    <InputTextArea class="form-control" @bind-Value="newTournament.ParticipantsRaw" />
-                </div>
-
-                <div class="form-row">
-                    <label>Bracket (enlace)</label>
-                    <InputText class="form-control" @bind-Value="newTournament.Bracket" />
-                </div>
-
-                <div class="form-row">
-                    <label>Reglas</label>
-                    <InputTextArea class="form-control" @bind-Value="newTournament.Rules" />
-                </div>
-
-                <div class="form-row">
-                    <label>Enlace</label>
-                    <InputText class="form-control" @bind-Value="newTournament.Link" />
-                </div>
-
-                <div class="form-actions modal-actions">
-                    <button type="submit" class="btn-create">Crear torneo</button>
-                    <button type="button" class="btn-cancel" @onclick="CloseModal">Cancelar</button>
-                </div>
-            </EditForm>
-        </div>
-    </div>
-}
-
 @code {
-    private bool showCreateModal = false;
-    private Tournament newTournament = new();
-    private List<Tournament> myTournaments = new();
-
-    protected override void OnInitialized()
-    {
-        // No tournaments by default; will be loaded from API in the future.
-        myTournaments = new List<Tournament>();
-    }
-
-    private class Tournament
-    {
-        public bool IsExpanded { get; set; }
-        public string Tag { get; set; } = string.Empty;
-        public string Title { get; set; } = string.Empty;
-        public DateTime? Date { get; set; }
-        public string DateText { get; set; } = string.Empty;
-        public string Info { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public List<string> Participants { get; set; } = new();
-        public string ParticipantsRaw { get; set; } = string.Empty;
-        public string Bracket { get; set; } = string.Empty;
-        public string Rules { get; set; } = string.Empty;
-        public string Link { get; set; } = string.Empty;
-    }
-
-    private void ToggleDetails(Tournament t)
-    {
-        foreach (var item in myTournaments)
-        {
-            if (!object.ReferenceEquals(item, t)) item.IsExpanded = false;
-        }
-
-        t.IsExpanded = !t.IsExpanded;
-    }
-
-    private async Task DeleteTournament(Tournament t)
-    {
-        try
-        {
-            var confirmed = await JS.InvokeAsync<bool>("confirm", $"¿Eliminar el torneo '{t.Title}'? Esta acción no se puede deshacer.");
-            if (!confirmed) return;
-
-            myTournaments.Remove(t);
-        }
-        catch
-        {
-            // ignore JS interop errors silently
-        }
-    }
-
-    private bool IsImageUrl(string url)
-    {
-        if (string.IsNullOrWhiteSpace(url)) return false;
-        var u = url.ToLowerInvariant().Split('?')[0].Split('#')[0].Trim();
-        return u.EndsWith(".png") || u.EndsWith(".jpg") || u.EndsWith(".jpeg") || u.EndsWith(".gif") || u.EndsWith(".webp") || u.EndsWith(".svg");
-    }
-
-    private void ShowCreateModal()
-    {
-        newTournament = new Tournament();
-        showCreateModal = true;
-    }
-
-    private void CloseModal()
-    {
-        showCreateModal = false;
-        newTournament = new Tournament();
-    }
-
-    private void CreateTournament()
-    {
-        var t = new Tournament
-        {
-            Tag = newTournament.Tag ?? "TORNEO",
-            Title = newTournament.Title ?? "Torneo nuevo",
-            Date = newTournament.Date,
-            DateText = newTournament.Date?.ToString("d") ?? "Próximamente",
-            Info = newTournament.Info ?? string.Empty,
-            Description = newTournament.Description ?? string.Empty,
-            Participants = ParseParticipants(newTournament.ParticipantsRaw),
-            Bracket = newTournament.Bracket ?? string.Empty,
-            Rules = newTournament.Rules ?? string.Empty,
-            Link = string.IsNullOrWhiteSpace(newTournament.Link) ? "#" : newTournament.Link
-        };
-
-        myTournaments.Insert(0, t);
-        showCreateModal = false;
-        newTournament = new Tournament();
-    }
-
-    private List<string> ParseParticipants(string raw)
-    {
-        if (string.IsNullOrWhiteSpace(raw)) return new List<string>();
-        // Split by new lines and commas
-        var lines = raw.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
-                       .SelectMany(l => l.Split(',').Select(p => p.Trim()))
-                       .Where(p => !string.IsNullOrWhiteSpace(p))
-                       .ToList();
-        return lines;
-    }
+    // Aquí iría la carga de datos real mediante IApiClient
+    // Por ahora usamos la estructura estática para diseño
 }

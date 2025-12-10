@@ -92,25 +92,28 @@
         }
         catch (ApiException ex)
         {
-            if (ex.StatusCode == System.Net.HttpStatusCode.BadRequest && ex.Content != null)
+            switch (ex.StatusCode)
             {
-                var errorResponse = System.Text.Json.JsonSerializer.Deserialize<ErrorResponseDto>(ex.Content, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                if (errorResponse?.Errors != null)
+                case System.Net.HttpStatusCode.BadRequest when ex.Content != null:
                 {
-                    errorMessages = errorResponse.Errors.Select(e => e.Description).ToList();
+                    var errorResponse = System.Text.Json.JsonSerializer.Deserialize<ErrorResponseDto>(ex.Content, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    if (errorResponse?.Errors != null)
+                    {
+                        errorMessages = errorResponse.Errors.Select(e => e.Description).ToList();
+                    }
+                    else
+                    {
+                        errorMessages.Add("Ocurrió un error con los datos enviados.");
+                    }
+
+                    break;
                 }
-                else
-                {
-                    errorMessages.Add("Ocurrió un error con los datos enviados.");
-                }
-            }
-            else if (ex.StatusCode == System.Net.HttpStatusCode.Conflict)
-            {
-                errorMessages.Add("El nombre de usuario o el email ya están en uso.");
-            }
-            else
-            {
-                errorMessages.Add("Ocurrió un error inesperado. Por favor, intenta de nuevo.");
+                case System.Net.HttpStatusCode.Conflict:
+                    errorMessages.Add("El nombre de usuario o el email ya están en uso.");
+                    break;
+                default:
+                    errorMessages.Add("Ocurrió un error inesperado. Por favor, intenta de nuevo.");
+                    break;
             }
         }
         catch (Exception)
