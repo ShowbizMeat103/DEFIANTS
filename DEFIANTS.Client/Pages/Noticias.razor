@@ -1,27 +1,95 @@
 @page "/noticias"
 
-<h1>Noticias</h1>
+<div class="section section-noticias">
+    <div class="container">
+        <div class="section-header">
+            <h1 class="section-title">// NOTICIAS</h1>
+            <p class="section-subtitle">Mantente al tanto de las últimas novedades y actualizaciones de DEFIANTS.</p>
+        </div>
 
-<div class="row">
-    <div class="col-md-4">
-        <Card Title="Nueva Temporada Competitiva"
-              Description="La nueva temporada competitiva de DEFIANTS ha comenzado. Prepárate para la acción."
-              ImageUrl="https://via.placeholder.com/300x200"
-              Link="/news/season-start"
-              ButtonText="Leer Más" />
-    </div>
-    <div class="col-md-4">
-        <Card Title="Entrevista con un Jugador Profesional"
-              Description="Hablamos con uno de los mejores jugadores de la escena sobre sus estrategias y consejos."
-              ImageUrl="https://via.placeholder.com/300x200"
-              Link="/news/pro-interview"
-              ButtonText="Leer Más" />
-    </div>
-    <div class="col-md-4">
-        <Card Title="Actualización del Juego"
-              Description="Se ha lanzado una nueva actualización con cambios de equilibrio y corrección de errores."
-              ImageUrl="https://via.placeholder.com/300x200"
-              Link="/news/game-update"
-              ButtonText="Leer Más" />
+        <div class="news-grid">
+            @foreach (var noticia in noticias)
+            {
+                <article class="news-card">
+                    <div class="news-image">
+                        <img src="@noticia.ImageUrl" alt="@noticia.Titulo" />
+                        <span class="news-category">@noticia.Categoria</span>
+                    </div>
+
+                    <div class="news-content">
+                        <h3>@noticia.Titulo</h3>
+                        <p class="news-date">
+                            <i class="fas fa-calendar-alt"></i>
+                            @noticia.Fecha.ToString("d MMMM yyyy")
+                        </p>
+                        <p class="news-excerpt">@noticia.Resumen</p>
+                        <a href="#" class="news-link">Leer más →</a>
+                    </div>
+                </article>
+            }
+        </div>
     </div>
 </div>
+
+@code {
+    private List<Noticia> noticias = new()
+    {
+        new Noticia
+        {
+            Titulo = "Nueva Temporada Competitiva de DEFIANTS",
+            Categoria = "ESPORTS",
+            Fecha = new DateTime(2025, 12, 9),
+            Resumen = "La nueva temporada competitiva 2025-2026 ha comenzado oficialmente. Con un prize pool más grande que nunca, prepárate para la competencia más intensa de DEFIANTS.",
+            ImageUrl = "https://via.placeholder.com/400x240?text=Nueva+Temporada"
+        },
+        new Noticia
+        {
+            Titulo = "Entrevista exclusiva con campeón mundial",
+            Categoria = "ENTREVISTA",
+            Fecha = new DateTime(2025, 12, 7),
+            Resumen = "Nos sentamos con el campeón mundial para hablar sobre sus estrategias, entrenamientos y consejos para jugadores que quieren llegar a la cima.",
+            ImageUrl = "https://via.placeholder.com/400x240?text=Entrevista"
+        },
+        new Noticia
+        {
+            Titulo = "Balance Update v2.5.0 - Cambios significativos",
+            Categoria = "ACTUALIZACIÓN",
+            Fecha = new DateTime(2025, 12, 5),
+            Resumen = "Se ha lanzado la versión 2.5.0 con importantes cambios de equilibrio, nuevos héroes y corrección de bugs. Revisa los detalles completos en nuestro parche.",
+            ImageUrl = "https://via.placeholder.com/400x240?text=Actualizacion"
+        },
+        new Noticia
+        {
+            Titulo = "Torneo comunitario: ¡Gana premios!",
+            Categoria = "TORNEO",
+            Fecha = new DateTime(2025, 12, 3),
+            Resumen = "Participa en nuestro torneo comunitario con un prize pool de $5,000. Registra tu equipo ahora y demuestra tu habilidad contra los mejores.",
+            ImageUrl = "https://via.placeholder.com/400x240?text=Torneo"
+        },
+        new Noticia
+        {
+            Titulo = "Nuevo mapa disponible: Arena Cósmica",
+            Categoria = "CONTENIDO",
+            Fecha = new DateTime(2025, 12, 1),
+            Resumen = "Explora el nuevo mapa Arena Cósmica con mecánicas únicas, efectos visuales impresionantes y nuevas estrategias para dominar.",
+            ImageUrl = "https://via.placeholder.com/400x240?text=Nuevo+Mapa"
+        },
+        new Noticia
+        {
+            Titulo = "Roadmap 2026: Lo que está por venir",
+            Categoria = "NOTICIAS",
+            Fecha = new DateTime(2025, 11, 29),
+            Resumen = "Conoce nuestros planes para 2026: nuevos héroes, mapas, modo de juego y mucho más. Queremos que seas parte de esta emocionante evolución.",
+            ImageUrl = "https://via.placeholder.com/400x240?text=Roadmap"
+        }
+    };
+
+    private class Noticia
+    {
+        public string Titulo { get; set; }
+        public string Categoria { get; set; }
+        public DateTime Fecha { get; set; }
+        public string Resumen { get; set; }
+        public string ImageUrl { get; set; }
+    }
+}
