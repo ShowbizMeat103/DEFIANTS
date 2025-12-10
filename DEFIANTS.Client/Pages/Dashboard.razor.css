@@ -13,7 +13,6 @@
     background-color: var(--void-black);
     color: white;
     font-family: 'JetBrains Mono', monospace;
-    /* Patrón de grilla sutil */
     background-image:
             linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
             linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
@@ -22,7 +21,13 @@
 }
 
 .container {
-    max-width: 1000px;
+    /* AJUSTE USER (ANCHO TOTAL):
+       Cambia '1400px' si quieres la página más ancha o más estrecha.
+       - 1200px: Estándar clásico.
+       - 1400px: Ancho moderno.
+       - 1600px+: Muy ancho (estilo ultrawide).
+    */
+    max-width: 1400px;
     margin: 0 auto;
     padding: 20px;
 }
@@ -60,7 +65,6 @@
     position: relative;
 }
 
-/* Efecto glitch simple en el nombre */
 .user-highlight::after {
     content: attr(data-text);
     position: absolute;
@@ -98,7 +102,6 @@
 /* --- SECCIONES --- */
 .dashboard-section {
     margin-bottom: 40px;
-    /* Animación de entrada suave */
     animation: fadeUp 0.5s ease-out forwards;
 }
 
@@ -142,8 +145,27 @@
     gap: 20px;
 }
 
-.col-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
-.col-1 { grid-template-columns: 1fr; }
+/* AJUSTE USER (COLUMNAS):
+   - 'minmax(300px, 1fr)': Significa que cada tarjeta medirá MÍNIMO 300px.
+   - Si bajas este número (ej. 250px), cabrán más tarjetas en la misma fila.
+   - Si lo subes (ej. 400px), cabrán menos y se bajarán antes.
+   - 'auto-fit': Rellena el hueco automáticamente.
+*/
+.col-2 {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+/* AJUSTE ESPECÍFICO PARA PARTIDOS (.col-1):
+   Le ponemos un 'max-width' propio y lo centramos con 'margin: 0 auto'.
+   Así, aunque la pantalla sea enorme, la tarjeta de partido se queda en 1000px
+   y no se deforma.
+*/
+.col-1 {
+    grid-template-columns: 1fr;
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 100%;
+}
 
 /* --- CARDS GENERAL --- */
 .dashboard-card {
@@ -152,6 +174,8 @@
     padding: 20px;
     position: relative;
     transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    /* Aseguramos que el contenido no se rompa */
+    min-width: 0;
 }
 
 .dashboard-card:hover {
@@ -168,6 +192,7 @@
     margin-bottom: 15px;
     border-bottom: 1px solid rgba(255,255,255,0.1);
     padding-bottom: 10px;
+    gap: 15px;
 }
 
 .team-card h3 {
@@ -182,6 +207,7 @@
     padding: 2px 6px;
     border: 1px solid #444;
     text-transform: uppercase;
+    flex-shrink: 0;
 }
 
 .tag.game-lol { color: #c8aa6e; border-color: #c8aa6e; }
@@ -384,8 +410,12 @@
 }
 
 /* --- RESPONSIVE --- */
-@media (max-width: 768px) {
+/* Mobile fallback: 1 sola columna si la pantalla es muy pequeña (<600px) */
+@media (max-width: 600px) {
     .match-versus { font-size: 1.2rem; }
     .header-content h1 { font-size: 1.8rem; }
-    .col-2 { grid-template-columns: 1fr; }
+
+    .col-2 {
+        grid-template-columns: 1fr;
+    }
 }
