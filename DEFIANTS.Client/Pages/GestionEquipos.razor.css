@@ -39,12 +39,12 @@
 .team-management {
     display: grid;
     grid-template-columns: 360px 1fr;
-    gap: 24px;
+    gap: 32px; /* Aumentado un poco el espacio */
     align-items: start;
 }
 
-/* Tarjetas (Crear y Mis Equipos) */
-.create-team, .my-teams {
+/* --- TARJETA DE CREAR (Izquierda) --- */
+.create-team {
     background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.14));
     border: 1px solid rgba(255,255,255,0.04);
     padding: 24px;
@@ -52,7 +52,7 @@
     box-shadow: 0 8px 24px rgba(2,6,23,0.55);
 }
 
-.create-team h3, .my-teams h3 {
+.create-team h3 {
     margin-top: 0;
     margin-bottom: 18px;
     font-size: 1.2rem;
@@ -60,7 +60,7 @@
     font-weight: 600;
 }
 
-/* Formularios */
+/* --- ESTILOS DE FORMULARIO (Inputs) --- */
 .form-group {
     margin-bottom: 16px;
 }
@@ -72,12 +72,11 @@
     font-size: 0.9rem;
 }
 
-/* AÑADIDO ::deep para que afecte a InputText, InputSelect, etc. */
 ::deep input.form-control,
 ::deep select.form-control,
 ::deep textarea.form-control {
     width: 100%;
-    background: rgba(0,0,0,0.3); /* Fondo oscuro */
+    background: rgba(0,0,0,0.3);
     border: 1px solid rgba(255,255,255,0.08);
     color: #eff7ff;
     border-radius: 8px;
@@ -92,170 +91,186 @@
 ::deep select.form-control:focus,
 ::deep textarea.form-control:focus {
     outline: none;
-    border-color: #E62020; /* Rojo Defiants */
+    border-color: #E62020;
     box-shadow: 0 0 0 3px rgba(230, 32, 32, 0.15);
     background: rgba(0,0,0,0.5);
 }
 
-::deep input.form-control::placeholder,
-::deep textarea.form-control::placeholder {
-    color: #5a6b80;
-    opacity: 1;
+/* --- MIS EQUIPOS (Derecha - Estilo Banner) --- */
+.my-teams {
+    background: transparent;
+    border: none;
+    padding: 0;
+    box-shadow: none;
 }
 
-/* Lista de Equipos */
 .teams-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+    margin-top: 20px;
+}
+
+/* BANNER INDIVIDUAL */
+.team-banner {
+    background-color: #050505;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 24px 0;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    position: relative;
+    transition: background-color 0.3s ease;
 }
 
-.team-card {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.05);
-    padding: 18px;
-    border-radius: 10px;
-    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+.team-banner:hover {
+    background-color: #0c0c0c;
 }
 
-.team-card:hover {
-    background: rgba(255,255,255,0.05);
-    border-color: rgba(255,255,255,0.1);
-    transform: translateX(4px);
-}
-
-.team-main {
+/* CABECERA DEL BANNER */
+.banner-header {
     display: flex;
+    align-items: flex-start;
     justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding: 0 12px;
+}
+
+.team-name {
+    font-family: 'Anton', 'Impact', sans-serif;
+    font-size: 2.2rem;
+    line-height: 0.9;
+    text-transform: uppercase;
+    color: #ffffff;
+    margin: 0;
+    max-width: 75%;
+    word-wrap: break-word;
+}
+
+.game-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border: 1px solid #ffd57a;
+    color: #ffd57a;
+    letter-spacing: 1px;
+    margin-top: 4px;
+}
+
+.game-tag.valorant {
+    border-color: #ff4655;
+    background-color: rgba(255, 70, 85, 0.1);
+    color: #ff4655;
+}
+
+.game-tag.lol {
+    border-color: #c8aa6e;
+    color: #c8aa6e;
+}
+
+/* INFO (Rol, Miembros) */
+.banner-info {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 16px 12px;
+    margin-bottom: 24px;
+}
+
+.info-row {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: #e0e0e0;
+    margin-bottom: 6px;
+    display: flex;
     align-items: center;
     gap: 12px;
-    flex-wrap: wrap;
-    margin-bottom: 12px;
 }
 
-.team-main strong {
-    color: #fff;
-    font-size: 1.1rem;
-    letter-spacing: 0.5px;
-}
-
-.team-main small {
-    color: #8899ac;
-    font-size: 0.9rem;
-}
-
-.team-actions {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-/* Botones - AÑADIDO ::deep para botones dentro de forms o componentes */
-::deep .btn {
-    padding: 8px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    border: 1px solid transparent;
+.info-label {
+    color: #888;
     font-weight: 600;
-    font-size: 0.85rem;
-    transition: all 0.2s ease;
-    text-align: center;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
+    min-width: 80px;
 }
 
-/* Botón Primario (Crear, Guardar, Invitar) - Rojo Gradiente */
+/* BOTONES Y ACCIONES */
+.banner-actions {
+    padding: 0 12px;
+}
+
+::deep .btn-manage {
+    background: transparent;
+    border: 1px solid #E62020;
+    color: #E62020;
+    font-family: 'Anton', sans-serif;
+    text-transform: uppercase;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    padding: 12px 24px;
+    width: 100%;
+    max-width: 200px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: block;
+}
+
+::deep .btn-manage:hover {
+    background: #E62020;
+    color: #000;
+    box-shadow: 0 0 20px rgba(230, 32, 32, 0.4);
+}
+
+.small-actions {
+    margin-top: 12px;
+    font-size: 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    display: flex;
+    gap: 12px;
+}
+
+.small-link {
+    cursor: pointer;
+    color: #666;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.small-link:hover {
+    color: #fff;
+}
+
+/* EDICIÓN IN-LINE */
+.inline-editor {
+    padding: 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px dashed rgba(255,255,255,0.1);
+}
+
+/* Botones genéricos (para el formulario de crear) */
 ::deep .btn-primary {
     background: linear-gradient(90deg, #c40000, #ff2d2d);
     color: #fff;
-    border: 1px solid rgba(255,100,100,0.28);
-    box-shadow: 0 4px 12px rgba(196,0,0,0.24);
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
 }
 
-::deep .btn-primary:hover:not(:disabled) {
-    background: linear-gradient(90deg, #ff2d2d, #ff5555);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(196,0,0,0.35);
-}
-
-::deep .btn-primary:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    filter: grayscale(0.5);
-}
-
-/* Botón Secundario (Ver, Cancelar) - Transparente */
-::deep .btn-secondary {
-    background: transparent;
-    color: #dbeeff;
-    border: 1px solid rgba(255,255,255,0.15);
-}
-
-::deep .btn-secondary:hover {
-    background: rgba(255,255,255,0.05);
-    border-color: rgba(255,255,255,0.3);
-    color: #fff;
-}
-
-/* Botón Danger (Disolver) - Rojo Oscuro */
-::deep .btn-danger {
-    background: rgba(50, 0, 0, 0.4);
-    color: #ff8b8b;
-    border: 1px solid rgba(255, 50, 50, 0.2);
-}
-
-::deep .btn-danger:hover {
-    background: rgba(200, 0, 0, 0.2);
-    color: #ff5555;
-    border-color: #ff5555;
-}
-
-/* Botón Ghost (Editar) */
 ::deep .btn-ghost {
     background: transparent;
-    color: #b8c1d6;
-    border: 1px dashed rgba(255,255,255,0.15);
-}
-
-::deep .btn-ghost:hover {
-    color: #fff;
-    border-color: rgba(255,255,255,0.4);
-    background: rgba(255,255,255,0.02);
-}
-
-/* Zonas de edición e invitación */
-.team-edit, .team-invite {
-    margin-top: 14px;
-    padding-top: 14px;
-    border-top: 1px dashed rgba(255,255,255,0.1);
-    background: rgba(0,0,0,0.2);
-    padding: 12px;
-    border-radius: 8px;
+    border: 1px solid #444;
+    color: #ccc;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
 .info { color: #4ade80; margin-top: 8px; font-size: 0.9rem; }
 .error { color: #ff6b6b; margin-top: 8px; font-size: 0.9rem; }
 
-/* Responsive */
 @media (max-width: 900px) {
-    .team-management {
-        grid-template-columns: 1fr;
-    }
-    
-    .team-main {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
-    }
-    
-    .team-actions {
-        width: 100%;
-        margin-top: 8px;
-    }
-    
-    ::deep .btn {
-        flex-grow: 1;
-    }
+    .team-management { grid-template-columns: 1fr; }
 }

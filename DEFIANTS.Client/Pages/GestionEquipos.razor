@@ -35,19 +35,24 @@
                         </InputSelect>
                     </div>
 
-                    <div style="margin-top:8px">
-                        <button class="btn btn-primary" type="submit" disabled="@isCreating">@((isCreating) ? "Creando..." : "Crear equipo")</button>
+                    <div style="margin-top:12px">
+                        <button class="btn-primary" type="submit" disabled="@isCreating">
+                            @((isCreating) ? "Creando..." : "Crear equipo")
+                        </button>
                     </div>
                 </EditForm>
                 @if (!string.IsNullOrEmpty(createMessage)) { <div class="info">@createMessage</div> }
                 @if (!string.IsNullOrEmpty(createError)) { <div class="error">@createError</div> }
             </div>
 
-            <div class="my-teams" style="margin-top:20px">
-                <h3>Mis equipos</h3>
+            <div class="my-teams">
+                <div style="display:flex; align-items:flex-end; margin-bottom:12px; border-left: 4px solid #E62020; padding-left:16px;">
+                    <h2 style="margin:0; font-family:'Anton'; text-transform:uppercase; font-size:2rem; line-height:1;">// Mis Equipos</h2>
+                </div>
+
                 @if (isLoading)
                 {
-                    <div>Cargando equipos...</div>
+                    <div style="color:#888;">Cargando equipos...</div>
                 }
                 else if (!string.IsNullOrEmpty(loadError))
                 {
@@ -57,42 +62,70 @@
                 {
                     @if (misEquipos == null || !misEquipos.Any())
                     {
-                        <div>No tienes equipos todavía.</div>
+                        <div style="color:#666; padding:20px 0;">No tienes equipos todavía.</div>
                     }
                     else
                     {
                         <div class="teams-list">
                             @foreach (var t in misEquipos)
                             {
-                                <div class="team-card">
-                                    <div class="team-main">
-                                        <strong>@t.Nombre</strong> <small>(Juego: @GetJuegoNombre(t.JuegoId))</small>
-                                    </div>
-                                    <div class="team-actions">
-                                        <button class="btn btn-secondary" @onclick="() => ViewEquipo(t.Id)">Ver</button>
-                                        <button class="btn btn-ghost" @onclick="() => ToggleEdit(t)">Editar</button>
-                                        <button class="btn btn-danger" @onclick="() => ConfirmDisolver(t.Id)">Disolver</button>
+                                var nombreJuego = GetJuegoNombre(t.JuegoId);
+                                var tagClass = nombreJuego.ToLower().Contains("valorant") ? "valorant" : 
+                                               nombreJuego.ToLower().Contains("lol") || nombreJuego.ToLower().Contains("league") ? "lol" : "";
+
+                                <div class="team-banner">
+                                    <div class="banner-header">
+                                        <h3 class="team-name">@t.Nombre</h3>
+                                        <span class="game-tag @tagClass">@nombreJuego</span>
                                     </div>
 
-                                    @if (t.IsEditing)
-                                    {
-                                        <div class="team-edit" style="margin-top:8px">
-                                            <InputText class="form-control" @bind-Value="t.EditNombre" />
-                                            <div style="margin-top:6px">
-                                                <button class="btn btn-primary" @onclick="() => SaveEdit(t)" disabled="@t.IsSaving">Guardar</button>
-                                                <button class="btn btn-secondary" @onclick="() => CancelEdit(t)">Cancelar</button>
+                                    <div class="banner-info">
+                                        <div class="info-row">
+                                            <span class="info-label">Rol:</span>
+                                            <span style="color:#fff;">@t.Rol</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">ID:</span>
+                                            <span>#@t.Id.ToString("D4")</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="banner-actions">
+                                        @if (t.IsEditing)
+                                        {
+                                            <div class="inline-editor">
+                                                <InputText class="form-control" @bind-Value="t.EditNombre" placeholder="Nuevo nombre..." />
+                                                @if (!string.IsNullOrEmpty(t.EditError)) { <div class="error" style="font-size:0.8rem">@t.EditError</div> }
+                                                
+                                                <div style="margin-top:10px; display:flex; gap:8px;">
+                                                    <button class="btn-primary" @onclick="() => SaveEdit(t)" disabled="@t.IsSaving">Guardar</button>
+                                                    <button class="btn-ghost" @onclick="() => CancelEdit(t)">Cancelar</button>
+                                                </div>
                                             </div>
-                                            @if (!string.IsNullOrEmpty(t.EditError)) { <div class="error">@t.EditError</div> }
-                                        </div>
-                                    }
+                                        }
+                                        else
+                                        {
+                                            <button class="btn-manage" @onclick="() => ViewEquipo(t.Id)">
+                                                GESTIONAR
+                                            </button>
 
-                                    <div class="team-invite" style="margin-top:8px">
-                                        <InputText placeholder="username a invitar" @bind-Value="t.InviteUsername" class="form-control" />
-                                        <div style="margin-top:6px">
-                                            <button class="btn btn-primary" @onclick="() => InviteToTeam(t)" disabled="@t.IsInviting">Invitar</button>
-                                            @if (!string.IsNullOrEmpty(t.InviteMessage)) { <span class="info">@t.InviteMessage</span> }
-                                            @if (!string.IsNullOrEmpty(t.InviteError)) { <span class="error">@t.InviteError</span> }
-                                        </div>
+                                            <div class="small-actions">
+                                                <a class="small-link" @onclick="() => ToggleEdit(t)">[Editar Nombre]</a>
+                                                <a class="small-link" @onclick="() => ConfirmDisolver(t.Id)" style="color:#a33;">[Disolver]</a>
+                                            </div>
+                                        }
+
+                                        @if (!t.IsEditing) 
+                                        {
+                                            <div style="margin-top:16px; border-top:1px dashed #333; padding-top:12px;">
+                                                <div style="display:flex; gap:4px;">
+                                                    <InputText placeholder="Invitar usuario..." @bind-Value="t.InviteUsername" class="form-control" style="padding:6px; font-size:0.85rem;" />
+                                                    <button class="btn-ghost" @onclick="() => InviteToTeam(t)" disabled="@t.IsInviting" style="font-size:0.8rem;">+</button>
+                                                </div>
+                                                @if (!string.IsNullOrEmpty(t.InviteMessage)) { <div class="info" style="font-size:0.75rem; margin-top:4px;">@t.InviteMessage</div> }
+                                                @if (!string.IsNullOrEmpty(t.InviteError)) { <div class="error" style="font-size:0.75rem; margin-top:4px;">@t.InviteError</div> }
+                                            </div>
+                                        }
                                     </div>
                                 </div>
                             }
@@ -174,7 +207,6 @@
         {
             var created = await ApiClient.CrearEquipo(newTeam);
             createMessage = $"Equipo '{created.Nombre}' creado.";
-            // Refresh list
             await LoadData();
             newTeam = new CrearEquipoDto();
         }
@@ -238,7 +270,6 @@
             await ApiClient.AnadirMiembro(t.Id, dto);
             t.InviteMessage = $"Invitación enviada a '{t.InviteUsername}'.";
             t.InviteUsername = string.Empty;
-            // Optionally refresh details elsewhere
         }
         catch (Exception ex)
         {
@@ -265,12 +296,10 @@
         }
         catch (Exception ex)
         {
-            // Show a simple alert
             await JsAlertAsync($"Error al disolver: {ex.Message}");
         }
     }
 
-    // Small JS helpers via NavigationManager + window.confirm/alert through JSInterop
     [Microsoft.AspNetCore.Components.Inject]
     private Microsoft.JSInterop.IJSRuntime JS { get; set; } = default!;
 
