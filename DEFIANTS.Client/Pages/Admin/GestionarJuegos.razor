@@ -1,0 +1,190 @@
+﻿@page "/admin/gestionar-juegos"
+@attribute [Authorize(Roles = "Admin")]
+@using Microsoft.AspNetCore.Authorization
+@using DEFIANTS.Shared.DTOs
+@using DEFIANTS.Shared.Clients
+@inject IApiClient ApiClient
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Gestionar Juegos</PageTitle>
+
+<h1>Gestionar Juegos</h1>
+<p>Añade, edita o elimina los juegos disponibles en la plataforma.</p>
+
+<!-- Botón para mostrar/ocultar formulario de creación -->
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="ToggleCreateForm">
+        <i class="fas @(showCreateForm ? "fa-times" : "fa-plus") me-2"></i>
+        @(showCreateForm ? "Cancelar" : "Añadir Nuevo Juego")
+    </button>
+</div>
+
+<!-- Formulario de Creación/Edición -->
+@if (showCreateForm)
+{
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>@(editingJuego == null ? "Nuevo Juego" : $"Editando: {editingJuego.Nombre}")</h3>
+        </div>
+        <div class="card-body">
+            <EditForm Model="@juegoModel" OnValidSubmit="HandleSaveJuego">
+                <DataAnnotationsValidator />
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Nombre del Juego:</label>
+                        <InputText class="form-control" @bind-Value="juegoModel.Nombre" />
+                        <ValidationMessage For="@(() => juegoModel.Nombre)" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">URL del Logo:</label>
+                        <InputText class="form-control" @bind-Value="juegoModel.LogoUrl" />
+                        <ValidationMessage For="@(() => juegoModel.LogoUrl)" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Integrantes por Equipo:</label>
+                        <InputNumber class="form-control" @bind-Value="juegoModel.IntegrantesPorEquipo" />
+                        <ValidationMessage For="@(() => juegoModel.IntegrantesPorEquipo)" />
+                    </div>
+                    <div class="col-md-6 mb-3 d-flex align-items-center">
+                        <div class="form-check mt-4">
+                            <InputCheckbox class="form-check-input" @bind-Value="juegoModel.TieneSistemaElo" />
+                            <label class="form-check-label">¿Tiene Sistema de Elo?</label>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success" disabled="@isSaving">
+                    @if(isSaving) { <span class="spinner-border spinner-border-sm"></span> }
+                    Guardar
+                </button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<!-- Tabla de Juegos Existentes -->
+<div class="card">
+    <div class="card-header">
+        <h3>Juegos Existentes</h3>
+    </div>
+    <div class="card-body">
+        @if (juegos == null)
+        {
+            <p><em>Cargando juegos...</em></p>
+        }
+        else
+        {
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Integrantes</th>
+                        <th>Tiene Elo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var juego in juegos)
+                    {
+                        <tr>
+                            <td>@juego.Nombre</td>
+                            <td>@juego.IntegrantesPorEquipo</td>
+                            <td>@(juego.TieneSistemaElo ? "Sí" : "No")</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-2" @onclick="() => StartEditing(juego)">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" @onclick="() => HandleDeleteJuego(juego)">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+@code {
+    private List<JuegoDto>? juegos;
+    private CrearJuegoDto juegoModel = new();
+    private JuegoDto? editingJuego;
+    private bool showCreateForm = false;
+    private bool isSaving = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadJuegos();
+    }
+
+    private async Task LoadJuegos()
+    {
+        juegos = await ApiClient.GetJuegos();
+    }
+
+    private void ToggleCreateForm()
+    {
+        showCreateForm = !showCreateForm;
+        editingJuego = null;
+        juegoModel = new(); // Limpiar modelo
+    }
+
+    private void StartEditing(JuegoDto juego)
+    {
+        editingJuego = juego;
+        juegoModel = new CrearJuegoDto
+        {
+            Nombre = juego.Nombre,
+            LogoUrl = juego.LogoUrl,
+            IntegrantesPorEquipo = juego.IntegrantesPorEquipo,
+            TieneSistemaElo = juego.TieneSistemaElo
+        };
+        showCreateForm = true;
+    }
+
+    private async Task HandleSaveJuego()
+    {
+        isSaving = true;
+        try
+        {
+            if (editingJuego == null) // Crear
+            {
+                await ApiClient.CrearJuego(juegoModel);
+            }
+            else // Actualizar
+            {
+                await ApiClient.ActualizarJuego(editingJuego.Id, juegoModel);
+            }
+            
+            await LoadJuegos();
+            ToggleCreateForm();
+        }
+        catch (Exception ex)
+        {
+            // Manejar error
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task HandleDeleteJuego(JuegoDto juego)
+    {
+        var confirmado = await JSRuntime.InvokeAsync<bool>("confirm", $"¿Estás seguro de que quieres eliminar el juego '{juego.Nombre}'?");
+        if (confirmado)
+        {
+            try
+            {
+                await ApiClient.EliminarJuego(juego.Id);
+                await LoadJuegos();
+            }
+            catch (Exception ex)
+            {
+                // Manejar error
+            }
+        }
+    }
+}

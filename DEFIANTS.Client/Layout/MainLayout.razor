@@ -24,6 +24,7 @@
             <nav class="nav-links">
                 <a href="tournaments" class="nav-item">Torneos</a>
                 <a href="dashboard" class="nav-item">Dashboard</a>
+                <a href="mis-perfiles-juego" class="nav-item">Mis Perfiles</a>
                 <a href="noticias" class="nav-item">Noticias</a>
             </nav>
 
@@ -32,6 +33,12 @@
                 <AuthorizeView>
                     <Authorized>
                         <!-- Contenido para usuarios AUTENTICADOS -->
+                        
+                        @if (context.User.IsInRole("Admin"))
+                        {
+                            <a href="/admin/gestionar-juegos" class="btn btn-sm btn-danger">GESTIONAR JUEGOS</a>
+                        }
+                        
                         <a href="#" @onclick="HandleLogout" class="btn btn-sm btn-outline">LOGOUT</a>
                         <a href="profile" class="user-avatar">
                             <!-- Icono User -->
@@ -129,17 +136,11 @@
 
     private async Task HandleLogout()
     {
-        // 1. Eliminar el token del localStorage
         await LocalStorage.RemoveItemAsync("authToken");
-
-        // 2. Notificar al AuthenticationStateProvider que el usuario ha cerrado sesión
-        //    Esto actualizará el estado de autenticación en toda la aplicación.
         if (AuthenticationStateProvider is CustomAuthenticationStateProvider customProvider)
         {
             customProvider.MarkUserAsLoggedOut();
         }
-
-        // 3. Redirigir al usuario a la página de inicio (o login)
         Navigation.NavigateTo("/", forceLoad: true);
     }
 }

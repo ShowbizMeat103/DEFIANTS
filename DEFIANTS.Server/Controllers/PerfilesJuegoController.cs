@@ -5,7 +5,6 @@ using DEFIANTS.Shared.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Linq; // Necesario para Select
 
 namespace DEFIANTS.Server.Controllers;
 
@@ -43,6 +42,7 @@ public class PerfilesJuegoController : ControllerBase
         return Ok(perfiles);
     }
 
+    // --- MÉTODO MODIFICADO PARA USAR DTOs ---
     [HttpPost]
     public async Task<ActionResult<PerfilJuegoDto>> CrearPerfilJuego([FromBody] CrearPerfilJuegoDto perfilDto)
     {
@@ -62,17 +62,18 @@ public class PerfilesJuegoController : ControllerBase
             UsuarioId = userId,
             JuegoId = perfilDto.JuegoId,
             NicknameInGame = perfilDto.NicknameInGame,
-            Elo = perfilDto.Elo // <-- USAMOS EL ELO DEL DTO
+            Elo = 0
         };
 
         _context.PerfilesJuego.Add(nuevoPerfil);
         await _context.SaveChangesAsync();
 
+        // Proyectamos a PerfilJuegoDto antes de devolver
         var responseDto = new PerfilJuegoDto
         {
             Id = nuevoPerfil.Id,
             JuegoId = nuevoPerfil.JuegoId,
-            JuegoNombre = _context.Juegos.FirstOrDefault(j => j.Id == nuevoPerfil.JuegoId)?.Nombre ?? "Desconocido",
+            JuegoNombre = _context.Juegos.FirstOrDefault(j => j.Id == nuevoPerfil.JuegoId)?.Nombre ?? "Desconocido", // Obtener nombre del juego
             NicknameInGame = nuevoPerfil.NicknameInGame,
             Elo = nuevoPerfil.Elo
         };
@@ -93,7 +94,6 @@ public class PerfilesJuegoController : ControllerBase
         }
 
         perfil.NicknameInGame = perfilDto.NicknameInGame;
-        perfil.Elo = perfilDto.Elo; // <-- USAMOS EL ELO DEL DTO
         await _context.SaveChangesAsync();
 
         return NoContent();
