@@ -34,6 +34,8 @@ public class PerfilesJuegoController : ControllerBase
                 Id = p.Id,
                 JuegoId = p.JuegoId,
                 JuegoNombre = p.Juego.Nombre,
+                JuegoLogoUrl = p.Juego.LogoUrl,
+                JuegoTieneSistemaElo = p.Juego.TieneSistemaElo,
                 NicknameInGame = p.NicknameInGame,
                 Elo = p.Elo
             })
@@ -42,12 +44,17 @@ public class PerfilesJuegoController : ControllerBase
         return Ok(perfiles);
     }
 
-    // --- MÉTODO MODIFICADO PARA USAR DTOs ---
     [HttpPost]
     public async Task<ActionResult<PerfilJuegoDto>> CrearPerfilJuego([FromBody] CrearPerfilJuegoDto perfilDto)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+        var juego = await _context.Juegos.FindAsync(perfilDto.JuegoId);
+        if (juego == null)
+        {
+            return BadRequest("El juego especificado no existe.");
+        }
 
         var perfilExistente = await _context.PerfilesJuego
             .AnyAsync(p => p.UsuarioId == userId && p.JuegoId == perfilDto.JuegoId);
@@ -62,18 +69,19 @@ public class PerfilesJuegoController : ControllerBase
             UsuarioId = userId,
             JuegoId = perfilDto.JuegoId,
             NicknameInGame = perfilDto.NicknameInGame,
-            Elo = 0
+            Elo = juego.TieneSistemaElo ? perfilDto.Elo : 0
         };
 
         _context.PerfilesJuego.Add(nuevoPerfil);
         await _context.SaveChangesAsync();
 
-        // Proyectamos a PerfilJuegoDto antes de devolver
         var responseDto = new PerfilJuegoDto
         {
             Id = nuevoPerfil.Id,
             JuegoId = nuevoPerfil.JuegoId,
-            JuegoNombre = _context.Juegos.FirstOrDefault(j => j.Id == nuevoPerfil.JuegoId)?.Nombre ?? "Desconocido", // Obtener nombre del juego
+            JuegoNombre = juego.Nombre,
+            JuegoLogoUrl = juego.LogoUrl,
+            JuegoTieneSistemaElo = juego.TieneSistemaElo,
             NicknameInGame = nuevoPerfil.NicknameInGame,
             Elo = nuevoPerfil.Elo
         };
@@ -84,7 +92,10 @@ public class PerfilesJuegoController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> ActualizarPerfilJuego(int id, [FromBody] ActualizarPerfilJuegoDto perfilDto)
     {
-        var perfil = await _context.PerfilesJuego.FindAsync(id);
+        var perfil = await _context.PerfilesJuego
+            .Include(p => p.Juego)
+            .FirstOrDefaultAsync(p => p.Id == id);
+            
         if (perfil == null) return NotFound("Perfil de juego no encontrado.");
 
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -94,6 +105,33 @@ public class PerfilesJuegoController : ControllerBase
         }
 
         perfil.NicknameInGame = perfilDto.NicknameInGame;
+        
+        if (perfil.Juego.TieneSistemaElo && perfilDto.Elo.HasValue)
+        {
+            perfil.Elo = perfilDto.Elo.Value;
+        }
+
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+    
+    [HttpDelete("eliminar/{id}")]
+    public async Task<IActionResult> EliminarPerfilJuego(int id)
+    {
+        var perfil = await _context.PerfilesJuego.FindAsync(id);
+        if (perfil == null)
+        {
+            return NotFound("Perfil de juego no encontrado.");
+        }
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (perfil.UsuarioId != userId)
+        {
+            return Forbid("No tienes permiso para eliminar este perfil.");
+        }
+
+        _context.PerfilesJuego.Remove(perfil);
         await _context.SaveChangesAsync();
 
         return NoContent();

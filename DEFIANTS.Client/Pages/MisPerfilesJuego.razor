@@ -132,7 +132,7 @@ else
                     <DataAnnotationsValidator />
                     <div class="mb-3">
                         <label class="form-label">Juego:</label>
-                        <InputSelect class="form-select" @bind-Value="nuevoPerfil.JuegoId">
+                        <InputSelect class="form-select" @bind-Value="nuevoPerfil.JuegoId" @bind-Value:after="OnJuegoSeleccionado">
                             <option value="0">Selecciona un juego...</option>
                             @if (juegosDisponibles != null)
                             {
@@ -149,6 +149,16 @@ else
                         <InputText class="form-control" @bind-Value="nuevoPerfil.NicknameInGame" placeholder="Ej: TheLegend27" />
                         <ValidationMessage For="@(() => nuevoPerfil.NicknameInGame)" />
                     </div>
+                    
+                    @if (juegoSeleccionadoTieneElo)
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">ELO inicial (opcional):</label>
+                            <InputNumber class="form-control" @bind-Value="nuevoPerfil.Elo" />
+                            <ValidationMessage For="@(() => nuevoPerfil.Elo)" />
+                        </div>
+                    }
+                    
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary" disabled="@isSaving">
                             @if(isSaving) { <span class="spinner-border spinner-border-sm"></span> }
@@ -174,6 +184,8 @@ else
 
     private string? notificationMessage;
     private string notificationCssClass = "alert-success";
+    
+    private bool juegoSeleccionadoTieneElo = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -188,6 +200,16 @@ else
         misPerfiles = await misPerfilesTask;
         juegosDisponibles = await juegosDisponiblesTask;
     }
+    
+    private void OnJuegoSeleccionado()
+    {
+        var juegoSeleccionado = juegosDisponibles?.FirstOrDefault(j => j.Id == nuevoPerfil.JuegoId);
+        juegoSeleccionadoTieneElo = juegoSeleccionado?.TieneSistemaElo ?? false;
+        if (!juegoSeleccionadoTieneElo)
+        {
+            nuevoPerfil.Elo = 0; // Resetea el ELO si el juego no lo usa
+        }
+    }
 
     private async Task HandleCrearPerfil()
     {
@@ -195,9 +217,10 @@ else
         try
         {
             var perfilCreado = await ApiClient.CrearPerfilJuego(nuevoPerfil);
-            await LoadData();
+            misPerfiles?.Add(perfilCreado); // <-- CAMBIO: Añadir a la lista local
             showCreateForm = false;
             nuevoPerfil = new();
+            juegoSeleccionadoTieneElo = false;
             ShowNotification($"Perfil '{perfilCreado.NicknameInGame}' para '{perfilCreado.JuegoNombre}' creado con éxito.", true);
         }
         catch (Exception ex)
@@ -253,11 +276,10 @@ else
         var confirmado = await JSRuntime.InvokeAsync<bool>("confirm", $"¿Estás seguro de que quieres eliminar tu perfil '{perfil.NicknameInGame}' de '{perfil.JuegoNombre}'?");
         if (confirmado)
         {
-            // No usamos isSaving aquí para no deshabilitar otros botones
             try
             {
                 await ApiClient.EliminarPerfilJuego(perfil.Id);
-                await LoadData(); 
+                misPerfiles?.Remove(perfil); // <-- CAMBIO: Eliminar de la lista local
                 ShowNotification($"Perfil de '{perfil.JuegoNombre}' eliminado.", true);
             }
             catch (Exception ex)

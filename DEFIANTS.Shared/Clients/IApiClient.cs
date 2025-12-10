@@ -33,7 +33,7 @@ public interface IApiClient
     [Put("/api/perfilesjuego/{id}")]
     Task ActualizarPerfilJuego(int id, [Body] ActualizarPerfilJuegoDto perfilDto);
 
-    [Delete("/api/perfilesjuego/{id}")]
+    [Delete("/api/perfilesjuego/eliminar/{id}")]
     Task EliminarPerfilJuego(int id);
     #endregion
 

@@ -10,4 +10,7 @@ public class CrearPerfilJuegoDto
     [Required(ErrorMessage = "El nombre en el juego es obligatorio.")]
     [StringLength(50, MinimumLength = 3, ErrorMessage = "El nombre debe tener entre 3 y 50 caracteres.")]
     public string NicknameInGame { get; set; } = string.Empty;
+    
+    [Range(0, 5000, ErrorMessage = "El ELO debe ser un valor válido.")]
+    public int Elo { get; set; }
 }
