@@ -28,15 +28,22 @@
                         <label>Juego</label>
                         <InputSelect class="form-control" @bind-Value="newTeam.JuegoId">
                             <option value="0">-- Selecciona --</option>
-                            @foreach (var j in juegos)
+                            <!-- SOLO MOSTRAMOS JUEGOS DONDE EL USUARIO TIENE PERFIL -->
+                            @foreach (var j in juegosDisponiblesParaCrear)
                             {
                                 <option value="@j.Id">@j.Nombre</option>
                             }
                         </InputSelect>
+                        @if (!juegosDisponiblesParaCrear.Any() && !isLoading)
+                        {
+                            <small class="text-danger d-block mt-1">
+                                No tienes perfiles de juego. <a href="/mis-perfiles-juego">Crea uno primero</a> para poder armar un equipo.
+                            </small>
+                        }
                     </div>
 
                     <div style="margin-top:12px">
-                        <button class="btn-primary" type="submit" disabled="@isCreating">
+                        <button class="btn-primary" type="submit" disabled="@(isCreating || !juegosDisponiblesParaCrear.Any())">
                             @((isCreating) ? "Creando..." : "Crear equipo")
                         </button>
                     </div>
@@ -138,7 +145,8 @@
 </div>
 
 @code {
-    private List<JuegoDto> juegos = new();
+    private List<JuegoDto> todosLosJuegos = new();
+    private List<JuegoDto> juegosDisponiblesParaCrear = new(); // Lista filtrada
     private List<MiEquipoView> misEquipos = new();
     private CrearEquipoDto newTeam = new();
     private bool isLoading = true;
@@ -171,9 +179,23 @@
         loadError = null;
         try
         {
-            juegos = await ApiClient.GetJuegos();
-            var lista = await ApiClient.GetMisEquipos();
-            misEquipos = lista.Select(dto => new MiEquipoView
+            // Cargamos todo en paralelo: Juegos, Equipos y Perfiles
+            var juegosTask = ApiClient.GetJuegos();
+            var equiposTask = ApiClient.GetMisEquipos();
+            var perfilesTask = ApiClient.GetMisPerfilesJuego();
+
+            await Task.WhenAll(juegosTask, equiposTask, perfilesTask);
+
+            todosLosJuegos = await juegosTask;
+            var misPerfiles = await perfilesTask;
+            var listaEquipos = await equiposTask;
+
+            // Filtramos los juegos: Solo aquellos para los que el usuario tiene un perfil
+            juegosDisponiblesParaCrear = todosLosJuegos
+                .Where(j => misPerfiles.Any(p => p.JuegoId == j.Id))
+                .ToList();
+
+            misEquipos = listaEquipos.Select(dto => new MiEquipoView
             {
                 Id = dto.Id,
                 Nombre = dto.Nombre,
@@ -194,7 +216,7 @@
 
     private string GetJuegoNombre(int juegoId)
     {
-        var j = juegos.FirstOrDefault(x => x.Id == juegoId);
+        var j = todosLosJuegos.FirstOrDefault(x => x.Id == juegoId);
         return j == null ? "Desconocido" : j.Nombre;
     }
 

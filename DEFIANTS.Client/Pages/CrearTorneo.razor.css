@@ -1,0 +1,107 @@
+/* Reutilizamos el layout del dashboard */
+.dashboard-layout {
+    padding-bottom: 60px;
+}
+
+.form-card {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 30px;
+}
+
+.form-card .card-header h3 {
+    font-family: 'Anton', sans-serif;
+    color: #E62020;
+    text-align: center;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: #aaa;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+
+.form-group.half {
+    flex: 1 1 50%;
+}
+
+/* Estilos para los componentes de Blazor */
+::deep .form-control-custom {
+    width: 100%;
+    background-color: #000;
+    border: 1px solid #333;
+    color: #fff;
+    padding: 12px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+::deep .form-control-custom:focus {
+    outline: none;
+    border-color: #E62020;
+    box-shadow: 0 0 0 3px rgba(230, 32, 32, 0.25);
+}
+
+.form-text {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 5px;
+}
+
+.form-actions {
+    margin-top: 30px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    border-top: 1px solid #333;
+    padding-top: 20px;
+}
+
+.btn-primary {
+    background-color: #E62020;
+    color: #000;
+    font-weight: bold;
+}
+
+.btn-ghost {
+    background-color: transparent;
+    border: 1px solid #555;
+    color: #aaa;
+}
+
+.btn-ghost:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+/* Estilos para los mensajes de validación */
+::deep .validation-message {
+    color: #E62020;
+    font-size: 0.8rem;
+    margin-top: 4px;
+}
+
+.alert-danger {
+    background-color: rgba(230, 32, 32, 0.1);
+    border: 1px solid #E62020;
+    color: #f0a0a0;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}

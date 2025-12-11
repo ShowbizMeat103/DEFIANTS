@@ -11,6 +11,7 @@ public class Torneo
     public int MaxEquipos { get; set; }
     public EstadoTorneo Status { get; set; }
     public int JuegoId { get; set; }
+    public virtual Juego Juego { get; set; }
     
     public decimal PrecioInscripcion { get; set; }
     public decimal PrizePool { get; set; }

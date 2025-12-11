@@ -1,0 +1,173 @@
+@page "/torneos/crear"
+@attribute [Authorize]
+@using DEFIANTS.Shared.DTOs
+@using DEFIANTS.Shared.Clients
+@using Microsoft.AspNetCore.Authorization
+@inject IApiClient ApiClient
+@inject NavigationManager Navigation
+
+<PageTitle>Crear Torneo - DEFIANTS</PageTitle>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+<div class="dashboard-layout">
+    <div class="container">
+
+        <!-- HEADER -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <p class="system-status">/// SYSTEM_OVERRIDE /// NEW_EVENT</p>
+                <h1>CREAR <span class="user-highlight">TORNEO</span></h1>
+                <p class="header-subtitle">Configura los parámetros de la competencia. Tú pones las reglas, ellos ponen la habilidad.</p>
+            </div>
+        </header>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <section class="dashboard-section">
+                    <div class="dashboard-card form-card">
+                        <div class="card-header">
+                            <h3>CONFIGURACIÓN DEL EVENTO</h3>
+                        </div>
+
+                        <div class="card-body">
+                            <EditForm Model="@nuevoTorneo" OnValidSubmit="HandleCrearTorneo">
+                                <DataAnnotationsValidator />
+
+                                @if (!string.IsNullOrEmpty(errorMessage))
+                                {
+                                    <div class="alert alert-danger">
+                                        <i class="fas fa-exclamation-triangle"></i> @errorMessage
+                                    </div>
+                                }
+
+                                <!-- Título -->
+                                <div class="form-group">
+                                    <label>TÍTULO DEL TORNEO</label>
+                                    <InputText @bind-Value="nuevoTorneo.Titulo" class="form-control-custom" placeholder="Ej: Copa de Invierno 2025" />
+                                    <ValidationMessage For="@(() => nuevoTorneo.Titulo)" />
+                                </div>
+
+                                <!-- Juego y Cupos (En fila) -->
+                                <div class="form-row">
+                                    <div class="form-group half">
+                                        <label>JUEGO</label>
+                                        <InputSelect @bind-Value="nuevoTorneo.JuegoId" class="form-control-custom">
+                                            <option value="0">-- Seleccionar --</option>
+                                            @if (juegos != null)
+                                            {
+                                                @foreach (var juego in juegos)
+                                                {
+                                                    <option value="@juego.Id">@juego.Nombre</option>
+                                                }
+                                            }
+                                        </InputSelect>
+                                        <ValidationMessage For="@(() => nuevoTorneo.JuegoId)" />
+                                    </div>
+
+                                    <div class="form-group half">
+                                        <label>MÁX. EQUIPOS</label>
+                                        <InputNumber @bind-Value="nuevoTorneo.MaxEquipos" class="form-control-custom" placeholder="Ej: 8, 16, 32" />
+                                        <ValidationMessage For="@(() => nuevoTorneo.MaxEquipos)" />
+                                    </div>
+                                </div>
+
+                                <!-- Fecha y Precio (En fila) -->
+                                <div class="form-row">
+                                    <div class="form-group half">
+                                        <label>FECHA DE INICIO</label>
+                                        <InputDate @bind-Value="nuevoTorneo.FechaInicio" class="form-control-custom" />
+                                        <ValidationMessage For="@(() => nuevoTorneo.FechaInicio)" />
+                                    </div>
+
+                                    <div class="form-group half">
+                                        <label>PRECIO INSCRIPCIÓN ($)</label>
+                                        <InputNumber @bind-Value="nuevoTorneo.PrecioInscripcion" class="form-control-custom" />
+                                        <ValidationMessage For="@(() => nuevoTorneo.PrecioInscripcion)" />
+                                    </div>
+                                </div>
+
+                                <!-- Prize Pool -->
+                                <div class="form-group">
+                                    <label>PRIZE POOL ($)</label>
+                                    <InputNumber @bind-Value="nuevoTorneo.PrizePool" class="form-control-custom" />
+                                    <ValidationMessage For="@(() => nuevoTorneo.PrizePool)" />
+                                    <small class="form-text">Monto total a repartir entre los ganadores.</small>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="button" class="btn-ghost" @onclick="GoBack">CANCELAR</button>
+                                    <button type="submit" class="btn-primary" disabled="@isSubmitting">
+                                        @if (isSubmitting)
+                                        {
+                                            <span>PROCESANDO...</span>
+                                        }
+                                        else
+                                        {
+                                            <span>CREAR TORNEO</span>
+                                        }
+                                    </button>
+                                </div>
+
+                            </EditForm>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    // Inicializamos con UtcNow para evitar problemas desde el principio
+    private CrearTorneoDto nuevoTorneo = new() { FechaInicio = DateTime.UtcNow.Date.AddDays(7) };
+    private List<JuegoDto>? juegos;
+    private bool isSubmitting = false;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            juegos = await ApiClient.GetJuegos();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error al cargar la lista de juegos. Por favor recarga la página.";
+            Console.WriteLine(ex);
+        }
+    }
+
+    private async Task HandleCrearTorneo()
+    {
+        isSubmitting = true;
+        errorMessage = null;
+
+        try
+        {
+            // --- CORRECCIÓN CRÍTICA ---
+            // Aseguramos que la fecha sea UTC antes de enviarla
+            nuevoTorneo.FechaInicio = DateTime.SpecifyKind(nuevoTorneo.FechaInicio, DateTimeKind.Utc);
+            // --------------------------
+
+            var torneoCreado = await ApiClient.CrearTorneo(nuevoTorneo);
+            Navigation.NavigateTo($"/torneos/{torneoCreado.Id}");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Ocurrió un error al crear el torneo. Verifica los datos e intenta nuevamente.";
+            Console.WriteLine(ex);
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/dashboard");
+    }
+}

@@ -1,4 +1,4 @@
-﻿@page "/dashboard"
+﻿@page "/cuenta/dashboard"
 @attribute [Authorize]
 @using Microsoft.AspNetCore.Authorization
 @using DEFIANTS.Shared.Clients
@@ -14,7 +14,7 @@
 <div class="dashboard-layout">
     <div class="container">
 
-        <!-- HEADER / BIENVENIDA (Sin cambios) -->
+        <!-- HEADER / BIENVENIDA -->
         <header class="dashboard-header">
             <div class="header-content">
                 <p class="system-status">/// SYSTEM_CONNECTED /// V.2.0.1</p>
@@ -43,20 +43,16 @@
             <div class="section-title-bar">
                 <h2>// MIS EQUIPOS</h2>
                 <div class="section-actions">
-                    <a href="/equipos/crear" class="btn-link">[Crear Nuevo Equipo]</a>
-                    <a href="/cuenta/equipos" class="btn-link">[Ver Todos]</a>
+                    <a href="/equipos/gestion" class="btn-link">[Crear Nuevo Equipo]</a>
+                    <a href="/equipos/gestion" class="btn-link">[Ver Todos]</a>
                 </div>
             </div>
             <div class="dashboard-grid grid-teams">
-                @if (misEquipos == null || juegos == null)
+                @if (isLoading)
                 {
-                    <p class="loading-message">Cargando equipos...</p>
+                    <p>Cargando equipos...</p>
                 }
-                else if (!misEquipos.Any())
-                {
-                    <p class="no-data-message">Aún no perteneces a ningún equipo.</p>
-                }
-                else
+                else if (misEquipos != null && misEquipos.Any())
                 {
                     @foreach (var equipo in misEquipos)
                     {
@@ -76,10 +72,14 @@
                                 </div>
                             </div>
                             <div class="card-footer">
-                                <a href="/equipos/@equipo.Id" class="btn-action">GESTIONAR</a>
+                                <a href="/equipos/gestion" class="btn-action">GESTIONAR</a>
                             </div>
                         </article>
                     }
+                }
+                else
+                {
+                    <p>Aún no perteneces a ningún equipo.</p>
                 }
             </div>
         </section>
@@ -93,15 +93,11 @@
                 </div>
             </div>
             <div class="dashboard-grid col-2">
-                @if (misInscripciones == null)
+                @if (isLoading)
                 {
-                    <p class="loading-message">Cargando torneos...</p>
+                    <p>Cargando torneos...</p>
                 }
-                else if (!misInscripciones.Any())
-                {
-                    <p class="no-data-message">No estás inscrito en ningún torneo.</p>
-                }
-                else
+                else if (misInscripciones != null && misInscripciones.Any())
                 {
                     @foreach (var inscripcion in misInscripciones)
                     {
@@ -118,6 +114,10 @@
                         </article>
                     }
                 }
+                else
+                {
+                    <p>No estás inscrito en ningún torneo.</p>
+                }
             </div>
         </section>
 
@@ -130,21 +130,17 @@
                 </div>
             </div>
             <div class="dashboard-grid col-1">
-                @if (misPartidos == null)
+                @if (isLoading)
                 {
-                    <p class="loading-message">Cargando partidos...</p>
+                    <p>Cargando partidos...</p>
                 }
-                else if (!misPartidos.Any())
-                {
-                    <p class="no-data-message">No tienes partidos próximos.</p>
-                }
-                else
+                else if (misPartidos != null && misPartidos.Any())
                 {
                     @foreach (var partido in misPartidos)
                     {
                         <article class="dashboard-card match-card">
                             <div class="match-info">
-                                <span class="match-tournament">Torneo ID: @partido.Id</span>
+                                <span class="match-tournament">TORNEO ID: @partido.Id</span>
                                 <span class="match-round">RONDA @partido.Ronda</span>
                             </div>
                             <div class="match-versus">
@@ -159,6 +155,10 @@
                         </article>
                     }
                 }
+                else
+                {
+                    <p>No tienes partidos próximos.</p>
+                }
             </div>
         </section>
 
@@ -168,7 +168,7 @@
                 <h2>// ACCIONES RÁPIDAS</h2>
             </div>
             <div class="actions-grid">
-                <a href="/cuenta/perfiles" class="quick-action-btn">
+                <a href="/mis-perfiles-juego" class="quick-action-btn">
                     <i class="fas fa-id-card"></i>
                     <span>Mis Perfiles</span>
                 </a>
@@ -211,6 +211,7 @@
     private List<MiInscripcionDto>? misInscripciones;
     private List<PartidoDto>? misPartidos;
     private List<JuegoDto>? juegos;
+    private bool isLoading = true;
 
     protected override async Task OnInitializedAsync()
     {
@@ -219,14 +220,14 @@
             var equiposTask = ApiClient.GetMisEquipos();
             var inscripcionesTask = ApiClient.GetMisInscripciones();
             var partidosTask = ApiClient.GetMisPartidos();
-            var juegosTask = ApiClient.GetJuegos(); // <-- AÑADIDO
+            var juegosTask = ApiClient.GetJuegos();
 
             await Task.WhenAll(equiposTask, inscripcionesTask, partidosTask, juegosTask);
 
             misEquipos = await equiposTask;
             misInscripciones = await inscripcionesTask;
             misPartidos = await partidosTask;
-            juegos = await juegosTask; // <-- AÑADIDO
+            juegos = await juegosTask;
         }
         catch (Exception ex)
         {
@@ -236,11 +237,15 @@
             misPartidos ??= new List<PartidoDto>();
             juegos ??= new List<JuegoDto>();
         }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private string GetJuegoNombre(int juegoId)
     {
-        return juegos?.FirstOrDefault(j => j.Id == juegoId)?.Nombre ?? "Desconocido";
+        return juegos?.FirstOrDefault(j => j.Id == juegoId)?.Nombre?.ToUpper() ?? "DESCONOCIDO";
     }
 
     private string GetTournamentStatusClass(string status)

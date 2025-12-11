@@ -1,7 +1,11 @@
 @page "/torneos/{id:int}"
 @using DEFIANTS.Shared.DTOs
-@inject DEFIANTS.Shared.Clients.IApiClient ApiClient
+@using DEFIANTS.Shared.Enums
+@using DEFIANTS.Shared.Clients
+@using System.Security.Claims
+@inject IApiClient ApiClient
 @inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <div class="torneo-detail-container">
     @if (isLoading)
@@ -20,45 +24,145 @@
     }
     else
     {
+        <!-- HEADER -->
         <div class="header">
-            <h2>@torneo.Titulo</h2>
-            <span class="status">@torneo.Status</span>
+            <div>
+                <h2>@torneo.Titulo</h2>
+                <div class="meta">
+                    <span><strong>Juego:</strong> @torneo.JuegoNombre</span>
+                    <span><strong>Fecha:</strong> @torneo.FechaInicio.ToString("dd/MM/yyyy")</span>
+                    <span><strong>Premio:</strong> @torneo.PrizePool.ToString("C")</span>
+                </div>
+            </div>
+            <span class="status @torneo.Status.ToLower()">@torneo.Status</span>
         </div>
 
-        <div class="meta">
-            <span><strong>ID:</strong> @torneo.Id</span>
-            <button class="btn small" @onclick="GoBack">Volver</button>
+        <!-- PESTAÑAS DE NAVEGACIÓN -->
+        <div class="tabs">
+            <button class="@GetTabClass("bracket")" @onclick='() => SetTab("bracket")'>Bracket</button>
+            <button class="@GetTabClass("equipos")" @onclick='() => SetTab("equipos")'>Equipos (@torneo.Inscripciones.Count/@torneo.MaxEquipos)</button>
+            <button class="@GetTabClass("info")" @onclick='() => SetTab("info")'>Información</button>
         </div>
 
-        <h3>Bracket</h3>
-        @if (torneo.Partidos == null || !torneo.Partidos.Any())
-        {
-            <div class="empty">No hay partidos disponibles para este torneo.</div>
-        }
-        else
-        {
-            <div class="bracket">
-                @foreach (var rondaGroup in Rondas)
+        <!-- CONTENIDO DE LAS PESTAÑAS -->
+        <div class="tab-content">
+            @if (activeTab == "bracket")
+            {
+                <h3>Bracket del Torneo</h3>
+                @if (esCreadorOAdmin)
                 {
-                    <div class="round">
-                        <div class="round-header">Ronda @rondaGroup.Key</div>
-                        <div class="matches">
-                            @foreach (var partido in rondaGroup.OrderBy(p => p.IndicePartido))
-                            {
-                                <div class="match @(IsWinner(partido, partido.EquipoAId) ? "winner-a" : IsWinner(partido, partido.EquipoBId) ? "winner-b" : "")">
-                                    <div class="team team-a">
-                                        <div class="team-name">@DisplayTeam(partido.EquipoANombre)</div>
-                                    </div>
-                                    <div class="vs">vs</div>
-                                    <div class="team team-b">
-                                        <div class="team-name">@DisplayTeam(partido.EquipoBNombre)</div>
-                                    </div>
-                                    <div class="meta-match">@partido.Estado</div>
+                    <p class="admin-hint"><small>💡 Haz clic en un partido activo para reportar el ganador.</small></p>
+                }
+
+                @if (torneo.Partidos == null || !torneo.Partidos.Any())
+                {
+                    <div class="empty">No hay partidos generados para este torneo.</div>
+                }
+                else
+                {
+                    <div class="bracket">
+                        @foreach (var rondaGroup in Rondas)
+                        {
+                            <div class="round">
+                                <div class="round-header">Ronda @rondaGroup.Key</div>
+                                <div class="matches">
+                                    @foreach (var partido in rondaGroup.OrderBy(p => p.IndicePartido))
+                                    {
+                                        <!-- Hacemos el partido clicable si es admin y el partido está jugable -->
+                                        <div class="match @(IsWinner(partido, partido.EquipoAId) ? "winner-a" : IsWinner(partido, partido.EquipoBId) ? "winner-b" : "") @(CanReport(partido) ? "clickable" : "")"
+                                             @onclick="() => OpenReportModal(partido)">
+
+                                            <div class="team team-a"><div class="team-name">@DisplayTeam(partido.EquipoANombre)</div></div>
+                                            <div class="vs">vs</div>
+                                            <div class="team team-b"><div class="team-name">@DisplayTeam(partido.EquipoBNombre)</div></div>
+                                            <div class="meta-match">@partido.Estado</div>
+                                        </div>
+                                    }
                                 </div>
-                            }
-                        </div>
+                            </div>
+                        }
                     </div>
                 }
+            }
+            else if (activeTab == "equipos")
+            {
+                <h3>Equipos Inscritos</h3>
+                @if (!torneo.Inscripciones.Any())
+                {
+                    <div class="empty">Aún no hay equipos inscritos.</div>
+                }
+                else
+                {
+                    <ul class="team-list">
+                        @foreach (var inscripcion in torneo.Inscripciones)
+                        {
+                            <li>@inscripcion.NombreEquipo</li>
+                        }
+                    </ul>
+                }
+            }
+            else if (activeTab == "info")
+            {
+                <h3>Información Adicional</h3>
+                <p><strong>Precio de Inscripción:</strong> @torneo.PrecioInscripcion.ToString("C")</p>
+                <p><strong>Máximo de Equipos:</strong> @torneo.MaxEquipos</p>
+            }
+        </div>
+
+        <!-- ZONA DE ACCIONES -->
+        <AuthorizeView>
+            <Authorized>
+                <div class="actions-zone">
+                    @if (torneo.Status == "InscripcionesAbiertas" && equiposDelUsuarioParaInscribir.Any())
+                    {
+                        <div class="inscription-form">
+                            <select @bind="equipoSeleccionadoParaInscribirId">
+                                <option value="0">-- Selecciona tu equipo --</option>
+                                @foreach (var equipo in equiposDelUsuarioParaInscribir)
+                                {
+                                    <option value="@equipo.Id">@equipo.Nombre</option>
+                                }
+                            </select>
+                            <button class="btn btn-primary" @onclick="HandleInscribirEquipo" disabled="@(equipoSeleccionadoParaInscribirId == 0 || isSubmitting)">
+                                @(isSubmitting ? "Inscribiendo..." : "Inscribir Equipo")
+                            </button>
+                        </div>
+                    }
+
+                    @if (esCreadorOAdmin)
+                    {
+                        <div class="admin-actions">
+                            <h4>Panel de Administrador</h4>
+                            @if (torneo.Status == "InscripcionesAbiertas")
+                            {
+                                <button class="btn btn-success" @onclick="HandleIniciarTorneo" disabled="@isSubmitting">Iniciar Torneo</button>
+                            }
+                            <button class="btn btn-danger" @onclick="HandleCancelarTorneo" disabled="@isSubmitting">Cancelar Torneo</button>
+                        </div>
+                    }
+                </div>
+            </Authorized>
+        </AuthorizeView>
+
+        <!-- MODAL DE REPORTE DE RESULTADOS -->
+        @if (showReportModal && selectedPartido != null)
+        {
+            <div class="modal-backdrop">
+                <div class="modal-content">
+                    <h4>Reportar Resultado</h4>
+                    <p>Selecciona al ganador del partido:</p>
+                    <div class="modal-teams">
+                        <button class="btn btn-outline-primary" @onclick="() => ReportWinner(selectedPartido.EquipoAId!.Value)">
+                            @selectedPartido.EquipoANombre
+                        </button>
+                        <button class="btn btn-outline-primary" @onclick="() => ReportWinner(selectedPartido.EquipoBId!.Value)">
+                            @selectedPartido.EquipoBNombre
+                        </button>
+                    </div>
+                    <div class="modal-actions">
+                        <button class="btn btn-secondary" @onclick="CloseReportModal">Cancelar</button>
+                    </div>
+                </div>
             </div>
         }
     }
@@ -69,8 +173,20 @@
     public int id { get; set; }
 
     private TorneoDetalleDto? torneo;
+    private List<MiEquipoDto> equiposDelUsuario = new();
     private bool isLoading = true;
     private string? error;
+    private string activeTab = "bracket";
+    private bool esCreadorOAdmin = false;
+    private bool isSubmitting = false;
+    private int equipoSeleccionadoParaInscribirId = 0;
+
+    // Variables para el modal de reporte
+    private bool showReportModal = false;
+    private PartidoDto? selectedPartido;
+
+    private List<MiEquipoDto> equiposDelUsuarioParaInscribir =>
+        equiposDelUsuario.Where(e => e.JuegoId == torneo?.JuegoId && (torneo?.Inscripciones.All(i => i.EquipoId != e.Id) ?? true)).ToList();
 
     private IOrderedEnumerable<IGrouping<int, PartidoDto>> Rondas =>
         (torneo?.Partidos ?? new List<PartidoDto>())
@@ -84,7 +200,22 @@
         torneo = null;
         try
         {
-            torneo = await ApiClient.GetTorneo(id);
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            var torneoTask = ApiClient.GetTorneo(id);
+            var misEquiposTask = user.Identity.IsAuthenticated ? ApiClient.GetMisEquipos() : Task.FromResult(new List<MiEquipoDto>());
+
+            await Task.WhenAll(torneoTask, misEquiposTask);
+
+            torneo = await torneoTask;
+            equiposDelUsuario = await misEquiposTask;
+
+            if (user.Identity.IsAuthenticated)
+            {
+                var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                esCreadorOAdmin = (torneo?.CreadorId == userId || user.IsInRole("Admin"));
+            }
         }
         catch (Exception ex)
         {
@@ -96,14 +227,96 @@
         }
     }
 
-    private string DisplayTeam(string? name) => string.IsNullOrWhiteSpace(name) ? "(pendiente)" : name;
+    private string GetTabClass(string tabName) => activeTab == tabName ? "active" : "";
+    private void SetTab(string tabName) => activeTab = tabName;
 
-    private bool IsWinner(PartidoDto p, int? equipoId)
+    private async Task HandleInscribirEquipo()
     {
-        if (!equipoId.HasValue) return false;
-        if (!p.EquipoGanadorId.HasValue) return false;
-        return p.EquipoGanadorId.Value == equipoId.Value;
+        isSubmitting = true;
+        try
+        {
+            var dto = new InscribirEquipoDto { EquipoId = equipoSeleccionadoParaInscribirId };
+            await ApiClient.InscribirEquipo(id, dto);
+            await OnParametersSetAsync();
+        }
+        catch (Exception ex) { error = ex.Message; }
+        finally { isSubmitting = false; }
     }
 
-    private void GoBack() => Navigation.NavigateTo("/torneos");
+    private async Task HandleIniciarTorneo()
+    {
+        isSubmitting = true;
+        try
+        {
+            await ApiClient.IniciarTorneo(id);
+            await OnParametersSetAsync();
+        }
+        catch (Exception ex) { error = ex.Message; }
+        finally { isSubmitting = false; }
+    }
+
+    private async Task HandleCancelarTorneo()
+    {
+        isSubmitting = true;
+        try
+        {
+            await ApiClient.CancelarTorneo(id);
+            await OnParametersSetAsync();
+        }
+        catch (Exception ex) { error = ex.Message; }
+        finally { isSubmitting = false; }
+    }
+
+    // --- LÓGICA DE REPORTE DE RESULTADOS ---
+
+    private bool CanReport(PartidoDto p)
+    {
+        // Solo el admin puede reportar, y solo si el partido está listo o en juego, y tiene ambos equipos
+        return esCreadorOAdmin &&
+               (p.Estado == EstadoPartido.Listo || p.Estado == EstadoPartido.EnJuego) &&
+               p.EquipoAId.HasValue && p.EquipoBId.HasValue;
+    }
+
+    private void OpenReportModal(PartidoDto p)
+    {
+        if (CanReport(p))
+        {
+            selectedPartido = p;
+            showReportModal = true;
+        }
+    }
+
+    private void CloseReportModal()
+    {
+        showReportModal = false;
+        selectedPartido = null;
+    }
+
+    private async Task ReportWinner(int ganadorId)
+    {
+        if (selectedPartido == null) return;
+
+        isSubmitting = true;
+        try
+        {
+            await ApiClient.ReportarVictoria(selectedPartido.Id, ganadorId);
+            CloseReportModal();
+            await OnParametersSetAsync(); // Recargar el bracket para ver el avance
+        }
+        catch (Exception ex)
+        {
+            error = $"Error al reportar victoria: {ex.Message}";
+            CloseReportModal();
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    // ---------------------------------------
+
+    private string DisplayTeam(string? name) => string.IsNullOrWhiteSpace(name) ? "(pendiente)" : name;
+    private bool IsWinner(PartidoDto p, int? equipoId) => equipoId.HasValue && p.EquipoGanadorId.HasValue && p.EquipoGanadorId.Value == equipoId.Value;
+    private void GoBack() => Navigation.NavigateTo("/tournaments");
 }

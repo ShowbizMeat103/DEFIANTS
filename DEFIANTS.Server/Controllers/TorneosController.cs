@@ -1,15 +1,13 @@
-using System; // Necesario para DateTime
-using System.Collections.Generic; // Necesario para List
-using System.Linq; // <-- AÑADIDO EXPLÍCITAMENTE
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks; // Necesario para Task
-
+using System.Threading.Tasks;
 using DEFIANTS.Server.Data;
 using DEFIANTS.Server.Models.Entities;
 using DEFIANTS.Server.Services;
 using DEFIANTS.Shared.DTOs;
-using DEFIANTS.Shared.Enums; // <-- Asegúrate de que este sea el único using para los Enums
-
+using DEFIANTS.Shared.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -66,6 +64,7 @@ public class TorneosController : ControllerBase
         return Ok(misInscripciones);
     }
 
+    // --- MÉTODO MODIFICADO PARA DEVOLVER MÁS DATOS ---
     [HttpGet("{id}")]
     [AllowAnonymous]
     public async Task<ActionResult<TorneoDetalleDto>> GetTorneo(int id)
@@ -77,6 +76,13 @@ public class TorneosController : ControllerBase
                 Id = t.Id,
                 Titulo = t.Titulo,
                 Status = t.Status.ToString(),
+                JuegoId = t.JuegoId,
+                JuegoNombre = t.Juego.Nombre,
+                MaxEquipos = t.MaxEquipos,
+                PrecioInscripcion = t.PrecioInscripcion,
+                PrizePool = t.PrizePool,
+                FechaInicio = t.FechaInicio,
+                CreadorId = t.CreadorId,
                 Partidos = t.Partidos.Select(p => new PartidoDto
                 {
                     Id = p.Id,
@@ -88,7 +94,14 @@ public class TorneosController : ControllerBase
                     EquipoBNombre = p.EquipoB != null ? p.EquipoB.Nombre : "TBD",
                     EquipoGanadorId = p.EquipoGanadorId,
                     Estado = p.Estado
-                }).OrderBy(p => p.Ronda).ThenBy(p => p.IndicePartido).ToList()
+                }).OrderBy(p => p.Ronda).ThenBy(p => p.IndicePartido).ToList(),
+                Inscripciones = t.Inscripciones.Select(i => new InscripcionDetalleDto
+                {
+                    Id = i.Id,
+                    EquipoId = i.EquipoId,
+                    NombreEquipo = i.Equipo.Nombre,
+                    EstadoPago = i.EstadoPago
+                }).ToList()
             })
             .FirstOrDefaultAsync();
 
