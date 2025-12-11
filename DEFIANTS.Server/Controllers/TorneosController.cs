@@ -28,6 +28,7 @@ public class TorneosController : ControllerBase
         _context = context;
     }
 
+    // --- MÉTODO MODIFICADO ---
     [HttpGet]
     [AllowAnonymous]
     public async Task<ActionResult<List<TorneoResumenDto>>> GetTorneos()
@@ -38,7 +39,8 @@ public class TorneosController : ControllerBase
                 Id = t.Id,
                 Titulo = t.Titulo,
                 Status = t.Status.ToString(),
-                MaxEquipos = t.MaxEquipos
+                MaxEquipos = t.MaxEquipos,
+                FechaInicio = t.FechaInicio // <-- AÑADIDO
             })
             .ToListAsync();
         return Ok(torneos);
@@ -64,7 +66,6 @@ public class TorneosController : ControllerBase
         return Ok(misInscripciones);
     }
 
-    // --- MÉTODO MODIFICADO PARA DEVOLVER MÁS DATOS ---
     [HttpGet("{id}")]
     [AllowAnonymous]
     public async Task<ActionResult<TorneoDetalleDto>> GetTorneo(int id)

@@ -1,22 +1,39 @@
 ﻿@page "/tournaments"
+@using DEFIANTS.Shared.DTOs
+@using System.Text.RegularExpressions
 @inject Microsoft.JSInterop.IJSRuntime JS
 @inject NavigationManager Navigation
 @inject DEFIANTS.Shared.Clients.IApiClient ApiClient
 
-<div class="section section-tournaments">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+<div class="dashboard-layout">
     <div class="container">
-        <div class="section-header">
-            <h1 class="section-title">// PRÓXIMOS TORNEOS</h1>
-            <p class="section-subtitle">Alístate para las siguientes batallas. Los lugares son limitados y la competencia no espera.</p>
-        </div>
+
+        <!-- HEADER -->
+        <header class="page-header">
+            <div class="header-content">
+                <p class="system-status">/// GLOBAL_OPS_TRACKER /// V.2.1.0</p>
+                <h1>PRÓXIMOS <span class="highlight">TORNEOS</span></h1>
+                <p class="header-subtitle">Selecciona tu campo de batalla. Los cupos son limitados, la gloria es eterna.</p>
+            </div>
+        </header>
 
         @if (isLoading)
         {
-            <div class="loading">Cargando torneos...</div>
+             <div class="loading-screen">
+                <div class="spinner-border text-danger" role="status"></div>
+                <p>/// ESCANEANDO SEÑALES DE TORNEOS...</p>
+            </div>
         }
         else if (!string.IsNullOrEmpty(loadError))
         {
-            <div class="error">Error al cargar: @loadError</div>
+            <div class="error-screen">
+                <i class="fas fa-satellite-dish fa-3x mb-3 text-danger"></i>
+                <h3>ERROR DE COMUNICACIÓN</h3>
+                <p>@loadError</p>
+            </div>
         }
         else
         {
@@ -26,75 +43,126 @@
             }
             @foreach (var t in tournaments)
             {
-                if (anyExpanded && !t.IsExpanded)
-                {
-                    continue; // hide other tournaments when one is expanded
-                }
-                var expandedClass = t.IsExpanded ? "tournament-card expanded" : "tournament-card";
-                <article class="@expandedClass">
-                    <div class="tournament-main">
-                        <div>
-                            <span class="tournament-tag">@t.Tag</span>
-                            <h3>@t.Title</h3>
-                            <p class="tournament-info">
-                                <i class="fas fa-calendar-alt"></i>
-                                @((t.Date.HasValue) ? t.Date.Value.ToString("d") : t.DateText)
-                                <i class="fas fa-users" style="margin-left:10px; color: #ffd57a"></i>
-                                @t.Info
-                            </p>
+                var cardClass = "tournament-card";
+                if (t.IsExpanded) { cardClass += " expanded"; }
+                else if (anyExpanded) { cardClass += " dimmed"; }
+
+                <article class="@cardClass">
+                    <div class="card-main">
+                        <!-- ESTADO -->
+                        <div class="card-status-strip">
+                             <span class="status-badge @t.Status.ToLower()">
+                                <i class="fas fa-circle status-dot"></i> @FormatStatus(t.Status)
+                            </span>
                         </div>
 
-                        <div class="tournament-actions">
-                            <button class="tournament-cta" @onclick="() => ToggleDetails(t)">
-                                @(t.IsExpanded ? "Ocultar detalles" : "Ver detalles")
-                            </button>
-                        </div>
-                    </div>
+                        <!-- CONTENIDO PRINCIPAL -->
+                        <div class="card-content">
+                            <h3>@t.Titulo.ToUpper()</h3>
 
-                    @if (t.IsExpanded)
-                    {
-                        <div class="tournament-details">
-                            <p class="detail-desc">@((!string.IsNullOrWhiteSpace(t.Description)) ? t.Description : "Descripción no disponible.")</p>
-                            @if (t.Participants != null && t.Participants.Any())
-                            {
-                                <div class="detail-participants">
-                                    <strong>Participantes:</strong>
-                                    <ul>
-                                        @foreach (var p in t.Participants)
-                                        {
-                                            <li>@p</li>
-                                        }
-                                    </ul>
+                            <div class="card-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-users"></i>
+                                    <span>@t.MaxEquipos VACANTES MÁX</span>
                                 </div>
-                            }
 
-                            @if (!string.IsNullOrWhiteSpace(t.Bracket))
-                            {
-                                if (IsImageUrl(t.Bracket))
+                                <!-- Fecha disponible inmediatamente gracias al nuevo DTO -->
+                                <div class="meta-item">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>@t.FechaInicio.ToString("dd MMM yyyy").ToUpper()</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ACCIONES -->
+                        <div class="card-actions">
+                            <button class="btn-ghost" @onclick="() => ToggleDetails(t)" disabled="@t.IsLoadingDetails">
+                                @if(t.IsLoadingDetails)
                                 {
-                                    <div class="bracket-embed-wrap">
-                                        <img src="@t.Bracket" alt="Bracket" class="bracket-embed" />
-                                    </div>
+                                    <span class="spinner-border spinner-border-sm"></span>
                                 }
                                 else
                                 {
-                                    <div class="bracket-embed-wrap">
-                                        <iframe src="@t.Bracket" class="bracket-iframe" frameborder="0" loading="lazy" title="Bracket"></iframe>
-                                    </div>
+                                    <span>@(t.IsExpanded ? "OCULTAR INTEL" : "VER INTEL")</span>
                                 }
-
-                            }
-
-                            @if (!string.IsNullOrWhiteSpace(t.Rules))
+                            </button>
+                            @if(t.IsExpanded)
                             {
-                                <div class="detail-rules"><strong>Reglas:</strong><p>@t.Rules</p></div>
+                                <button class="btn-primary" @onclick="() => ViewTournament(t.Id)">
+                                    INFILTRAR <i class="fas fa-chevron-right"></i>
+                                </button>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- PANEL DE DETALLES (INTEL) -->
+                    @if (t.IsExpanded)
+                    {
+                        <div class="details-panel">
+                            @if(t.IsLoadingDetails)
+                            {
+                                <div class="loading-details">
+                                    <p>DESCIFRANDO DATOS ENCRIPTADOS...</p>
+                                </div>
+                            }
+                            else if (t.DetailsLoaded)
+                            {
+                                <div class="details-grid">
+                                    <div class="details-col">
+                                        <h4>/// DATOS DE OPERACIÓN</h4>
+
+                                        <div class="intel-stats">
+                                            <div class="intel-row">
+                                                <span class="label">JUEGO OBJETIVO:</span>
+                                                <span class="value">@t.JuegoNombre?.ToUpper()</span>
+                                            </div>
+                                            <div class="intel-row">
+                                                <span class="label">RECOMPENSA (POOL):</span>
+                                                <span class="value text-gold">@t.PrizePool.ToString("C")</span>
+                                            </div>
+                                            <div class="intel-row">
+                                                <span class="label">COSTO DE ENTRADA:</span>
+                                                <span class="value">@(t.PrecioInscripcion == 0 ? "GRATIS" : t.PrecioInscripcion.ToString("C"))</span>
+                                            </div>
+                                        </div>
+
+                                        <p class="desc-text mt-3">
+                                            @((!string.IsNullOrWhiteSpace(t.Description)) ? t.Description : "Descripción de misión clasificada. Contacta a un oficial para más detalles.")
+                                        </p>
+                                    </div>
+
+                                    <div class="details-col">
+                                        @if (t.Participants.Any())
+                                        {
+                                            <div class="participants-list">
+                                                <h4>/// FUERZAS CONFIRMADAS (@t.Participants.Count / @t.MaxEquipos)</h4>
+                                                <ul>
+                                                    @foreach (var p in t.Participants)
+                                                    {
+                                                        <li><i class="fas fa-shield-alt"></i> @p</li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="participants-list">
+                                                <h4>/// FUERZAS CONFIRMADAS</h4>
+                                                <p class="text-muted">Zona despejada. Sé el primero en desplegarte.</p>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-danger">ERROR AL RECUPERAR INTEL TÁCTICA.</p>
                             }
 
-
-                            <p><strong>Más info:</strong> @t.Info</p>
-
-                            <div style="margin-top:10px">
-                                <button class="tournament-cta" @onclick="() => ViewTournament(t.Id)">Ir al torneo</button>
+                            <div class="mobile-action">
+                                 <button class="btn-primary full-width" @onclick="() => ViewTournament(t.Id)">
+                                    IR AL TORNEO COMPLETO
+                                </button>
                             </div>
                         </div>
                     }
@@ -105,37 +173,50 @@
     </div>
 </div>
 
+<style>
+    .intel-stats {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 15px;
+        border-left: 2px solid var(--defiant-red);
+        margin-bottom: 15px;
+    }
+    .intel-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+        border-bottom: 1px dashed rgba(255,255,255,0.1);
+        padding-bottom: 4px;
+    }
+    .intel-row:last-child { border-bottom: none; margin-bottom: 0; }
+    .intel-row .label { color: #888; font-family: 'JetBrains Mono', monospace; }
+    .intel-row .value { font-weight: bold; font-family: 'Anton', sans-serif; letter-spacing: 1px; }
+    .text-gold { color: #ffd57a; text-shadow: 0 0 10px rgba(255, 213, 122, 0.3); }
+    .mt-3 { margin-top: 1rem; }
+</style>
+
 @code {
-    private List<Tournament> tournaments = new();
+    private List<TournamentViewModel> tournaments = new();
     private bool isLoading = true;
     private string? loadError;
 
-    private class Tournament
+    private class TournamentViewModel
     {
+        public int Id { get; set; }
+        public string Titulo { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public int MaxEquipos { get; set; }
+        public DateTime FechaInicio { get; set; }
+
         public bool IsExpanded { get; set; }
-        public string Tag { get; set; } = string.Empty;
-        public string Title { get; set; } = string.Empty;
-        public DateTime? Date { get; set; }
-        public string DateText { get; set; } = string.Empty;
-        public string Info { get; set; } = string.Empty;
+        public bool IsLoadingDetails { get; set; }
+        public bool DetailsLoaded { get; set; }
+
+        public string? JuegoNombre { get; set; }
+        public decimal PrizePool { get; set; }
+        public decimal PrecioInscripcion { get; set; }
         public string Description { get; set; } = string.Empty;
         public List<string> Participants { get; set; } = new();
-        public string ParticipantsRaw { get; set; } = string.Empty;
-        public string Bracket { get; set; } = string.Empty;
-        public string Rules { get; set; } = string.Empty;
-        public string Link { get; set; } = string.Empty;
-        public int Id { get; set; }
-    }
-
-    private List<string> ParseParticipants(string raw)
-    {
-        if (string.IsNullOrWhiteSpace(raw)) return new List<string>();
-        // Split by new lines and commas
-        var lines = raw.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
-                       .SelectMany(l => l.Split(',').Select(p => p.Trim()))
-                       .Where(p => !string.IsNullOrWhiteSpace(p))
-                       .ToList();
-        return lines;
     }
 
     protected override async Task OnInitializedAsync()
@@ -144,20 +225,14 @@
         loadError = null;
         try
         {
-            var lista = await ApiClient.GetTorneos();
-            tournaments = lista.Select(dto => new Tournament
+            var listaDto = await ApiClient.GetTorneos();
+            tournaments = listaDto.Select(dto => new TournamentViewModel
             {
                 Id = dto.Id,
-                Tag = dto.Status,
-                Title = dto.Titulo,
-                Date = null,
-                DateText = string.Empty,
-                Info = dto.MaxEquipos > 0 ? $"Máx equipos: {dto.MaxEquipos}" : string.Empty,
-                Description = string.Empty,
-                Participants = new List<string>(),
-                Bracket = string.Empty,
-                Rules = string.Empty,
-                Link = $"/torneos/{dto.Id}"
+                Status = dto.Status,
+                Titulo = dto.Titulo,
+                MaxEquipos = dto.MaxEquipos,
+                FechaInicio = dto.FechaInicio
             }).ToList();
         }
         catch (Exception ex)
@@ -170,26 +245,55 @@
         }
     }
 
-    private bool IsImageUrl(string url)
+    private async Task ToggleDetails(TournamentViewModel t)
     {
-        if (string.IsNullOrWhiteSpace(url)) return false;
-        var u = url.ToLowerInvariant().Split('?')[0].Split('#')[0].Trim();
-        return u.EndsWith(".png") || u.EndsWith(".jpg") || u.EndsWith(".jpeg") || u.EndsWith(".gif") || u.EndsWith(".webp") || u.EndsWith(".svg");
-    }
+        if (!t.IsExpanded && !t.DetailsLoaded)
+        {
+            t.IsLoadingDetails = true;
+            try
+            {
+                var detalleDto = await ApiClient.GetTorneo(t.Id);
 
-    private void ToggleDetails(Tournament t)
-    {
-        // Collapse others
+                t.JuegoNombre = detalleDto.JuegoNombre;
+                t.PrizePool = detalleDto.PrizePool;
+                t.PrecioInscripcion = detalleDto.PrecioInscripcion;
+                t.Participants = detalleDto.Inscripciones.Select(i => i.NombreEquipo).ToList();
+                t.Description = "Datos tácticos adicionales restringidos al área de operaciones.";
+
+                t.DetailsLoaded = true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al cargar detalles: {ex.Message}");
+            }
+            finally
+            {
+                t.IsLoadingDetails = false;
+            }
+        }
+
         foreach (var item in tournaments)
         {
             if (!object.ReferenceEquals(item, t)) item.IsExpanded = false;
         }
-
         t.IsExpanded = !t.IsExpanded;
     }
 
     private void ViewTournament(int id)
     {
         Navigation.NavigateTo($"/torneos/{id}");
+    }
+
+    // --- LÓGICA DE TEXTO CORTO ---
+    private string FormatStatus(string status)
+    {
+        return status switch
+        {
+            "InscripcionesAbiertas" => "ABIERTO", // Texto corto solicitado
+            "EnCurso" => "EN JUEGO",
+            "Finalizado" => "FINALIZADO",
+            "Cancelado" => "CANCELADO",
+            _ => status?.ToUpper() ?? "DESC."
+        };
     }
 }

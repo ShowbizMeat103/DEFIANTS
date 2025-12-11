@@ -175,6 +175,21 @@
                                         </div>
                                     </div>
                                 }
+
+                                <!-- SECCIÓN GANADOR -->
+                                @{ var champion = GetChampionName(); }
+                                @if (champion != null)
+                                {
+                                    <div class="round-column champion-column">
+                                        <div class="round-header">GANADOR</div>
+                                        <div class="champion-card">
+                                            <div class="trophy-glow"></div>
+                                            <i class="fas fa-trophy trophy-icon"></i>
+                                            <div class="champion-name">@champion</div>
+                                            <div class="champion-label">CAMPEÓN SUPREMO</div>
+                                        </div>
+                                    </div>
+                                }
                             </div>
                         }
                     </div>
@@ -218,7 +233,6 @@
                                 <label>CUPO MÁXIMO</label>
                                 <span>@torneo.MaxEquipos EQUIPOS</span>
                             </div>
-                            <!-- Aquí podrías agregar una descripción larga si el DTO la tuviera -->
                         </div>
                     </div>
                 }
@@ -325,6 +339,26 @@
         return "pending";
     }
 
+    private string? GetChampionName()
+    {
+        if (torneo?.Partidos == null || !torneo.Partidos.Any()) return null;
+
+        // Asumimos que la ronda más alta es la final
+        var maxRonda = torneo.Partidos.Max(p => p.Ronda);
+        var finalMatches = torneo.Partidos.Where(p => p.Ronda == maxRonda).ToList();
+
+        // Si hay solo 1 partido en la última ronda, ese define al campeón
+        if (finalMatches.Count == 1)
+        {
+            var final = finalMatches.First();
+            if (final.Estado == EstadoPartido.Finalizado && final.EquipoGanadorId.HasValue)
+            {
+                return final.EquipoGanadorId == final.EquipoAId ? final.EquipoANombre : final.EquipoBNombre;
+            }
+        }
+        return null;
+    }
+
     private async Task HandleInscribirEquipo()
     {
         isSubmitting = true;
@@ -356,14 +390,10 @@
         try
         {
             await ApiClient.CancelarTorneo(id);
-            // En lugar de recargar, navegamos fuera de la página.
-            Navigation.NavigateTo("/tournaments");
+            await OnParametersSetAsync();
         }
-        catch (Exception ex)
-        {
-            error = ex.Message;
-            isSubmitting = false; // Asegurarse de re-habilitar el botón en caso de error
-        }
+        catch (Exception ex) { error = ex.Message; }
+        finally { isSubmitting = false; }
     }
 
     // --- LÓGICA DE REPORTE DE RESULTADOS ---

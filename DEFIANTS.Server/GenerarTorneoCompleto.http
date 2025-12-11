@@ -27,7 +27,6 @@ Content-Type: application/json
 > {% client.global.set("tournament_id", response.body.id); %}
 
 
-# --- JUGADOR 1 ---
 ### Registrar User 1
 POST {{hostname}}:{{port}}/api/auth/register
 Content-Type: application/json

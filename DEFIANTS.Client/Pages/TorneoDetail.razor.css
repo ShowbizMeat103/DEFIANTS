@@ -331,6 +331,67 @@
 .match-card.live { border-color: var(--defiant-red); }
 .match-card.live .match-status { background: var(--defiant-red); color: black; font-weight: bold; }
 
+/* --- CHAMPION STYLES --- */
+.champion-column {
+  justify-content: center;
+  align-items: center;
+  min-width: 250px;
+}
+
+.champion-card {
+  background: linear-gradient(180deg, rgba(255, 213, 122, 0.05), rgba(0,0,0,0.8));
+  border: 2px solid var(--gold);
+  padding: 30px 20px;
+  text-align: center;
+  position: relative;
+  border-radius: 10px;
+  width: 100%;
+  margin-top: auto;
+  margin-bottom: auto;
+  box-shadow: 0 0 20px rgba(255, 213, 122, 0.15);
+  animation: championPulse 3s infinite;
+}
+
+@keyframes championPulse {
+  0% { box-shadow: 0 0 20px rgba(255, 213, 122, 0.15); }
+  50% { box-shadow: 0 0 40px rgba(255, 213, 122, 0.3); }
+  100% { box-shadow: 0 0 20px rgba(255, 213, 122, 0.15); }
+}
+
+.trophy-icon {
+  font-size: 4rem;
+  color: var(--gold);
+  margin-bottom: 15px;
+  filter: drop-shadow(0 0 10px rgba(255, 213, 122, 0.5));
+}
+
+.champion-name {
+  font-family: 'Anton', sans-serif;
+  font-size: 1.8rem;
+  color: white;
+  text-transform: uppercase;
+  line-height: 1.1;
+  margin-bottom: 5px;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+}
+
+.champion-label {
+  font-size: 0.7rem;
+  color: var(--gold);
+  letter-spacing: 3px;
+  font-weight: bold;
+}
+
+.trophy-glow {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle, rgba(255,213,122,0.2) 0%, transparent 70%);
+  z-index: 0;
+}
+
 /* --- OTROS TABS (Equipos, Info) --- */
 .dashboard-grid {
   display: grid;
