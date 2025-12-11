@@ -38,7 +38,7 @@ public class AuthController : ControllerBase
             var authClaims = new List<Claim>
             {
                 new(ClaimTypes.Name, user.UserName!),
-                new(ClaimTypes.Email, user.Email!), // <-- AÑADIDO
+                new(ClaimTypes.Email, user.Email!), 
                 new(ClaimTypes.NameIdentifier, user.Id),
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };

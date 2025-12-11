@@ -12,7 +12,5 @@ public class MiembroEquipo
 
     public virtual PerfilJuego PerfilJuego { get; set; }
 
-    // --- PROPIEDAD DE NAVEGACIÓN AÑADIDA ---
     public virtual Equipo Equipo { get; set; }
-    // -----------------------------------------
 }

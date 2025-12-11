@@ -5,8 +5,8 @@ public class PerfilJuegoDto
     public int Id { get; set; }
     public int JuegoId { get; set; }
     public string JuegoNombre { get; set; }
-    public string? JuegoLogoUrl { get; set; } // <-- AÑADIDO
-    public bool JuegoTieneSistemaElo { get; set; } // <-- AÑADIDO
+    public string? JuegoLogoUrl { get; set; }
+    public bool JuegoTieneSistemaElo { get; set; }
     public string NicknameInGame { get; set; }
     public int Elo { get; set; }
 }

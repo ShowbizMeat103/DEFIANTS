@@ -18,7 +18,6 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        // --- INICIO DEL BLINDADO ---
         try
         {
             var authToken = await _localStorage.GetItemAsync<string>("authToken");
@@ -33,7 +32,6 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
                 }
                 catch
                 {
-                    // Si el token es inválido, lo eliminamos y continuamos con una identidad vacía.
                     await _localStorage.RemoveItemAsync("authToken");
                     identity = new ClaimsIdentity();
                 }
@@ -48,15 +46,11 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
         }
         catch
         {
-            // Si CUALQUIER COSA falla (ej. localStorage no está listo), devolvemos un estado anónimo.
-            // Esto evita que la aplicación se rompa.
             var anonymousUser = new ClaimsPrincipal(new ClaimsIdentity());
             return new AuthenticationState(anonymousUser);
         }
-        // --- FIN DEL BLINDADO ---
     }
 
-    // Método para ser llamado desde el login/logout para notificar cambios.
     public void MarkUserAsAuthenticated(string token)
     {
         var identity = new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");

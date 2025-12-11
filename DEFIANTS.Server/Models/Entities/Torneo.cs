@@ -17,13 +17,10 @@ public class Torneo
     public decimal PrizePool { get; set; }
     public DateTime FechaInicio { get; set; }
     
-    // --- NUEVO CAMPO PARA PROPIEDAD ---
     [Required]
     public string CreadorId { get; set; }
     public virtual Usuario Creador { get; set; }
-    // ------------------------------------
 
-    // Colecciones
     public virtual ICollection<Inscripcion> Inscripciones { get; set; }
     public virtual ICollection<Partido> Partidos { get; set; }
 }

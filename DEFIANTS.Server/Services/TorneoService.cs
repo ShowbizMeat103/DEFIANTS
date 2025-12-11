@@ -26,13 +26,12 @@ public class TorneoService : ITorneoService
         var equipos = torneo.Inscripciones
             .Where(i => i.EstadoPago == EstadoPago.Completado)
             .Select(i => i.Equipo)
-            .OrderBy(x => Guid.NewGuid()) // Mezclar equipos
+            .OrderBy(x => Guid.NewGuid()) 
             .ToList();
 
         int numEquipos = equipos.Count;
         if (numEquipos < 2) throw new InvalidOperationException("Se necesitan al menos 2 equipos para generar brackets.");
 
-        // 1. CÁLCULOS DEL BRACKET
         int bracketSize = (int)Math.Pow(2, Math.Ceiling(Math.Log(numEquipos, 2)));
         int numByes = bracketSize - numEquipos;
         int numPartidosRonda1 = (numEquipos - numByes) / 2;
@@ -44,7 +43,6 @@ public class TorneoService : ITorneoService
         var partidosPorRonda = new Dictionary<int, List<Partido>>();
         var todosLosPartidos = new List<Partido>();
 
-        // 2. CREAR LA ESTRUCTURA DE PARTIDOS
         for (int ronda = 1; ronda <= totalRondas; ronda++)
         {
             int partidosEnEstaRonda = bracketSize / (int)Math.Pow(2, ronda);
@@ -64,16 +62,13 @@ public class TorneoService : ITorneoService
         }
         
         _context.Partidos.AddRange(todosLosPartidos);
-        await _context.SaveChangesAsync(); // Guardar para obtener IDs
+        await _context.SaveChangesAsync(); 
 
-        // 3. VINCULAR LOS PARTIDOS (CREAR EL ÁRBOL)
         foreach (var partido in todosLosPartidos.Where(p => p.Ronda < totalRondas))
         {
             partido.PartidoSiguienteId = partidosPorRonda[partido.Ronda + 1][partido.IndicePartido / 2].Id;
         }
 
-        // 4. ASIGNAR EQUIPOS Y "BYES"
-        // Asignar equipos que SÍ juegan en la primera ronda
         for (int i = 0; i < numPartidosRonda1; i++)
         {
             var partido = partidosPorRonda[1][i];
@@ -82,7 +77,6 @@ public class TorneoService : ITorneoService
             partido.Estado = EstadoPartido.Listo;
         }
 
-        // Asignar "Byes" (equipos que avanzan automáticamente)
         for (int i = 0; i < numByes; i++)
         {
             var partidoRonda1Bye = partidosPorRonda[1][numPartidosRonda1 + i];
@@ -103,7 +97,6 @@ public class TorneoService : ITorneoService
             }
         }
         
-        // 5. ACTUALIZAR ESTADOS
         foreach (var partidoRonda2 in partidosPorRonda.GetValueOrDefault(2, new List<Partido>()))
         {
             if (partidoRonda2.EquipoA_Id.HasValue && partidoRonda2.EquipoB_Id.HasValue)

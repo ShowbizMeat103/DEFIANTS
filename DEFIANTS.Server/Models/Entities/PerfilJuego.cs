@@ -6,7 +6,6 @@ public class PerfilJuego
 {
     [Key] public int Id { get; set; }
     
-    // Clave foránea a Usuario (que ahora usa string como PK)
     public string UsuarioId { get; set; } 
     public virtual Usuario Usuario { get; set; }
     

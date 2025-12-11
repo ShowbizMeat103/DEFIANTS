@@ -11,7 +11,6 @@
 <div class="dashboard-layout">
     <div class="container">
 
-        <!-- HEADER -->
         <header class="page-header">
             <div class="header-content">
                 <p class="system-status">/// GLOBAL_OPS_TRACKER /// V.2.1.0</p>
@@ -49,14 +48,12 @@
 
                 <article class="@cardClass">
                     <div class="card-main">
-                        <!-- ESTADO -->
                         <div class="card-status-strip">
                              <span class="status-badge @t.Status.ToLower()">
                                 <i class="fas fa-circle status-dot"></i> @FormatStatus(t.Status)
                             </span>
                         </div>
 
-                        <!-- CONTENIDO PRINCIPAL -->
                         <div class="card-content">
                             <h3>@t.Titulo.ToUpper()</h3>
 
@@ -66,7 +63,6 @@
                                     <span>@t.MaxEquipos VACANTES MÁX</span>
                                 </div>
 
-                                <!-- Fecha disponible inmediatamente gracias al nuevo DTO -->
                                 <div class="meta-item">
                                     <i class="fas fa-calendar-alt"></i>
                                     <span>@t.FechaInicio.ToString("dd MMM yyyy").ToUpper()</span>
@@ -74,7 +70,6 @@
                             </div>
                         </div>
 
-                        <!-- ACCIONES -->
                         <div class="card-actions">
                             <button class="btn-ghost" @onclick="() => ToggleDetails(t)" disabled="@t.IsLoadingDetails">
                                 @if(t.IsLoadingDetails)
@@ -95,7 +90,6 @@
                         </div>
                     </div>
 
-                    <!-- PANEL DE DETALLES (INTEL) -->
                     @if (t.IsExpanded)
                     {
                         <div class="details-panel">
@@ -284,12 +278,11 @@
         Navigation.NavigateTo($"/torneos/{id}");
     }
 
-    // --- LÓGICA DE TEXTO CORTO ---
     private string FormatStatus(string status)
     {
         return status switch
         {
-            "InscripcionesAbiertas" => "ABIERTO", // Texto corto solicitado
+            "InscripcionesAbiertas" => "ABIERTO",
             "EnCurso" => "EN JUEGO",
             "Finalizado" => "FINALIZADO",
             "Cancelado" => "CANCELADO",

@@ -14,7 +14,6 @@
 <div class="dashboard-layout">
     <div class="container">
 
-        <!-- HEADER -->
         <header class="dashboard-header">
             <div class="header-content">
                 <p class="system-status">/// SYSTEM_OVERRIDE /// NEW_EVENT</p>
@@ -42,14 +41,12 @@
                                     </div>
                                 }
 
-                                <!-- Título -->
                                 <div class="form-group">
                                     <label>TÍTULO DEL TORNEO</label>
                                     <InputText @bind-Value="nuevoTorneo.Titulo" class="form-control-custom" placeholder="Ej: Copa de Invierno 2025" />
                                     <ValidationMessage For="@(() => nuevoTorneo.Titulo)" />
                                 </div>
 
-                                <!-- Juego y Cupos (En fila) -->
                                 <div class="form-row">
                                     <div class="form-group half">
                                         <label>JUEGO</label>
@@ -73,7 +70,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Fecha y Precio (En fila) -->
                                 <div class="form-row">
                                     <div class="form-group half">
                                         <label>FECHA DE INICIO</label>
@@ -88,7 +84,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Prize Pool -->
                                 <div class="form-group">
                                     <label>PRIZE POOL ($)</label>
                                     <InputNumber @bind-Value="nuevoTorneo.PrizePool" class="form-control-custom" />
@@ -121,7 +116,6 @@
 </div>
 
 @code {
-    // Inicializamos con UtcNow para evitar problemas desde el principio
     private CrearTorneoDto nuevoTorneo = new() { FechaInicio = DateTime.UtcNow.Date.AddDays(7) };
     private List<JuegoDto>? juegos;
     private bool isSubmitting = false;
@@ -147,10 +141,7 @@
 
         try
         {
-            // --- CORRECCIÓN CRÍTICA ---
-            // Aseguramos que la fecha sea UTC antes de enviarla
             nuevoTorneo.FechaInicio = DateTime.SpecifyKind(nuevoTorneo.FechaInicio, DateTimeKind.Utc);
-            // --------------------------
 
             var torneoCreado = await ApiClient.CrearTorneo(nuevoTorneo);
             Navigation.NavigateTo($"/torneos/{torneoCreado.Id}");

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Linq; // Necesario para Select
+using System.Linq; 
 
 namespace DEFIANTS.Server.Controllers;
 
@@ -25,7 +25,6 @@ public class AdminController : ControllerBase
         _context = context;
     }
 
-    // --- MÉTODOS DE USUARIOS ---
     [HttpGet("users")]
     public async Task<ActionResult<List<UsuarioDto>>> GetUsers()
     {
@@ -65,7 +64,6 @@ public class AdminController : ControllerBase
         return BadRequest(result.Errors);
     }
 
-    // --- MÉTODOS DE JUEGOS ---
     [HttpPost("juegos")]
     public async Task<IActionResult> CrearJuego([FromBody] CrearJuegoDto juegoDto)
     {

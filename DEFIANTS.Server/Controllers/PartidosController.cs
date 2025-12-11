@@ -4,8 +4,8 @@ using DEFIANTS.Shared.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Linq; // Necesario para Select
-using DEFIANTS.Shared.Enums; // <-- AÑADIDO
+using System.Linq; 
+using DEFIANTS.Shared.Enums; 
 
 namespace DEFIANTS.Server.Controllers;
 
@@ -36,7 +36,7 @@ public class PartidosController : ControllerBase
                 EquipoBId = p.EquipoB_Id,
                 EquipoBNombre = p.EquipoB != null ? p.EquipoB.Nombre : "TBD",
                 EquipoGanadorId = p.EquipoGanadorId,
-                Estado = p.Estado // <-- YA ES EL ENUM
+                Estado = p.Estado 
             })
             .ToListAsync();
 
@@ -62,7 +62,7 @@ public class PartidosController : ControllerBase
                 EquipoBId = p.EquipoB_Id,
                 EquipoBNombre = p.EquipoB != null ? p.EquipoB.Nombre : "TBD",
                 EquipoGanadorId = p.EquipoGanadorId,
-                Estado = p.Estado // <-- YA ES EL ENUM
+                Estado = p.Estado 
             })
             .ToListAsync();
 
@@ -85,7 +85,7 @@ public class PartidosController : ControllerBase
                 EquipoBId = p.EquipoB_Id,
                 EquipoBNombre = p.EquipoB != null ? p.EquipoB.Nombre : "TBD",
                 EquipoGanadorId = p.EquipoGanadorId,
-                Estado = p.Estado, // <-- YA ES EL ENUM
+                Estado = p.Estado, 
                 TorneoTitulo = p.Torneo.Titulo
             })
             .FirstOrDefaultAsync();

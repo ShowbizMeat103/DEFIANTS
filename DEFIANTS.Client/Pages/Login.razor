@@ -74,7 +74,6 @@
             var result = await ApiClient.Login(loginDto);
             await LocalStorage.SetItemAsync("authToken", result.Token);
             
-            // Forzar recarga para que el estado de autenticación se actualice en toda la app
             Navigation.NavigateTo("/", forceLoad: true);
         }
         catch (ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)

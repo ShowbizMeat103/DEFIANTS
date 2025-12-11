@@ -28,7 +28,6 @@
                         <label>Juego</label>
                         <InputSelect class="form-control" @bind-Value="newTeam.JuegoId">
                             <option value="0">-- Selecciona --</option>
-                            <!-- SOLO MOSTRAMOS JUEGOS DONDE EL USUARIO TIENE PERFIL -->
                             @foreach (var j in juegosDisponiblesParaCrear)
                             {
                                 <option value="@j.Id">@j.Nombre</option>
@@ -146,7 +145,7 @@
 
 @code {
     private List<JuegoDto> todosLosJuegos = new();
-    private List<JuegoDto> juegosDisponiblesParaCrear = new(); // Lista filtrada
+    private List<JuegoDto> juegosDisponiblesParaCrear = new();
     private List<MiEquipoView> misEquipos = new();
     private CrearEquipoDto newTeam = new();
     private bool isLoading = true;
@@ -179,7 +178,6 @@
         loadError = null;
         try
         {
-            // Cargamos todo en paralelo: Juegos, Equipos y Perfiles
             var juegosTask = ApiClient.GetJuegos();
             var equiposTask = ApiClient.GetMisEquipos();
             var perfilesTask = ApiClient.GetMisPerfilesJuego();
@@ -190,7 +188,6 @@
             var misPerfiles = await perfilesTask;
             var listaEquipos = await equiposTask;
 
-            // Filtramos los juegos: Solo aquellos para los que el usuario tiene un perfil
             juegosDisponiblesParaCrear = todosLosJuegos
                 .Where(j => misPerfiles.Any(p => p.JuegoId == j.Id))
                 .ToList();

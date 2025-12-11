@@ -28,7 +28,6 @@ public class TorneosController : ControllerBase
         _context = context;
     }
 
-    // --- MÉTODO MODIFICADO ---
     [HttpGet]
     [AllowAnonymous]
     public async Task<ActionResult<List<TorneoResumenDto>>> GetTorneos()
@@ -40,7 +39,7 @@ public class TorneosController : ControllerBase
                 Titulo = t.Titulo,
                 Status = t.Status.ToString(),
                 MaxEquipos = t.MaxEquipos,
-                FechaInicio = t.FechaInicio // <-- AÑADIDO
+                FechaInicio = t.FechaInicio 
             })
             .ToListAsync();
         return Ok(torneos);

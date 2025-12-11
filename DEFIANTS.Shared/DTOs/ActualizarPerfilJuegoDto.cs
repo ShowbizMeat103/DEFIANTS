@@ -9,5 +9,5 @@ public class ActualizarPerfilJuegoDto
     public string NicknameInGame { get; set; }
 
     [Range(0, 3000, ErrorMessage = "El ELO debe estar entre 0 y 3000.")]
-    public int? Elo { get; set; } // <-- CAMBIADO A NULLABLE
+    public int? Elo { get; set; }
 }

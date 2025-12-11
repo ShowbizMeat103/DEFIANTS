@@ -41,7 +41,6 @@ public class EquiposController : ControllerBase
         return Ok(equipos);
     }
 
-    // --- MÉTODO MODIFICADO PARA USAR DTOs ---
     [HttpGet("misequipos")]
     public async Task<ActionResult<List<MiEquipoDto>>> GetMisEquipos()
     {
@@ -56,7 +55,7 @@ public class EquiposController : ControllerBase
                 Nombre = m.Equipo.Nombre,
                 JuegoId = m.Equipo.JuegoId,
                 Rol = m.Rol,
-                CantidadMiembros = m.Equipo.Miembros.Count() // <-- AÑADIDO
+                CantidadMiembros = m.Equipo.Miembros.Count() 
             })
             .ToListAsync();
 

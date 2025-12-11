@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using DEFIANTS.Shared.Enums; // <-- NAMESPACE ACTUALIZADO
+using DEFIANTS.Shared.Enums; 
 
 namespace DEFIANTS.Server.Models.Entities;
 

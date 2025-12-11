@@ -7,14 +7,12 @@
 
 <PageTitle>Dashboard - DEFIANTS</PageTitle>
 
-<!-- Aseguramos que las fuentes e iconos estén disponibles -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
 
 <div class="dashboard-layout">
     <div class="container">
 
-        <!-- HEADER / BIENVENIDA -->
         <header class="dashboard-header">
             <div class="header-content">
                 <p class="system-status">/// SYSTEM_CONNECTED /// V.2.0.1</p>
@@ -38,7 +36,6 @@
             </div>
         </header>
 
-        <!-- SECCIÓN 1: MIS EQUIPOS -->
         <section class="dashboard-section">
             <div class="section-title-bar">
                 <h2>// MIS EQUIPOS</h2>
@@ -84,7 +81,6 @@
             </div>
         </section>
 
-        <!-- SECCIÓN 2: MIS TORNEOS -->
         <section class="dashboard-section">
             <div class="section-title-bar">
                 <h2>// MIS TORNEOS</h2>
@@ -121,7 +117,6 @@
             </div>
         </section>
 
-        <!-- SECCIÓN 3: PRÓXIMOS PARTIDOS -->
         <section class="dashboard-section">
             <div class="section-title-bar">
                 <h2>// PRÓXIMOS PARTIDOS</h2>
@@ -159,7 +154,6 @@
             </div>
         </section>
 
-        <!-- SECCIÓN 4: ACCIONES RÁPIDAS -->
         <section class="dashboard-section section-quick-actions">
             <div class="section-title-bar">
                 <h2>// ACCIONES RÁPIDAS</h2>
@@ -180,7 +174,6 @@
             </div>
         </section>
 
-        <!-- SECCIÓN 5: ADMIN PANEL (Condicional) -->
         <AuthorizeView Roles="Admin">
             <Authorized>
                 <section class="dashboard-section section-admin">

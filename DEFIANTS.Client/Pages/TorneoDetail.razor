@@ -7,7 +7,6 @@
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-<!-- Fuentes (por si no están en el layout principal) -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
 
@@ -38,7 +37,6 @@
         }
         else
         {
-            <!-- HEADER -->
             <header class="tournament-header">
                 <div class="header-top">
                     <p class="system-status">/// SYSTEM_TRACKING /// ID: @id.ToString("D4")</p>
@@ -52,7 +50,6 @@
                     </span>
                 </div>
 
-                <!-- STATS STRIP -->
                 <div class="stats-strip">
                     <div class="stat-item">
                         <span class="label">JUEGO</span>
@@ -73,7 +70,6 @@
                 </div>
             </header>
 
-            <!-- TABS & ACTIONS ROW -->
             <div class="control-bar">
                 <div class="tabs">
                     <button class="tab-btn @GetTabClass("bracket")" @onclick='() => SetTab("bracket")'>// BRACKET</button>
@@ -81,7 +77,6 @@
                     <button class="tab-btn @GetTabClass("info")" @onclick='() => SetTab("info")'>// INTEL</button>
                 </div>
 
-                <!-- ACCIONES DE USUARIO/ADMIN -->
                 <AuthorizeView>
                     <Authorized>
                         <div class="actions-zone">
@@ -121,7 +116,6 @@
                 </AuthorizeView>
             </div>
 
-            <!-- CONTENIDO DE LAS PESTAÑAS -->
             <div class="tab-content-area">
                 @if (activeTab == "bracket")
                 {
@@ -176,7 +170,6 @@
                                     </div>
                                 }
 
-                                <!-- SECCIÓN GANADOR -->
                                 @{ var champion = GetChampionName(); }
                                 @if (champion != null)
                                 {
@@ -238,7 +231,6 @@
                 }
             </div>
 
-            <!-- MODAL DE REPORTE DE RESULTADOS -->
             @if (showReportModal && selectedPartido != null)
             {
                 <div class="modal-backdrop-custom">
@@ -283,7 +275,6 @@
     private bool isSubmitting = false;
     private int equipoSeleccionadoParaInscribirId = 0;
 
-    // Variables para el modal de reporte
     private bool showReportModal = false;
     private PartidoDto? selectedPartido;
 
@@ -343,11 +334,9 @@
     {
         if (torneo?.Partidos == null || !torneo.Partidos.Any()) return null;
 
-        // Asumimos que la ronda más alta es la final
         var maxRonda = torneo.Partidos.Max(p => p.Ronda);
         var finalMatches = torneo.Partidos.Where(p => p.Ronda == maxRonda).ToList();
 
-        // Si hay solo 1 partido en la última ronda, ese define al campeón
         if (finalMatches.Count == 1)
         {
             var final = finalMatches.First();
@@ -396,11 +385,8 @@
         finally { isSubmitting = false; }
     }
 
-    // --- LÓGICA DE REPORTE DE RESULTADOS ---
-
     private bool CanReport(PartidoDto p)
     {
-        // Solo el admin puede reportar, y solo si el partido está listo o en juego, y tiene ambos equipos
         return esCreadorOAdmin &&
                (p.Estado == EstadoPartido.Listo || p.Estado == EstadoPartido.EnJuego) &&
                p.EquipoAId.HasValue && p.EquipoBId.HasValue;
@@ -430,7 +416,7 @@
         {
             await ApiClient.ReportarVictoria(selectedPartido.Id, ganadorId);
             CloseReportModal();
-            await OnParametersSetAsync(); // Recargar el bracket para ver el avance
+            await OnParametersSetAsync();
         }
         catch (Exception ex)
         {
@@ -442,8 +428,6 @@
             isSubmitting = false;
         }
     }
-
-    // ---------------------------------------
 
     private string DisplayTeam(string? name) => string.IsNullOrWhiteSpace(name) ? "TBD" : name;
     private bool IsWinner(PartidoDto p, int? equipoId) => equipoId.HasValue && p.EquipoGanadorId.HasValue && p.EquipoGanadorId.Value == equipoId.Value;

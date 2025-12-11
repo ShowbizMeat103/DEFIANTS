@@ -1,5 +1,5 @@
 using System;
-using DEFIANTS.Shared.Enums; // <-- NAMESPACE ACTUALIZADO
+using DEFIANTS.Shared.Enums;
 
 namespace DEFIANTS.Shared.DTOs;
 

@@ -1,4 +1,3 @@
-/* --- CORE VARIABLES --- */
 :root {
     --defiant-red: #E62020;
     --void-black: #0A0A0A;
@@ -8,7 +7,6 @@
     --grid-line: rgba(255, 255, 255, 0.05);
 }
 
-/* --- RESET & BASE --- */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -21,14 +19,12 @@ body {
     font-family: 'JetBrains Mono', monospace;
     line-height: 1.6;
     overflow-x: hidden;
-    /* Patrón de grilla de fondo */
     background-image: 
         linear-gradient(var(--grid-line) 1px, transparent 1px),
         linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
     background-size: 40px 40px;
 }
 
-/* --- TYPOGRAPHY --- */
 h1 {
     font-family: 'Anton', sans-serif;
     text-transform: uppercase;
@@ -44,7 +40,6 @@ p {
     max-width: 60ch;
 }
 
-/* --- LAYOUT UTILS --- */
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -57,7 +52,6 @@ p {
     position: relative;
 }
 
-/* --- COMPONENT: BUTTONS --- */
 .btn {
     display: inline-block;
     font-family: 'Anton', sans-serif;
@@ -72,7 +66,6 @@ p {
     border-radius: 0; 
 }
 
-/* Botón Primario */
 .btn-primary {
     background-color: var(--defiant-red);
     color: var(--text-black);
@@ -86,7 +79,6 @@ p {
     box-shadow: -4px -4px 0 var(--defiant-red);
 }
 
-/* Botón Secundario */
 .btn-secondary {
     background-color: transparent;
     color: var(--text-white);
@@ -99,7 +91,6 @@ p {
     color: var(--defiant-red);
 }
 
-/* --- COMPONENT: GLITCH TEXT EFFECT --- */
 .glitch-wrapper {
     position: relative;
     display: inline-block;
@@ -151,7 +142,6 @@ p {
     80% { clip-path: inset(10% 0 40% 0); }
     100% { clip-path: inset(40% 0 20% 0); }
 }
-/* --- LAYOUT GENERAL LANDING --- */
 .landing {
     min-height: 100vh;
     display: flex;
@@ -160,7 +150,6 @@ p {
 
 
 
-/* HERO AJUSTES */
 .hero-status {
     color: var(--defiant-red);
     font-weight: bold;
@@ -186,7 +175,6 @@ p {
     border: 1px solid var(--lead-grey);
 }
 
-/* SECCIONES GENERALES */
 .section {
     padding: 60px 0;
     border-top: 1px solid rgba(230, 32, 32, 0.1);
@@ -209,7 +197,6 @@ p {
     max-width: 60ch;
 }
 
-/* ABOUT */
 .about-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -239,7 +226,6 @@ p {
     box-shadow: 0 16px 35px rgba(0,0,0,0.6);
 }
 
-/* FEATURES */
 .section-features {
     background: radial-gradient(circle at top, rgba(230,32,32,0.15) 0, transparent 55%);
 }
@@ -286,7 +272,6 @@ p {
     box-shadow: 0 16px 35px rgba(0,0,0,0.7);
 }
 
-/* TORNEOS */
 .section-tournaments {
     background: rgba(0,0,0,0.7);
 }
@@ -353,7 +338,6 @@ p {
     color: #ffffff;
 }
 
-/* STATS */
 .section-stats {
     border-top: 1px solid rgba(255,255,255,0.04);
     border-bottom: 1px solid rgba(255,255,255,0.04);
@@ -383,7 +367,6 @@ p {
     color: #bbbbbb;
 }
 
-/* CTA FINAL */
 .section-cta-final {
     background: radial-gradient(circle at bottom, rgba(230,32,32,0.2) 0, transparent 55%);
 }
@@ -403,7 +386,6 @@ p {
 
 
 
-/* RESPONSIVE */
 @media (max-width: 768px) {
     .top-nav {
         flex-wrap: wrap;

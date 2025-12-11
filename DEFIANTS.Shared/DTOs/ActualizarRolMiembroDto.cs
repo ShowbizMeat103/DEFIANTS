@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using DEFIANTS.Shared.Enums; // Asumiendo que los enums se moverán a Shared
+using DEFIANTS.Shared.Enums;
 
 namespace DEFIANTS.Shared.DTOs;
 

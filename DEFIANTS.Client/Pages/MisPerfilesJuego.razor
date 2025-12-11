@@ -10,21 +10,18 @@
 
 <div class="container" style="max-width: 1200px; margin-top: 40px;">
 
-    <!-- HEADER -->
     <div class="dashboard-header">
         <div>
             <p class="system-status">/// IDENTIDAD_DE_COMBATE_ACTIVA</p>
             <h1>MIS PERFILES <span class="text-red">DE JUEGO</span></h1>
             <p class="header-subtitle">Gestiona tus alias y ELO para cada arena. Tu identidad es tu arma.</p>
         </div>
-        <!-- Botón corregido para usar estilo rojo -->
         <button class="btn-action" style="width: auto; padding: 10px 20px;" @onclick="() => showCreateForm = !showCreateForm">
             <i class="fas @(showCreateForm ? "fa-times" : "fa-plus")"></i>
             <span>@(showCreateForm ? "CANCELAR" : "AÑADIR PERFIL")</span>
         </button>
     </div>
 
-    <!-- FORMULARIO DE CREACIÓN (CONDICIONAL) -->
     @if (showCreateForm)
     {
         <div class="auth-card creation-form mb-4">
@@ -62,7 +59,6 @@
                         </div>
                     </div>
                 }
-                <!-- Botón de guardar corregido -->
                 <button type="submit" class="btn-primary mt-3" disabled="@isSaving" style="width: auto; padding: 10px 30px; border: none;">
                     @if(isSaving) { <span class="spinner-border spinner-border-sm"></span> }
                     GUARDAR IDENTIDAD
@@ -71,7 +67,6 @@
         </div>
     }
     
-    <!-- NOTIFICACIONES -->
     @if (!string.IsNullOrEmpty(notificationMessage))
     {
         <div class="auth-@notificationCssClass mb-4">
@@ -79,7 +74,6 @@
         </div>
     }
 
-    <!-- LISTA DE PERFILES -->
     @if (misPerfiles == null)
     {
         <div class="loading-state">Cargando perfiles...</div>
@@ -89,7 +83,6 @@
         <div class="empty-state">
             <h3>SIN IDENTIDAD REGISTRADA</h3>
             <p>Para competir, primero necesitas crear un perfil de juego.</p>
-            <!-- Botón de estado vacío corregido -->
             <button class="btn-primary" style="border: none; margin-top: 15px;" @onclick="() => showCreateForm = true">CREAR MI PRIMER PERFIL</button>
         </div>
     }
@@ -285,7 +278,6 @@
         notificationCssClass = isSuccess ? "success-message" : "error-message";
         StateHasChanged();
         
-        // Auto-hide notification
         _ = Task.Delay(4000).ContinueWith(_ => { 
             notificationMessage = null;
             StateHasChanged();

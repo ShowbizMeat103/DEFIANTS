@@ -8,5 +8,5 @@ public class MiEquipoDto
     public string Nombre { get; set; }
     public int JuegoId { get; set; }
     public RolEquipo Rol { get; set; }
-    public int CantidadMiembros { get; set; } // <-- AÑADIDO
+    public int CantidadMiembros { get; set; }
 }

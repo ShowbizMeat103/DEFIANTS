@@ -10,9 +10,7 @@ public class Partido
     [Key] public int Id { get; set; }
     public int TorneoId { get; set; }
 
-    // --- PROPIEDAD DE NAVEGACIÓN AÑADIDA ---
     public virtual Torneo Torneo { get; set; }
-    // -----------------------------------------
 
     public int Ronda { get; set; }
     public int IndicePartido { get; set; }

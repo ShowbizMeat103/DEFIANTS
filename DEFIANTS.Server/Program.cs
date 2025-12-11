@@ -12,25 +12,21 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
-// --- CONFIGURACIÓN DE CORS ---
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
                       policy  =>
                       {
-                          policy.WithOrigins("http://localhost:5210", "https://localhost:5001") // URLs típicas de desarrollo de Blazor
+                          policy.WithOrigins("http://localhost:5210", "https://localhost:5001") 
                                 .AllowAnyHeader()
                                 .AllowAnyMethod();
                       });
 });
-// ---------------------------
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        // Esta opción ya no es necesaria si usamos DTOs, pero la dejo por si acaso
-        // options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
     });
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -110,11 +106,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-//app.UseHttpsRedirection();
-
-// --- USAR LA POLÍTICA DE CORS ---
 app.UseCors(MyAllowSpecificOrigins);
-// -----------------------------
 
 app.UseAuthentication();
 app.UseAuthorization();

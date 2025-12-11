@@ -8,15 +8,12 @@ namespace DEFIANTS.Shared.Clients;
 
 public interface IApiClient
 {
-    #region Auth
     [Post("/api/auth/register")]
     Task Register([Body] RegisterDto registerDto);
 
     [Post("/api/auth/login")]
     Task<LoginResultDto> Login([Body] LoginDto loginDto);
-    #endregion
 
-    #region Juegos
     [Get("/api/juegos")]
     Task<List<JuegoDto>> GetJuegos();
 
@@ -31,9 +28,7 @@ public interface IApiClient
 
     [Delete("/api/admin/juegos/{id}")]
     Task EliminarJuego(int id);
-    #endregion
 
-    #region PerfilesJuego
     [Get("/api/perfilesjuego/misperfiles")]
     Task<List<PerfilJuegoDto>> GetMisPerfilesJuego();
 
@@ -43,11 +38,9 @@ public interface IApiClient
     [Put("/api/perfilesjuego/{id}")]
     Task ActualizarPerfilJuego(int id, [Body] ActualizarPerfilJuegoDto perfilDto);
 
-    [Delete("/api/perfilesjuego/{id}")] // <-- AÑADIDO
-    Task EliminarPerfilJuego(int id); // <-- AÑADIDO
-    #endregion
+    [Delete("/api/perfilesjuego/{id}")]
+    Task EliminarPerfilJuego(int id);
 
-    #region Equipos
     [Get("/api/equipos")]
     Task<List<EquipoResumenDto>> GetEquipos();
 
@@ -74,9 +67,7 @@ public interface IApiClient
 
     [Delete("/api/equipos/{id}")]
     Task DisolverEquipo(int id);
-    #endregion
 
-    #region Torneos
     [Get("/api/torneos")]
     Task<List<TorneoResumenDto>> GetTorneos();
 
@@ -109,9 +100,7 @@ public interface IApiClient
 
     [Post("/api/torneos/partidos/{partidoId}/victoria")]
     Task ReportarVictoria(int partidoId, [Body] int ganadorId);
-    #endregion
 
-    #region Partidos
     [Get("/api/partidos")]
     Task<List<PartidoDto>> GetPartidos();
 
@@ -123,9 +112,7 @@ public interface IApiClient
 
     [Put("/api/partidos/{id}")]
     Task CorregirPartido(int id, [Body] CorregirPartidoDto partidoDto);
-    #endregion
 
-    #region Admin
     [Get("/api/admin/users")]
     Task<List<UsuarioDto>> GetUsers();
 
@@ -137,5 +124,4 @@ public interface IApiClient
 
     [Delete("/api/admin/users/{id}/roles/{roleName}")]
     Task RemoveRoleFromUser(string id, string roleName);
-    #endregion
 }

@@ -35,8 +35,8 @@ public class PerfilesJuegoController : ControllerBase
                 Id = p.Id,
                 JuegoId = p.JuegoId,
                 JuegoNombre = p.Juego.Nombre,
-                JuegoLogoUrl = p.Juego.LogoUrl, // <-- AÑADIDO
-                JuegoTieneSistemaElo = p.Juego.TieneSistemaElo, // <-- AÑADIDO
+                JuegoLogoUrl = p.Juego.LogoUrl, 
+                JuegoTieneSistemaElo = p.Juego.TieneSistemaElo, 
                 NicknameInGame = p.NicknameInGame,
                 Elo = p.Elo
             })
@@ -76,8 +76,8 @@ public class PerfilesJuegoController : ControllerBase
             Id = nuevoPerfil.Id,
             JuegoId = nuevoPerfil.JuegoId,
             JuegoNombre = juego?.Nombre ?? "Desconocido",
-            JuegoLogoUrl = juego?.LogoUrl, // <-- AÑADIDO
-            JuegoTieneSistemaElo = juego?.TieneSistemaElo ?? false, // <-- AÑADIDO
+            JuegoLogoUrl = juego?.LogoUrl, 
+            JuegoTieneSistemaElo = juego?.TieneSistemaElo ?? false, 
             NicknameInGame = nuevoPerfil.NicknameInGame,
             Elo = nuevoPerfil.Elo
         };
@@ -108,7 +108,6 @@ public class PerfilesJuegoController : ControllerBase
         return NoContent();
     }
 
-    // --- NUEVO MÉTODO ---
     [HttpDelete("{id}")]
     public async Task<IActionResult> EliminarPerfilJuego(int id)
     {
