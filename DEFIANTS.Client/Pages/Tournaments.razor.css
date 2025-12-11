@@ -7,8 +7,6 @@
     --text-muted: #888;
     --gold: #ffd57a;
 
-    min-height: 100vh;
-    background-color: var(--void-black);
     color: white;
     font-family: 'JetBrains Mono', monospace;
     background-image:

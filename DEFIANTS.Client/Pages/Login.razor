@@ -8,44 +8,38 @@
 
 <PageTitle>Iniciar Sesión</PageTitle>
 
-<!-- NOTA: Estos <link> deberían moverse al index.html para no cargarlos en cada página -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<div class="auth-container">
+    <div class="auth-card">
 
-<div class="login-container">
-    <div class="login-card">
-
-        <!-- Encabezado con logo (se mantiene intacto) -->
-        <div class="login-header">
-            <img src="/logo.png" alt="Logo" width="60" />
-            <h2>Iniciar sesión</h2>
+        <div class="auth-header">
+            <img src="/logo.png" alt="DEFIANTS Logo" />
+            <h2>Iniciar Sesión</h2>
         </div>
 
-        <EditForm Model="@loginDto" OnValidSubmit="HandleLogin" class="login-form">
+        <EditForm Model="@loginDto" OnValidSubmit="HandleLogin" class="auth-form">
             <DataAnnotationsValidator />
 
             @if (!string.IsNullOrEmpty(errorMessage))
             {
-                <div class="login-error-message">@errorMessage</div>
+                <div class="auth-error-message">@errorMessage</div>
             }
 
             <InputText
                 @bind-Value="loginDto.Username"
-                placeholder="Gamertag"
-                class="login-input-field"
+                placeholder="Gametag"
+                class="auth-input"
                 @oninput="@(() => errorMessage = null)" />
             <ValidationMessage For="@(() => loginDto.Username)" />
 
-            <!-- Componente InputText con la clase CSS para tus estilos -->
             <InputText
                 @bind-Value="loginDto.Password"
                 type="password"
                 placeholder="Contraseña"
-                class="login-input-field"
+                class="auth-input"
                 @oninput="@(() => errorMessage = null)" />
             <ValidationMessage For="@(() => loginDto.Password)" />
 
-            <button type="submit" class="login-submit-button" disabled="@isSubmitting">
+            <button type="submit" class="auth-submit" disabled="@isSubmitting">
                 @if (isSubmitting)
                 {
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -53,12 +47,12 @@
                 }
                 else
                 {
-                    <span>Iniciar sesión</span>
+                    <span>Entrar</span>
                 }
             </button>
         </EditForm>
 
-        <p class="registro">
+        <p class="auth-switch">
             ¿No tienes una cuenta?
             <a href="/registro">Regístrate aquí</a>
         </p>
@@ -70,11 +64,6 @@
     private string? errorMessage;
     private bool isSubmitting = false;
 
-    protected override void OnInitialized()
-    {
-        // No hay lógica de returnUrl aquí
-    }
-
     private async Task HandleLogin()
     {
         isSubmitting = true;
@@ -84,17 +73,17 @@
         {
             var result = await ApiClient.Login(loginDto);
             await LocalStorage.SetItemAsync("authToken", result.Token);
-
-            // Redirigir siempre al inicio
+            
+            // Forzar recarga para que el estado de autenticación se actualice en toda la app
             Navigation.NavigateTo("/", forceLoad: true);
         }
         catch (ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
-            errorMessage = "Nombre de usuario o contraseña incorrectos.";
+            errorMessage = "Gametag o contraseña incorrectos.";
         }
         catch (Exception)
         {
-            errorMessage = "Ocurrió un error de conexión. Por favor, intenta de nuevo.";
+            errorMessage = "Error de conexión. Inténtalo de nuevo.";
         }
         finally
         {

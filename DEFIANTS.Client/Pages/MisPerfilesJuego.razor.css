@@ -1,0 +1,174 @@
+﻿/* === ESTADOS DE CARGA Y VACÍO === */
+.loading-state, .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    margin-top: 20px;
+}
+
+.empty-state h3 {
+    font-family: 'Anton', sans-serif;
+    text-transform: uppercase;
+    color: var(--defiant-red);
+}
+
+/* === FORMULARIO DE CREACIÓN === */
+.creation-form {
+    padding: 25px;
+    margin-bottom: 30px;
+    border-left: 3px solid var(--defiant-red);
+}
+
+.creation-form .form-title {
+    font-family: 'Anton', sans-serif;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    font-family: 'Anton', sans-serif;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+/* === GRID DE PERFILES === */
+.profiles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+/* === TARJETA DE PERFIL === */
+.profile-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.profile-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.profile-card.editing {
+    border-color: var(--defiant-red);
+    box-shadow: 0 0 15px rgba(230, 32, 32, 0.2);
+}
+
+/* --- Header de la tarjeta --- */
+.profile-card .card-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.game-logo {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+}
+
+.game-info .game-name {
+    font-family: 'Anton', sans-serif;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    display: block;
+    line-height: 1;
+}
+
+.elo-badge {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* --- Cuerpo de la tarjeta --- */
+.profile-card .card-body {
+    padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nickname {
+    font-family: 'Anton', sans-serif;
+    font-size: 2rem;
+    color: var(--text-white);
+    text-align: center;
+    line-height: 1.1;
+    word-break: break-all;
+}
+
+.edit-mode .auth-input {
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+/* --- Footer de la tarjeta --- */
+.profile-card .card-footer {
+    padding: 10px;
+    background-color: rgba(0,0,0,0.2);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn-action-sm {
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--text-muted);
+    width: 40px;
+    height: 35px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-action-sm:hover {
+    color: var(--text-white);
+    border-color: var(--text-white);
+}
+
+.btn-action-sm.danger:hover {
+    color: var(--defiant-red);
+    border-color: var(--defiant-red);
+}
+
+.btn-action-sm.success:hover {
+    color: #00ff00;
+    border-color: #00ff00;
+}
+
+/* === Clases de notificación reutilizadas de Auth.css === */
+.auth-success-message, .auth-error-message {
+    padding: 15px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.auth-success-message {
+    background-color: rgba(0, 255, 0, 0.1);
+    border: 1px solid #00ff00;
+    color: var(--text-white);
+}
+
+.auth-error-message {
+    background-color: rgba(230, 32, 32, 0.1);
+    border: 1px solid var(--defiant-red);
+    color: var(--text-white);
+}
+.text-red { color: var(--defiant-red); }
+.mb-4 { margin-bottom: 1.5rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-3 { margin-top: 1rem; }
+.row { display: flex; flex-wrap: wrap; margin: 0 -15px; }
+.col-md-6 { flex: 0 0 50%; max-width: 50%; padding: 0 15px; }

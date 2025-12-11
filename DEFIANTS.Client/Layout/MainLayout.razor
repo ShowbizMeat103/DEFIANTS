@@ -24,7 +24,11 @@
             <nav class="nav-links">
                 <a href="/tournaments" class="nav-item">Torneos</a>
                 <a href="/cuenta/dashboard" class="nav-item">Dashboard</a>
+                <a href="/mis-perfiles-juego" class="nav-item">Mis Perfiles</a>
                 <a href="/noticias" class="nav-item">Noticias</a>
+                <AuthorizeView Roles="Admin">
+                    <a href="/admin/crear-juego" class="nav-item">Admin</a>
+                </AuthorizeView>
             </nav>
 
             <div class="nav-user">

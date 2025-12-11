@@ -11,32 +11,69 @@
 
 <PageTitle>Mi Perfil</PageTitle>
 
-<h1>Perfil de Usuario</h1>
+<div class="profile-page-container">
+    <AuthorizeView>
+        <Authorized>
+            <!-- PROFILE HEADER -->
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <img src="/logo.png" alt="User Avatar" />
+                </div>
+                <div class="profile-header-info">
+                    <h1 class="profile-gamertag">@context.User.Identity?.Name</h1>
+                    <p class="profile-email">@context.User.FindFirst(c => c.Type == ClaimTypes.Email)?.Value</p>
+                    <span class="profile-role-badge">@context.User.FindFirst(c => c.Type == ClaimTypes.Role)?.Value</span>
+                </div>
+            </div>
 
-<AuthorizeView>
-    <Authorized>
-        <div class="profile-container">
-            <div class="profile-avatar">
-                <img src="https://via.placeholder.com/150" alt="User Avatar" />
+            <!-- PROFILE CONTENT GRID -->
+            <div class="profile-grid">
+                <!-- Columna de Acciones -->
+                <div class="profile-section">
+                    <h2 class="section-title">Acciones Rápidas</h2>
+                    <div class="dashboard-card">
+                        <p>Gestiona tu cuenta y tus preferencias.</p>
+                        <button class="btn-action" @onclick="Logout">Cerrar Sesión</button>
+                    </div>
+                </div>
+
+                <!-- Columna de Estadísticas (Ejemplo) -->
+                <div class="profile-section">
+                    <h2 class="section-title">Estadísticas Globales</h2>
+                    <div class="dashboard-card">
+                        <div class="data-row">
+                            <span class="label">Torneos Jugados</span>
+                            <span class="value">12</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="label">Partidas Ganadas</span>
+                            <span class="value">84</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="label">Ratio K/D</span>
+                            <span class="value">1.25</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="profile-info">
-                <h2>@context.User.Identity?.Name</h2>
-                <p><strong>Email:</strong> @(context.User.FindFirst(c => c.Type == ClaimTypes.Email)?.Value)</p>
-                <p><strong>Rol:</strong> @(context.User.FindFirst(c => c.Type == ClaimTypes.Role)?.Value)</p>
-                <button class="btn btn-danger mt-3" @onclick="Logout">Cerrar Sesión</button>
+        </Authorized>
+        <NotAuthorized>
+            <div class="dashboard-card">
+                <p>Debes iniciar sesión para ver tu perfil.</p>
+                <a href="/login" class="btn-action">Iniciar Sesión</a>
             </div>
-        </div>
-    </Authorized>
-    <NotAuthorized>
-        <p>Debes iniciar sesión para ver tu perfil.</p>
-    </NotAuthorized>
-</AuthorizeView>
+        </NotAuthorized>
+    </AuthorizeView>
+</div>
 
 @code {
     private async Task Logout()
     {
         await LocalStorage.RemoveItemAsync("authToken");
-        ((CustomAuthenticationStateProvider)AuthenticationStateProvider).MarkUserAsLoggedOut();
-        NavigationManager.NavigateTo("/");
+        if (AuthenticationStateProvider is CustomAuthenticationStateProvider customProvider)
+        {
+            customProvider.MarkUserAsLoggedOut();
+        }
+        NavigationManager.NavigateTo("/", forceLoad: true);
     }
 }

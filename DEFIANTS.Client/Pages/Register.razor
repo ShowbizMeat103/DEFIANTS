@@ -7,25 +7,20 @@
 
 <PageTitle>Crear Cuenta</PageTitle>
 
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-
-<a class="back-button" href="/">Atrás</a>
-
-<div class="login-container">
-    <div class="login-card register-card">
-        <div class="login-header">
-            <img src="/logo.png" alt="Logo" width="60" />
-            <h2>Crear cuenta</h2>
-            <p class="login-subtitle">Únete a la experiencia DEFIANTS</p>
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <img src="/logo.png" alt="DEFIANTS Logo" />
+            <h2>Crear Cuenta</h2>
+            <p class="auth-subtitle">Únete a la arena de DEFIANTS.</p>
         </div>
 
-        <EditForm Model="@registerDto" OnValidSubmit="HandleRegistration" class="register-form">
+        <EditForm Model="@registerDto" OnValidSubmit="HandleRegistration" class="auth-form">
             <DataAnnotationsValidator />
 
             @if (errorMessages.Any())
             {
-                <div class="login-error-message">
+                <div class="auth-error-message">
                     <ul>
                         @foreach (var error in errorMessages)
                         {
@@ -36,34 +31,34 @@
             }
             @if (isSuccess)
             {
-                <div class="login-success-message">
-                    ¡Registro exitoso! Serás redirigido al login en 3 segundos...
+                <div class="auth-success-message">
+                    ¡Registro exitoso! Serás redirigido al login...
                 </div>
             }
 
-            <InputText @bind-Value="registerDto.Username" placeholder="Gametag" class="register-input-field" />
+            <InputText @bind-Value="registerDto.Username" placeholder="Gametag" class="auth-input" />
             <ValidationMessage For="@(() => registerDto.Username)" />
 
-            <InputText @bind-Value="registerDto.Email" type="email" placeholder="Correo electrónico" class="register-input-field" />
+            <InputText @bind-Value="registerDto.Email" type="email" placeholder="Correo electrónico" class="auth-input" />
             <ValidationMessage For="@(() => registerDto.Email)" />
 
-            <InputText @bind-Value="registerDto.Password" type="password" placeholder="Contraseña" class="register-input-field" />
+            <InputText @bind-Value="registerDto.Password" type="password" placeholder="Contraseña" class="auth-input" />
             <ValidationMessage For="@(() => registerDto.Password)" />
 
-            <button type="submit" class="register-submit-button" disabled="@isSubmitting">
+            <button type="submit" class="auth-submit" disabled="@isSubmitting">
                 @if (isSubmitting)
                 {
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    <span> Registrando...</span>
+                    <span> Creando cuenta...</span>
                 }
                 else
                 {
-                    <span>Registrarme</span>
+                    <span>Registrarse</span>
                 }
             </button>
         </EditForm>
 
-        <p class="switch-auth">
+        <p class="auth-switch">
             ¿Ya tienes una cuenta?
             <a href="/login">Inicia sesión aquí</a>
         </p>
@@ -81,11 +76,13 @@
         isSubmitting = true;
         errorMessages.Clear();
         isSuccess = false;
+        StateHasChanged();
 
         try
         {
             await ApiClient.Register(registerDto);
             isSuccess = true;
+            StateHasChanged();
 
             await Task.Delay(3000);
             Navigation.NavigateTo("/login");
@@ -105,7 +102,6 @@
                     {
                         errorMessages.Add("Ocurrió un error con los datos enviados.");
                     }
-
                     break;
                 }
                 case System.Net.HttpStatusCode.Conflict:
@@ -123,6 +119,7 @@
         finally
         {
             isSubmitting = false;
+            StateHasChanged();
         }
     }
 }

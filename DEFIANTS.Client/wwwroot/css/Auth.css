@@ -1,0 +1,147 @@
+﻿/* =================================== */
+/*  ESTILOS PARA LOGIN Y REGISTRO    */
+/* =================================== */
+
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh; /* Ocupa casi toda la pantalla pero deja espacio */
+    padding: 20px;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    background-color: var(--card-bg, rgba(20, 20, 20, 0.85));
+    border: 1px solid var(--card-border, rgba(255, 255, 255, 0.1));
+    padding: 30px 35px;
+    animation: fadeUp 0.5s ease-out forwards;
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.auth-header img {
+    width: 70px;
+    margin-bottom: 15px;
+}
+
+.auth-header h2 {
+    font-family: 'Anton', sans-serif;
+    font-size: 2rem;
+    text-transform: uppercase;
+    color: var(--text-white, #FFFFFF);
+    margin: 0;
+}
+
+.auth-header .auth-subtitle {
+    color: var(--text-muted, #888);
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
+
+/* --- FORMULARIO --- */
+.auth-form .validation-message {
+    color: var(--defiant-red, #E62020);
+    font-size: 0.8rem;
+    margin-top: -10px;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.auth-input {
+    width: 100%;
+    background-color: var(--void-black, #0A0A0A);
+    border: 1px solid var(--card-border, rgba(255, 255, 255, 0.1));
+    color: var(--text-white, #FFFFFF);
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.auth-input:focus {
+    outline: none;
+    border-color: var(--defiant-red, #E62020);
+    box-shadow: 0 0 10px rgba(230, 32, 32, 0.2);
+}
+
+.auth-submit {
+    width: 100%;
+    padding: 12px;
+    font-family: 'Anton', sans-serif;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    background-color: var(--defiant-red, #E62020);
+    color: var(--text-black, #000000);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 10px;
+}
+
+.auth-submit:hover:not(:disabled) {
+    background-color: var(--text-white, #FFFFFF);
+    color: var(--text-black, #000000);
+}
+
+.auth-submit:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+}
+
+/* --- MENSAJES DE ERROR/ÉXITO --- */
+.auth-error-message, .auth-success-message {
+    padding: 10px;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.auth-error-message {
+    background-color: rgba(230, 32, 32, 0.1);
+    border: 1px solid var(--defiant-red, #E62020);
+    color: var(--text-white, #FFFFFF);
+}
+
+.auth-error-message ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.auth-success-message {
+    background-color: rgba(0, 255, 0, 0.1);
+    border: 1px solid #00ff00;
+    color: var(--text-white, #FFFFFF);
+}
+
+
+/* --- ENLACE INFERIOR --- */
+.auth-switch {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 0.9rem;
+    color: var(--text-muted, #888);
+}
+
+.auth-switch a {
+    color: var(--defiant-red, #E62020);
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.2s;
+}
+
+.auth-switch a:hover {
+    color: var(--text-white, #FFFFFF);
+    text-decoration: underline;
+}
