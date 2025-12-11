@@ -1,0 +1,181 @@
+@hostname = http://localhost
+@port = 5031
+@run_id = {{$random.integer}}
+
+# --- 1. ADMIN Y TORNEO ---
+POST {{hostname}}:{{port}}/api/auth/login
+Content-Type: application/json
+
+{ "username": "Sartox5", "password": "Jdum2508!" }
+
+> {% client.global.set("admin_token", response.body.token); %}
+
+### Crear Torneo
+POST {{hostname}}:{{port}}/api/torneos
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "titulo": "Torneo Test {{run_id}}",
+  "juegoId": 1,
+  "maxEquipos": 4,
+  "precioInscripcion": 0,
+  "prizePool": 1000,
+  "fechaInicio": "2025-12-25T12:00:00Z"
+}
+
+> {% client.global.set("tournament_id", response.body.id); %}
+
+
+# --- JUGADOR 1 ---
+### Registrar User 1
+POST {{hostname}}:{{port}}/api/auth/register
+Content-Type: application/json
+
+{ "username": "User1_{{run_id}}", "email": "u1_{{run_id}}@test.com", "password": "Password123!" }
+
+### Login User 1
+POST {{hostname}}:{{port}}/api/auth/login
+Content-Type: application/json
+
+{ "username": "User1_{{run_id}}", "password": "Password123!" }
+
+> {% client.global.set("token_p1", response.body.token); %}
+
+### Crear Perfil User 1 (ESTO FALTABA)
+POST {{hostname}}:{{port}}/api/perfilesjuego
+Authorization: Bearer {{token_p1}}
+Content-Type: application/json
+
+{ "juegoId": 1, "nicknameInGame": "Pro1_{{run_id}}", "elo": 1000 }
+
+### Crear Equipo 1
+POST {{hostname}}:{{port}}/api/equipos
+Authorization: Bearer {{token_p1}}
+Content-Type: application/json
+
+{ "nombre": "Team One {{run_id}}", "juegoId": 1 }
+
+> {% client.global.set("team_id_1", response.body.id); %}
+
+### Inscribir Equipo 1
+POST {{hostname}}:{{port}}/api/torneos/{{tournament_id}}/inscripciones
+Authorization: Bearer {{token_p1}}
+Content-Type: application/json
+
+{ "equipoId": {{team_id_1}} }
+
+
+
+### Registrar User 2
+POST {{hostname}}:{{port}}/api/auth/register
+Content-Type: application/json
+
+{ "username": "User2_{{run_id}}", "email": "u2_{{run_id}}@test.com", "password": "Password123!" }
+
+### Login User 2
+POST {{hostname}}:{{port}}/api/auth/login
+Content-Type: application/json
+
+{ "username": "User2_{{run_id}}", "password": "Password123!" }
+
+> {% client.global.set("token_p2", response.body.token); %}
+
+### Crear Perfil User 2
+POST {{hostname}}:{{port}}/api/perfilesjuego
+Authorization: Bearer {{token_p2}}
+Content-Type: application/json
+
+{ "juegoId": 1, "nicknameInGame": "Pro2_{{run_id}}", "elo": 1200 }
+
+### Crear Equipo 2
+POST {{hostname}}:{{port}}/api/equipos
+Authorization: Bearer {{token_p2}}
+Content-Type: application/json
+
+{ "nombre": "Team Two {{run_id}}", "juegoId": 1 }
+
+> {% client.global.set("team_id_2", response.body.id); %}
+
+### Inscribir Equipo 2
+POST {{hostname}}:{{port}}/api/torneos/{{tournament_id}}/inscripciones
+Authorization: Bearer {{token_p2}}
+Content-Type: application/json
+
+{ "equipoId": {{team_id_2}} }
+
+
+### Registrar User 3
+POST {{hostname}}:{{port}}/api/auth/register
+Content-Type: application/json
+
+{ "username": "User3_{{run_id}}", "email": "u3_{{run_id}}@test.com", "password": "Password123!" }
+
+### Login User 3
+POST {{hostname}}:{{port}}/api/auth/login
+Content-Type: application/json
+
+{ "username": "User3_{{run_id}}", "password": "Password123!" }
+
+> {% client.global.set("token_p3", response.body.token); %}
+
+### Crear Perfil User 3
+POST {{hostname}}:{{port}}/api/perfilesjuego
+Authorization: Bearer {{token_p3}}
+Content-Type: application/json
+
+{ "juegoId": 1, "nicknameInGame": "Pro3_{{run_id}}", "elo": 1100 }
+
+### Crear Equipo 3
+POST {{hostname}}:{{port}}/api/equipos
+Authorization: Bearer {{token_p3}}
+Content-Type: application/json
+
+{ "nombre": "Team Three {{run_id}}", "juegoId": 1 }
+
+> {% client.global.set("team_id_3", response.body.id); %}
+
+### Inscribir Equipo 3
+POST {{hostname}}:{{port}}/api/torneos/{{tournament_id}}/inscripciones
+Authorization: Bearer {{token_p3}}
+Content-Type: application/json
+
+{ "equipoId": {{team_id_3}} }
+
+
+### Registrar User 4
+POST {{hostname}}:{{port}}/api/auth/register
+Content-Type: application/json
+
+{ "username": "User4_{{run_id}}", "email": "u4_{{run_id}}@test.com", "password": "Password123!" }
+
+### Login User 4
+POST {{hostname}}:{{port}}/api/auth/login
+Content-Type: application/json
+
+{ "username": "User4_{{run_id}}", "password": "Password123!" }
+
+> {% client.global.set("token_p4", response.body.token); %}
+
+### Crear Perfil User 4
+POST {{hostname}}:{{port}}/api/perfilesjuego
+Authorization: Bearer {{token_p4}}
+Content-Type: application/json
+
+{ "juegoId": 1, "nicknameInGame": "Pro4_{{run_id}}", "elo": 1300 }
+
+### Crear Equipo 4
+POST {{hostname}}:{{port}}/api/equipos
+Authorization: Bearer {{token_p4}}
+Content-Type: application/json
+
+{ "nombre": "Team Four {{run_id}}", "juegoId": 1 }
+
+> {% client.global.set("team_id_4", response.body.id); %}
+
+### Inscribir Equipo 4
+POST {{hostname}}:{{port}}/api/torneos/{{tournament_id}}/inscripciones
+Authorization: Bearer {{token_p4}}
+Content-Type: application/json
+
+{ "equipoId": {{team_id_4}} }

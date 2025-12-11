@@ -7,165 +7,253 @@
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-<div class="torneo-detail-container">
-    @if (isLoading)
-    {
-        <div class="loading">Cargando torneo...</div>
-    }
-    else if (!string.IsNullOrEmpty(error))
-    {
-        <div class="error">Error: @error</div>
-        <button class="btn" @onclick="GoBack">Volver</button>
-    }
-    else if (torneo is null)
-    {
-        <div>No se encontró el torneo.</div>
-        <button class="btn" @onclick="GoBack">Volver</button>
-    }
-    else
-    {
-        <!-- HEADER -->
-        <div class="header">
-            <div>
-                <h2>@torneo.Titulo</h2>
-                <div class="meta">
-                    <span><strong>Juego:</strong> @torneo.JuegoNombre</span>
-                    <span><strong>Fecha:</strong> @torneo.FechaInicio.ToString("dd/MM/yyyy")</span>
-                    <span><strong>Premio:</strong> @torneo.PrizePool.ToString("C")</span>
-                </div>
+<!-- Fuentes (por si no están en el layout principal) -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+<div class="dashboard-layout">
+    <div class="container">
+        @if (isLoading)
+        {
+            <div class="loading-screen">
+                <div class="spinner-border text-danger" role="status"></div>
+                <p>/// ACCEDIENDO A DATOS DEL TORNEO...</p>
             </div>
-            <span class="status @torneo.Status.ToLower()">@torneo.Status</span>
-        </div>
+        }
+        else if (!string.IsNullOrEmpty(error))
+        {
+            <div class="error-screen">
+                <i class="fas fa-exclamation-triangle fa-3x mb-3 text-danger"></i>
+                <h3>ERROR DE SISTEMA</h3>
+                <p>@error</p>
+                <button class="btn-ghost" @onclick="GoBack">VOLVER A BASE</button>
+            </div>
+        }
+        else if (torneo is null)
+        {
+            <div class="error-screen">
+                <h3>404 // TORNEO NO ENCONTRADO</h3>
+                <button class="btn-ghost" @onclick="GoBack">VOLVER A BASE</button>
+            </div>
+        }
+        else
+        {
+            <!-- HEADER -->
+            <header class="tournament-header">
+                <div class="header-top">
+                    <p class="system-status">/// SYSTEM_TRACKING /// ID: @id.ToString("D4")</p>
+                    <button class="btn-back" @onclick="GoBack"><i class="fas fa-arrow-left"></i> VOLVER</button>
+                </div>
 
-        <!-- PESTAÑAS DE NAVEGACIÓN -->
-        <div class="tabs">
-            <button class="@GetTabClass("bracket")" @onclick='() => SetTab("bracket")'>Bracket</button>
-            <button class="@GetTabClass("equipos")" @onclick='() => SetTab("equipos")'>Equipos (@torneo.Inscripciones.Count/@torneo.MaxEquipos)</button>
-            <button class="@GetTabClass("info")" @onclick='() => SetTab("info")'>Información</button>
-        </div>
+                <div class="title-row">
+                    <h1>@torneo.Titulo.ToUpper()</h1>
+                    <span class="status-badge @torneo.Status.ToLower()">
+                        <i class="fas fa-circle status-dot"></i> @torneo.Status.ToUpper()
+                    </span>
+                </div>
 
-        <!-- CONTENIDO DE LAS PESTAÑAS -->
-        <div class="tab-content">
-            @if (activeTab == "bracket")
-            {
-                <h3>Bracket del Torneo</h3>
-                @if (esCreadorOAdmin)
-                {
-                    <p class="admin-hint"><small>💡 Haz clic en un partido activo para reportar el ganador.</small></p>
-                }
+                <!-- STATS STRIP -->
+                <div class="stats-strip">
+                    <div class="stat-item">
+                        <span class="label">JUEGO</span>
+                        <span class="value">@torneo.JuegoNombre?.ToUpper()</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">INICIO</span>
+                        <span class="value">@torneo.FechaInicio.ToString("dd MMM yyyy").ToUpper()</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">PRIZE POOL</span>
+                        <span class="value text-gold">@torneo.PrizePool.ToString("C0")</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">INSCRITOS</span>
+                        <span class="value">@torneo.Inscripciones.Count / @torneo.MaxEquipos</span>
+                    </div>
+                </div>
+            </header>
 
-                @if (torneo.Partidos == null || !torneo.Partidos.Any())
-                {
-                    <div class="empty">No hay partidos generados para este torneo.</div>
-                }
-                else
-                {
-                    <div class="bracket">
-                        @foreach (var rondaGroup in Rondas)
-                        {
-                            <div class="round">
-                                <div class="round-header">Ronda @rondaGroup.Key</div>
-                                <div class="matches">
-                                    @foreach (var partido in rondaGroup.OrderBy(p => p.IndicePartido))
-                                    {
-                                        <!-- Hacemos el partido clicable si es admin y el partido está jugable -->
-                                        <div class="match @(IsWinner(partido, partido.EquipoAId) ? "winner-a" : IsWinner(partido, partido.EquipoBId) ? "winner-b" : "") @(CanReport(partido) ? "clickable" : "")"
-                                             @onclick="() => OpenReportModal(partido)">
+            <!-- TABS & ACTIONS ROW -->
+            <div class="control-bar">
+                <div class="tabs">
+                    <button class="tab-btn @GetTabClass("bracket")" @onclick='() => SetTab("bracket")'>// BRACKET</button>
+                    <button class="tab-btn @GetTabClass("equipos")" @onclick='() => SetTab("equipos")'>// ESCUADRAS</button>
+                    <button class="tab-btn @GetTabClass("info")" @onclick='() => SetTab("info")'>// INTEL</button>
+                </div>
 
-                                            <div class="team team-a"><div class="team-name">@DisplayTeam(partido.EquipoANombre)</div></div>
-                                            <div class="vs">vs</div>
-                                            <div class="team team-b"><div class="team-name">@DisplayTeam(partido.EquipoBNombre)</div></div>
-                                            <div class="meta-match">@partido.Estado</div>
-                                        </div>
-                                    }
+                <!-- ACCIONES DE USUARIO/ADMIN -->
+                <AuthorizeView>
+                    <Authorized>
+                        <div class="actions-zone">
+                            @if (torneo.Status == "InscripcionesAbiertas" && equiposDelUsuarioParaInscribir.Any())
+                            {
+                                <div class="inscription-group">
+                                    <select @bind="equipoSeleccionadoParaInscribirId" class="form-select-custom">
+                                        <option value="0">-- SELECCIONAR UNIDAD --</option>
+                                        @foreach (var equipo in equiposDelUsuarioParaInscribir)
+                                        {
+                                            <option value="@equipo.Id">@equipo.Nombre</option>
+                                        }
+                                    </select>
+                                    <button class="btn-primary" @onclick="HandleInscribirEquipo" disabled="@(equipoSeleccionadoParaInscribirId == 0 || isSubmitting)">
+                                        @(isSubmitting ? "PROCESANDO..." : "INSCRIBIR")
+                                    </button>
                                 </div>
+                            }
+
+                            @if (esCreadorOAdmin)
+                            {
+                                <div class="admin-controls">
+                                    <span class="admin-label">ADMIN //</span>
+                                    @if (torneo.Status == "InscripcionesAbiertas")
+                                    {
+                                        <button class="btn-action start" @onclick="HandleIniciarTorneo" disabled="@isSubmitting">
+                                            <i class="fas fa-play"></i> INICIAR
+                                        </button>
+                                    }
+                                    <button class="btn-action cancel" @onclick="HandleCancelarTorneo" disabled="@isSubmitting">
+                                        <i class="fas fa-ban"></i> CANCELAR
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </Authorized>
+                </AuthorizeView>
+            </div>
+
+            <!-- CONTENIDO DE LAS PESTAÑAS -->
+            <div class="tab-content-area">
+                @if (activeTab == "bracket")
+                {
+                    <div class="bracket-container">
+                        @if (esCreadorOAdmin)
+                        {
+                            <div class="system-message">
+                                <i class="fas fa-info-circle"></i> MODO ADMIN: Selecciona un partido activo para reportar el resultado.
+                            </div>
+                        }
+
+                        @if (torneo.Partidos == null || !torneo.Partidos.Any())
+                        {
+                            <div class="empty-state">
+                                <i class="fas fa-network-wired"></i>
+                                <p>BRACKET AÚN NO GENERADO</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="bracket-scroll">
+                                @foreach (var rondaGroup in Rondas)
+                                {
+                                    <div class="round-column">
+                                        <div class="round-header">RONDA @rondaGroup.Key</div>
+                                        <div class="round-matches">
+                                            @foreach (var partido in rondaGroup.OrderBy(p => p.IndicePartido))
+                                            {
+                                                <div class="match-card @GetMatchStateClass(partido) @(CanReport(partido) ? "clickable" : "")"
+                                                     @onclick="() => OpenReportModal(partido)">
+
+                                                    <div class="match-id">#@partido.Id</div>
+
+                                                    <div class="match-team team-a @(IsWinner(partido, partido.EquipoAId) ? "winner" : "")">
+                                                        <span class="name">@DisplayTeam(partido.EquipoANombre)</span>
+                                                        @if(IsWinner(partido, partido.EquipoAId)) { <i class="fas fa-check text-success"></i> }
+                                                    </div>
+
+                                                    <div class="match-divider">VS</div>
+
+                                                    <div class="match-team team-b @(IsWinner(partido, partido.EquipoBId) ? "winner" : "")">
+                                                        <span class="name">@DisplayTeam(partido.EquipoBNombre)</span>
+                                                        @if(IsWinner(partido, partido.EquipoBId)) { <i class="fas fa-check text-success"></i> }
+                                                    </div>
+
+                                                    <div class="match-status">
+                                                        @partido.Estado.ToString().ToUpper()
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
                             </div>
                         }
                     </div>
                 }
-            }
-            else if (activeTab == "equipos")
-            {
-                <h3>Equipos Inscritos</h3>
-                @if (!torneo.Inscripciones.Any())
+                else if (activeTab == "equipos")
                 {
-                    <div class="empty">Aún no hay equipos inscritos.</div>
-                }
-                else
-                {
-                    <ul class="team-list">
-                        @foreach (var inscripcion in torneo.Inscripciones)
+                    <div class="dashboard-grid">
+                        @if (!torneo.Inscripciones.Any())
                         {
-                            <li>@inscripcion.NombreEquipo</li>
+                            <div class="empty-state">
+                                <p>SIN INSCRIPCIONES ACTIVAS</p>
+                            </div>
                         }
-                    </ul>
-                }
-            }
-            else if (activeTab == "info")
-            {
-                <h3>Información Adicional</h3>
-                <p><strong>Precio de Inscripción:</strong> @torneo.PrecioInscripcion.ToString("C")</p>
-                <p><strong>Máximo de Equipos:</strong> @torneo.MaxEquipos</p>
-            }
-        </div>
-
-        <!-- ZONA DE ACCIONES -->
-        <AuthorizeView>
-            <Authorized>
-                <div class="actions-zone">
-                    @if (torneo.Status == "InscripcionesAbiertas" && equiposDelUsuarioParaInscribir.Any())
-                    {
-                        <div class="inscription-form">
-                            <select @bind="equipoSeleccionadoParaInscribirId">
-                                <option value="0">-- Selecciona tu equipo --</option>
-                                @foreach (var equipo in equiposDelUsuarioParaInscribir)
-                                {
-                                    <option value="@equipo.Id">@equipo.Nombre</option>
-                                }
-                            </select>
-                            <button class="btn btn-primary" @onclick="HandleInscribirEquipo" disabled="@(equipoSeleccionadoParaInscribirId == 0 || isSubmitting)">
-                                @(isSubmitting ? "Inscribiendo..." : "Inscribir Equipo")
-                            </button>
-                        </div>
-                    }
-
-                    @if (esCreadorOAdmin)
-                    {
-                        <div class="admin-actions">
-                            <h4>Panel de Administrador</h4>
-                            @if (torneo.Status == "InscripcionesAbiertas")
+                        else
+                        {
+                            @foreach (var inscripcion in torneo.Inscripciones)
                             {
-                                <button class="btn btn-success" @onclick="HandleIniciarTorneo" disabled="@isSubmitting">Iniciar Torneo</button>
+                                <div class="dashboard-card team-entry">
+                                    <div class="team-icon"><i class="fas fa-users"></i></div>
+                                    <h3>@inscripcion.NombreEquipo</h3>
+                                    <span class="status-ok">CONFIRMADO</span>
+                                </div>
                             }
-                            <button class="btn btn-danger" @onclick="HandleCancelarTorneo" disabled="@isSubmitting">Cancelar Torneo</button>
+                        }
+                    </div>
+                }
+                else if (activeTab == "info")
+                {
+                    <div class="dashboard-card info-card">
+                        <h3><i class="fas fa-file-alt"></i> REGLAS Y DETALLES</h3>
+                        <div class="info-grid">
+                            <div class="info-row">
+                                <label>PRECIO DE INSCRIPCIÓN</label>
+                                <span>@torneo.PrecioInscripcion.ToString("C")</span>
+                            </div>
+                            <div class="info-row">
+                                <label>FORMATO</label>
+                                <span>ELIMINACIÓN DIRECTA (BO1)</span>
+                            </div>
+                            <div class="info-row">
+                                <label>CUPO MÁXIMO</label>
+                                <span>@torneo.MaxEquipos EQUIPOS</span>
+                            </div>
+                            <!-- Aquí podrías agregar una descripción larga si el DTO la tuviera -->
                         </div>
-                    }
-                </div>
-            </Authorized>
-        </AuthorizeView>
-
-        <!-- MODAL DE REPORTE DE RESULTADOS -->
-        @if (showReportModal && selectedPartido != null)
-        {
-            <div class="modal-backdrop">
-                <div class="modal-content">
-                    <h4>Reportar Resultado</h4>
-                    <p>Selecciona al ganador del partido:</p>
-                    <div class="modal-teams">
-                        <button class="btn btn-outline-primary" @onclick="() => ReportWinner(selectedPartido.EquipoAId!.Value)">
-                            @selectedPartido.EquipoANombre
-                        </button>
-                        <button class="btn btn-outline-primary" @onclick="() => ReportWinner(selectedPartido.EquipoBId!.Value)">
-                            @selectedPartido.EquipoBNombre
-                        </button>
                     </div>
-                    <div class="modal-actions">
-                        <button class="btn btn-secondary" @onclick="CloseReportModal">Cancelar</button>
-                    </div>
-                </div>
+                }
             </div>
+
+            <!-- MODAL DE REPORTE DE RESULTADOS -->
+            @if (showReportModal && selectedPartido != null)
+            {
+                <div class="modal-backdrop-custom">
+                    <div class="modal-custom">
+                        <div class="modal-header">
+                            <h4>/// REPORTE DE BATALLA</h4>
+                        </div>
+                        <div class="modal-body">
+                            <p>CONFIRMA EL EQUIPO VICTORIOSO:</p>
+                            <div class="versus-selection">
+                                <button class="btn-selection team-a" @onclick="() => ReportWinner(selectedPartido.EquipoAId!.Value)">
+                                    <span class="select-label">GANADOR</span>
+                                    <span class="select-name">@selectedPartido.EquipoANombre</span>
+                                </button>
+                                <div class="vs-text">VS</div>
+                                <button class="btn-selection team-b" @onclick="() => ReportWinner(selectedPartido.EquipoBId!.Value)">
+                                    <span class="select-label">GANADOR</span>
+                                    <span class="select-name">@selectedPartido.EquipoBNombre</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-ghost" @onclick="CloseReportModal">CANCELAR</button>
+                        </div>
+                    </div>
+                </div>
+            }
         }
-    }
+    </div>
 </div>
 
 @code {
@@ -230,6 +318,13 @@
     private string GetTabClass(string tabName) => activeTab == tabName ? "active" : "";
     private void SetTab(string tabName) => activeTab = tabName;
 
+    private string GetMatchStateClass(PartidoDto p)
+    {
+        if (p.Estado == EstadoPartido.Finalizado) return "finished";
+        if (p.Estado == EstadoPartido.EnJuego) return "live";
+        return "pending";
+    }
+
     private async Task HandleInscribirEquipo()
     {
         isSubmitting = true;
@@ -261,10 +356,14 @@
         try
         {
             await ApiClient.CancelarTorneo(id);
-            await OnParametersSetAsync();
+            // En lugar de recargar, navegamos fuera de la página.
+            Navigation.NavigateTo("/tournaments");
         }
-        catch (Exception ex) { error = ex.Message; }
-        finally { isSubmitting = false; }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+            isSubmitting = false; // Asegurarse de re-habilitar el botón en caso de error
+        }
     }
 
     // --- LÓGICA DE REPORTE DE RESULTADOS ---
@@ -316,7 +415,7 @@
 
     // ---------------------------------------
 
-    private string DisplayTeam(string? name) => string.IsNullOrWhiteSpace(name) ? "(pendiente)" : name;
+    private string DisplayTeam(string? name) => string.IsNullOrWhiteSpace(name) ? "TBD" : name;
     private bool IsWinner(PartidoDto p, int? equipoId) => equipoId.HasValue && p.EquipoGanadorId.HasValue && p.EquipoGanadorId.Value == equipoId.Value;
     private void GoBack() => Navigation.NavigateTo("/tournaments");
 }
